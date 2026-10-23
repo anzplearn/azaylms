@@ -1,0 +1,4 @@
+node_modules/
+cloudflared.exe
+CURRENT_PUBLIC_URL.txt
+.env
