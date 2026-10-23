@@ -881,7 +881,25 @@ app.post('/api/admin/clear-logs', (req, res) => {
 });
 
 const os = require('os');
+const https = require('https');
 const { spawn } = require('child_process');
+
+const RENDER_PUBLIC_URL = process.env.RENDER_EXTERNAL_URL || 'https://azaylms.onrender.com';
+
+// 24/7 Cloud Keep-Alive Self-Pinger (Prevents Render Free Tier from spinning down after 15 mins of inactivity)
+function startCloudKeepAliveLoop() {
+  const intervalMs = 10 * 60 * 1000; // Every 10 minutes
+  console.log(`[Keep-Alive] Activated 24/7 Cloud Keep-Alive pinger for ${RENDER_PUBLIC_URL} (every 10 mins)`);
+  setInterval(() => {
+    https
+      .get(`${RENDER_PUBLIC_URL}/api/ping`, res => {
+        console.log(`[Keep-Alive] Ping ${RENDER_PUBLIC_URL}/api/ping -> Status ${res.statusCode}`);
+      })
+      .on('error', err => {
+        console.warn(`[Keep-Alive] Ping warning: ${err.message}`);
+      });
+  }, intervalMs);
+}
 
 let currentCloudflarePublicUrl = null;
 let cloudflaredProcess = null;
@@ -948,7 +966,7 @@ app.get('/api/share-info', (req, res) => {
   res.json({
     localUrl: `http://localhost:${PORT}`,
     lanUrls: getLocalNetworkUrls(PORT),
-    publicHttpsUrl: currentCloudflarePublicUrl
+    publicHttpsUrl: currentCloudflarePublicUrl || RENDER_PUBLIC_URL
   });
 });
 
@@ -956,12 +974,14 @@ app.listen(PORT, '0.0.0.0', () => {
   const lanUrls = getLocalNetworkUrls(PORT);
   console.log(`====================================================`);
   console.log(`Allianz Ayudhya E-Learning LMS & AI Proctoring Server`);
-  console.log(`Local Access:   http://localhost:${PORT}`);
+  console.log(`Permanent Cloud URL: ${RENDER_PUBLIC_URL}`);
+  console.log(`Local Access:        http://localhost:${PORT}`);
   if (lanUrls.length > 0) {
-    console.log(`Team LAN Share: ${lanUrls.join(' , ')}`);
+    console.log(`Team LAN Share:      ${lanUrls.join(' , ')}`);
   }
   console.log(`====================================================`);
-  if (! process.env.RENDER && !process.env.RAILWAY_ENVIRONMENT && !process.env.FLY_APP_NAME) {
+  startCloudKeepAliveLoop();
+  if (!process.env.RENDER && !process.env.RAILWAY_ENVIRONMENT && !process.env.FLY_APP_NAME) {
     startEmbeddedCloudflareTunnel(PORT);
   }
 });
