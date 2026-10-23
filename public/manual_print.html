@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>คู่มือการใช้งานระบบ Allianz Ayudhya E-Learning (LMS) & AI Proctoring</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Sarabun', sans-serif;
+      color: #1e293b;
+      background: #ffffff;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .page {
+      width: 210mm;
+      height: 297mm;
+      padding: 16mm 18mm 16mm 18mm;
+      position: relative;
+      page-break-after: always;
+      overflow: hidden;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .page:last-child {
+      page-break-after: auto;
+    }
+    /* Cover Page Styling */
+    .cover-page {
+      padding: 0;
+      background: linear-gradient(150deg, #00205b 0%, #003781 55%, #00629B 100%);
+      color: #ffffff;
+    }
+    .cover-top-bar {
+      padding: 22mm 20mm 10mm 20mm;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .cover-logo-box {
+      background: #ffffff;
+      padding: 12px 22px;
+      border-radius: 14px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+    }
+    .cover-logo-box img {
+      height: 46px;
+      width: auto;
+      display: block;
+    }
+    .cover-badge {
+      background: rgba(56, 189, 248, 0.2);
+      border: 1px solid rgba(56, 189, 248, 0.5);
+      color: #bae6fd;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .cover-hero {
+      padding: 10mm 20mm 15mm 20mm;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .cover-subtitle-pill {
+      display: inline-block;
+      background: #0284c7;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 5px 14px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      width: fit-content;
+    }
+    .cover-title {
+      font-size: 36px;
+      font-weight: 800;
+      line-height: 1.22;
+      margin: 0 0 14px 0;
+      letter-spacing: -0.3px;
+    }
+    .cover-desc {
+      font-size: 16px;
+      color: #e0f2fe;
+      font-weight: 400;
+      max-width: 92%;
+      margin: 0 0 28px 0;
+      line-height: 1.6;
+    }
+    .cover-url-card {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1.5px solid rgba(255, 255, 255, 0.28);
+      border-radius: 16px;
+      padding: 18px 22px;
+      margin-bottom: 24px;
+    }
+    .cover-url-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #7dd3fc;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .cover-url-link {
+      font-size: 22px;
+      font-weight: 800;
+      color: #ffffff;
+      font-family: monospace;
+      text-decoration: none;
+    }
+    .cover-highlights-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .cover-highlight-item {
+      background: rgba(15, 23, 42, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    .cover-highlight-item h4 {
+      margin: 0 0 4px 0;
+      font-size: 13px;
+      color: #38bdf8;
+      font-weight: 700;
+    }
+    .cover-highlight-item p {
+      margin: 0;
+      font-size: 11.5px;
+      color: #cbd5e1;
+      line-height: 1.4;
+    }
+    .cover-footer {
+      background: #00153d;
+      padding: 12mm 20mm;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #94a3b8;
+      border-top: 4px solid #0284c7;
+    }
+
+    /* Inner Page Header & Footer */
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #003781;
+      margin-bottom: 14px;
+    }
+    .page-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .page-header-left img {
+      height: 26px;
+      width: auto;
+    }
+    .page-header-title {
+      font-weight: 800;
+      font-size: 13px;
+      color: #003781;
+    }
+    .page-header-tag {
+      font-size: 11px;
+      font-weight: 700;
+      color: #0284c7;
+      background: #e0f2fe;
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+    .page-footer {
+      padding-top: 8px;
+      border-top: 1px solid #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 10.5px;
+      color: #64748b;
+      margin-top: 10px;
+    }
+
+    /* Typography & Content Blocks */
+    h2.sec-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #00205b;
+      margin: 0 0 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sec-num {
+      background: #003781;
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 3px 9px;
+      border-radius: 6px;
+    }
+    h3.sub-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #003781;
+      margin: 10px 0 6px 0;
+    }
+    p {
+      margin: 0 0 8px 0;
+    }
+    .card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 10px;
+    }
+    .card-blue {
+      background: #f0f7ff;
+      border: 1px solid #bae6fd;
+      border-left: 4px solid #003781;
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 10px;
+    }
+    .card-amber {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-left: 4px solid #d97706;
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 10px;
+    }
+    .card-emerald {
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      border-left: 4px solid #059669;
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 10px;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 10px;
+      font-size: 11.5px;
+    }
+    th {
+      background: #003781;
+      color: #ffffff;
+      text-align: left;
+      padding: 7px 10px;
+      font-weight: 700;
+    }
+    td {
+      padding: 6.5px 10px;
+      border-bottom: 1px solid #e2e8f0;
+      vertical-align: top;
+    }
+    tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+    ul {
+      margin: 4px 0 8px 0;
+      padding-left: 18px;
+    }
+    li {
+      margin-bottom: 4px;
+    }
+    code {
+      font-family: monospace;
+      background: #e2e8f0;
+      color: #0f172a;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+    .step-flow-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin: 10px 0 14px 0;
+    }
+    .step-node {
+      flex: 1;
+      background: #003781;
+      color: #ffffff;
+      border-radius: 8px;
+      padding: 8px 6px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .step-node span {
+      display: block;
+      font-size: 10px;
+      color: #93c5fd;
+      font-weight: 400;
+      margin-top: 2px;
+    }
+    .badge-pass {
+      background: #d1fae5;
+      color: #065f46;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 10px;
+    }
+    .badge-warn {
+      background: #fef3c7;
+      color: #92400e;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 10px;
+    }
+    .badge-crit {
+      background: #ffe4e6;
+      color: #9f1239;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================================================================== -->
+  <!-- PAGE 1: COVER PAGE                                                    -->
+  <!-- ===================================================================== -->
+  <div class="page cover-page">
+    <div class="cover-top-bar">
+      <div class="cover-logo-box">
+        <img src="allianz-logo.webp" alt="Allianz Ayudhya" />
+      </div>
+      <div class="cover-badge">OFFICIAL SYSTEM MANUAL & FEATURE GUIDE</div>
+    </div>
+
+    <div class="cover-hero">
+      <div class="cover-subtitle-pill">มาตรฐานการอบรมออนไลน์ คปภ. (หลักสูตรขอรับ/ขอต่อใบอนุญาตฯ ครั้ง 1–3)</div>
+      <h1 class="cover-title">คู่มือการใช้งานและแนะนำคุณสมบัติ<br/>ระบบ E-Learning (LMS) &<br/>AI Face Proctoring</h1>
+      <p class="cover-desc">
+        ระบบบริหารจัดการการลงทะเบียน ยืนยันตัวตนด้วยปัญญาประดิษฐ์ (Real AI e-KYC 3 ขั้นตอน) และระบบควบคุมการอบรม/การสอบอัตโนมัติแบบโปร่งใส ปราศจากการทุจริต สำหรับ อลิอันซ์ อยุธยา (Allianz Ayudhya)
+      </p>
+
+      <div class="cover-url-card">
+        <div class="cover-url-label">🌐 ลิงก์เข้าใช้งานระบบถาวรบนอินเทอร์เน็ต (Permanent Cloud HTTPS — Online 24/7)</div>
+        <a href="https://azaylms.onrender.com" class="cover-url-link">https://azaylms.onrender.com</a>
+        <div style="font-size: 12px; color: #bae6fd; margin-top: 6px;">
+          ✓ คลิกเข้าใช้งานได้ทันทีโดยไม่ต้องใส่รหัสผ่าน &nbsp;|&nbsp; ✓ รองรับ PC, Mac, iPad, iPhone และ Android &nbsp;|&nbsp; ✓ ระบบ Keep-Alive ตื่นตัวตลอด 24 ชม.
+        </div>
+      </div>
+
+      <div class="cover-highlights-grid">
+        <div class="cover-highlight-item">
+          <h4>1. Real AI e-KYC (3 รูป)</h4>
+          <p>โมเดล ResNet-34 + 68 Landmarks เปรียบเทียบใบหน้าจริงกับบัตรประชาชน พร้อมตรวจความคมชัดและแสงสะท้อน</p>
+        </div>
+        <div class="cover-highlight-item">
+          <h4>2. Smart Classroom Guard</h4>
+          <p>ล็อกการข้ามคลิป/เร่งความเร็ว หยุดวิดีโอทันทีเมื่อสลับแท็บ พร้อมสุ่มตรวจใบหน้า 2 นาที + Active Liveness</p>
+        </div>
+        <div class="cover-highlight-item">
+          <h4>3. Audit Log & Admin Hub</h4>
+          <p>บันทึก User Activity Log ทุกฝีก้าว คำนวณคะแนนความโปร่งใส (Integrity Score) และตั้งค่าเกณฑ์คุมสอบได้อิสระ</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cover-footer">
+      <div>จัดทำสำหรับ: <b>บมจ. อลิอันซ์ อยุธยา ประกันชีวิต (Allianz Ayudhya)</b></div>
+      <div>เอกสารคู่มือระบบและแนวทางการรีวิวสำหรับทีมงาน (ฉบับสมบูรณ์)</div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- PAGE 2: SYSTEM OVERVIEW, ARCHITECTURE & DEMO QUICK CONTROLS           -->
+  <!-- ===================================================================== -->
+  <div class="page">
+    <div>
+      <div class="page-header">
+        <div class="page-header-left">
+          <img src="allianz-logo.webp" alt="Allianz Ayudhya" />
+          <span class="page-header-title">ALLIANZ AYUDHYA — E-LEARNING (LMS) & AI PROCTORING</span>
+        </div>
+        <span class="page-header-tag">ส่วนที่ 1: ภาพรวมระบบและคุณสมบัติเด่น</span>
+      </div>
+
+      <h2 class="sec-title"><span class="sec-num">01</span> ภาพรวมสถาปัตยกรรมและแผนผังการทำงาน 6 ขั้นตอน (End-to-End Workflow)</h2>
+      <p>
+        ระบบได้รับการออกแบบให้สอดคล้องกับระเบียบปฏิบัติของสำนักงาน คปภ. ทั้ง 9 ข้ออย่างเคร่งครัด โดยแบ่งเส้นทางการใช้งานของผู้เข้าอบรมออกเป็น 6 ขั้นตอนต่อเนื่อง พร้อมระบบตรวจสอบด้วย AI จริงและระบบผู้ดูแลควบคุมการสอบ (Admin Hub) ดังนี้:
+      </p>
+
+      <div class="step-flow-box">
+        <div class="step-node">STEP 01<span>สมัครอบรม & ชำระ QR 15 นาที</span></div>
+        <div class="step-node">STEP 02<span>เช็คสิทธิ์ & ทดสอบกล้อง/เน็ต</span></div>
+        <div class="step-node">STEP 03<span>ตั้งรหัสผ่านครั้งแรก</span></div>
+        <div class="step-node">STEP 04<span>e-KYC 3 รูป & ห้องเรียน AI</span></div>
+        <div class="step-node">STEP 05<span>สอบหลังเรียน (&ge;60%, 5 ครั้ง)</span></div>
+        <div class="step-node">STEP 06<span>รับใบรับรอง AZAY-CERT</span></div>
+      </div>
+
+      <h3 class="sub-title">ตารางสรุป 8 คุณสมบัติหลักของระบบ (Core Feature Matrix)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 26%;">หมวดหมู่ระบบ</th>
+            <th style="width: 30%;">เทคโนโลยี / กลไกหลัก</th>
+            <th>รายละเอียดการทำงานจริงและการป้องกันการทุจริต</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>1. Real AI Face Verification</b></td>
+            <td><code>SSD MobileNetV1</code> + <code>68 Landmarks</code> + <code>ResNet-34 (128D)</code></td>
+            <td>สกัดจุดโครงหน้า 68 จุดและเวกเตอร์อัตลักษณ์ 128 มิติจากภาพถ่ายจริง คำนวณค่า <b>Euclidean Distance</b> และ <b>% ความเหมือนจริง</b> พร้อมวัดค่าความคมชัด (Laplacian) และแสงสะท้อนบนบัตร</td>
+          </tr>
+          <tr>
+            <td><b>2. Active Liveness Challenge</b></td>
+            <td>Landmark Nose/Head Motion Tracking</td>
+            <td>เมื่อเด้งหน้าต่างสุ่มตรวจ 2 นาที ระบบจะสั่งให้ขยับศีรษะซ้าย-ขวาหรือพยักหน้า และวัดการขยับพิกัดปลายจมูกจริง เพื่อป้องกันการนำรูปถ่ายหรือคลิปวิดีโอมาหลอกกล้อง</td>
+          </tr>
+          <tr>
+            <td><b>3. Tab Switch Auto-Pause</b></td>
+            <td>Visibility API & Window Blur Guard</td>
+            <td>ทันทีที่ผู้เรียนสลับไปเปิดแท็บอื่น ย่อหน้าต่าง หรือคลิกออกนอกเบราว์เซอร์ <b>วิดีโอจะหยุดเล่นทันที</b> พร้อมขึ้นหน้าจอสีแดงแจ้งเตือน และนับจำนวนครั้งที่สลับแท็บสะสม</td>
+          </tr>
+          <tr>
+            <td><b>4. Live Classroom Proctoring</b></td>
+            <td>Continuous 1.8s Face & Head Pose Loop + PIP Toggle</td>
+            <td>ตรวจจับต่อเนื่องว่าผู้เรียนยังอยู่หน้าจอหรือไม่, มีบุคคลอื่นเข้ามาในเฟรมเกิน 1 คนหรือไม่, หรือหันหน้าหนีจอหรือไม่ พร้อมปุ่ม <b>ซ่อน/แสดงหน้าต่างกล้อง AI</b> ไม่ให้บังเนื้อหาสไลด์</td>
+          </tr>
+          <tr>
+            <td><b>5. Acoustic & Multi-Monitor</b></td>
+            <td>Web Audio API (VAD) & Screen Extended API</td>
+            <td>ตรวจวัดระดับเสียงพูดคุยในห้องสอบ (dB) และตรวจจับการเสียบสายต่อออกหน้าจอที่สอง (Extended Display) แบบอัตโนมัติ</td>
+          </tr>
+          <tr>
+            <td><b>6. Exam Anti-Cheat & Shuffle</b></td>
+            <td>Dynamic Watermark + Question/Choice Shuffling</td>
+            <td>สุ่มสลับลำดับข้อสอบและตัวเลือก ก-ข-ค-ง อัตโนมัติ, แสดงลายน้ำเลขบัตรประชาชนพาดผ่านหน้าจอข้อสอบ และบล็อกการคลิกขวา/Copy/PrintScreen</td>
+          </tr>
+          <tr>
+            <td><b>7. Activity Log & Trust Score</b></td>
+            <td>Granular Audit Trail + Integrity Score (100%)</td>
+            <td>บันทึกทุกกิจกรรมสำคัญพร้อมระดับความรุนแรง (<code>INFO</code>, <code>PASS</code>, <code>WARNING</code>, <code>CRITICAL</code>) คำนวณเป็นคะแนนความโปร่งใสรายบุคคล และส่งออกไฟล์ CSV ได้</td>
+          </tr>
+          <tr>
+            <td><b>8. 24/7 Cloud Keep-Alive</b></td>
+            <td>Automated Self-Pinger (Every 10 mins)</td>
+            <td>ส่งสัญญาณ Heartbeat ปลุกเซิร์ฟเวอร์อัตโนมัติทุก 10 นาที เพื่อให้ลิงก์ <code>https://azaylms.onrender.com</code> พร้อมใช้งานตลอดเวลา</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="card-blue">
+        <h3 class="sub-title" style="margin-top:0;">⚡ แถบเครื่องมือลัดสำหรับทีมผู้รีวิว (Demo Quick Controls บนหน้าเว็บ)</h3>
+        <p style="margin-bottom:4px;">เพื่อให้ทีมสามารถทดสอบได้ทั้งตามลำดับปกติ หรือกดข้ามไปทดสอบฟีเจอร์เฉพาะจุดได้ทันที บนหน้าเว็บมีปุ่มลัดด้านบนสุดดังนี้:</p>
+        <ul>
+          <li><b>กรอกข้อมูลผู้สมัครอัตโนมัติ:</b> กรอกข้อมูลผู้สมัครตัวอย่างในหน้า 01 ทันทีโดยไม่ต้องพิมพ์เอง</li>
+          <li><b>ข้ามไปทดสอบ e-KYC 3 รูป & ห้องเรียนทันที:</b> สร้างผู้สมัครจำลองและพาเข้าสู่หน้าถ่ายภาพยืนยันตัวตน 3 รูปทันที</li>
+          <li><b>จำลองเรียนครบ 100% เพื่อเข้าสอบทันที:</b> ข้ามเวลาเรียนทั้ง 3 บทเพื่อเข้าสู่หน้าทำแบบประเมินและสอบหลังเรียนทันที</li>
+          <li><b>กล่องอีเมลจำลอง (Inbox มุมขวาบน):</b> เปิดดูอีเมลอัตโนมัติทุกฉบับที่ระบบส่งให้ผู้เรียน พร้อมกดปุ่มลิงก์ในอีเมลได้จริง</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="page-footer">
+      <span>คู่มือการใช้งานระบบ Allianz Ayudhya E-Learning (LMS) & AI Proctoring</span>
+      <span>หน้า 2 / 5 &nbsp;|&nbsp; https://azaylms.onrender.com</span>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- PAGE 3: STEP-BY-STEP USER GUIDE (STEPS 01 TO 04.2)                    -->
+  <!-- ===================================================================== -->
+  <div class="page">
+    <div>
+      <div class="page-header">
+        <div class="page-header-left">
+          <img src="allianz-logo.webp" alt="Allianz Ayudhya" />
+          <span class="page-header-title">ALLIANZ AYUDHYA — E-LEARNING (LMS) & AI PROCTORING</span>
+        </div>
+        <span class="page-header-tag">ส่วนที่ 2: คู่มือผู้เข้าอบรม (ขั้นตอนที่ 01 – 04.2)</span>
+      </div>
+
+      <h2 class="sec-title"><span class="sec-num">02</span> ขั้นตอนที่ 01 – 03: การลงทะเบียน ตรวจสอบอุปกรณ์ และตั้งรหัสผ่าน</h2>
+
+      <div class="grid-3">
+        <div class="card">
+          <h3 class="sub-title" style="margin-top:0;">ขั้นตอนที่ 01: สมัครอบรม & QR</h3>
+          <ul>
+            <li>เลือกหลักสูตร (ขอรับ/ขอต่อใบอนุญาต ครั้งที่ 1–3) และเลือกรอบอบรม 5 วัน</li>
+            <li><b>กฎเหล็กวันหมดอายุบัตร:</b> ระบบตรวจสอบอัตโนมัติว่ารอบอบรมต้องจบก่อนวันบัตรเดิมหมดอายุ <b>อย่างน้อย 2 วันทำการ</b></li>
+            <li>สร้าง <b>QR Code จับเวลาถอยหลัง 15 นาที</b> (ห้ามโอนเข้าบัญชีโดยตรง)</li>
+            <li>เมื่อกดจำลองชำระเงินสำเร็จ ระบบส่งอีเมลใบเสร็จและลิงก์ตั้งรหัสผ่านเข้า Inbox ทันที</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3 class="sub-title" style="margin-top:0;">ขั้นตอนที่ 02: ตรวจอุปกรณ์จริง</h3>
+          <ul>
+            <li>ตรวจสอบรายชื่อผู้มีสิทธิ์อบรมล่วงหน้า 1–2 วัน</li>
+            <li>กดปุ่ม <b>"เริ่มตรวจสอบอุปกรณ์จริง"</b> เพื่อวัดค่าความหน่วงเน็ต (เกณฑ์ <code>&le; 500 ms</code>) และทดสอบกล้อง (<code>&ge; 720p</code>)</li>
+            <li><b>ระบบคัดกรองกล้องจริงอัตโนมัติ:</b> ข้ามกล้องเสมือน (Virtual Cam) ไปเปิดกล้องจริง เช่น Logitech HD Webcam ให้เป็นลำดับแรก</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3 class="sub-title" style="margin-top:0;">ขั้นตอนที่ 03: ตั้งรหัสผ่านครั้งแรก</h3>
+          <ul>
+            <li>ใช้เลขบัตรประชาชน 13 หลักเป็น Username หลัก</li>
+            <li>ตรวจสอบเงื่อนไขรหัสผ่านแบบ Real-time ตามมาตรฐาน:
+              <br/>✓ <b>ตัวอักษรอย่างน้อย 6 ตัว</b>
+              <br/>✓ <b>ตัวเลขอย่างน้อย 1 ตัวเลข</b>
+            </li>
+            <li>เมื่อตั้งรหัสผ่านสำเร็จ ระบบจะส่งอีเมลแจ้งลิงก์เข้าสู่ห้องเรียนและยืนยันตัวตน</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2 class="sec-title" style="margin-top:14px;"><span class="sec-num">03</span> ขั้นตอนที่ 04 (ส่วนแรก): การยืนยันตัวตน 3 รูปด้วยโมเดล AI จริง (Real AI e-KYC)</h2>
+      <p>
+        หลังจากเข้าสู่ระบบและกดยอมรับเงื่อนไข PDPA / LMS ในแท็บ <b>4.1</b> แล้ว ให้เข้าสู่แท็บ <b>4.2 ถ่ายรูปยืนยันตัวตน 3 รูป e-KYC</b> ซึ่งผู้เข้าอบรมต้องถ่ายภาพผ่านกล้องสดให้ครบ 3 ช่องตามกรอบแนะนำบนหน้าจอ:
+      </p>
+
+      <div class="grid-3">
+        <div class="card-blue">
+          <b>รูปที่ 1.1: บัตรประชาชนเต็มใบ</b>
+          <p style="font-size:11.5px; margin-top:4px;">ถือบัตรประชาชนตัวจริงให้อยู่ในกรอบสี่เหลี่ยม เห็นข้อมูลชัดเจน ไม่เบลอ ไม่ติดแสงสะท้อน และไม่ติดใบหน้าผู้ถือบัตร</p>
+        </div>
+        <div class="card-blue">
+          <b>รูปที่ 1.2: ใบหน้าจริง (Live Selfie)</b>
+          <p style="font-size:11.5px; margin-top:4px;">จัดใบหน้าให้อยู่ในกรอบวงรีสีเขียว มองตรง ไม่มีสิ่งปกปิดใบหน้า แสงสว่างเพียงพอ และไม่มีบุคคลอื่นติดเข้ามาในเฟรม</p>
+        </div>
+        <div class="card-blue">
+          <b>รูปที่ 1.3: เฉพาะใบหน้าในบัตร ปชช.</b>
+          <p style="font-size:11.5px; margin-top:4px;">ซูมเฉพาะกรอบรูปถ่ายใบหน้าบนบัตรประชาชน เพื่อใช้เปรียบเทียบเวกเตอร์ใบหน้าแบบ 1:1 กับรูปใบหน้าจริง</p>
+        </div>
+      </div>
+
+      <div class="card-emerald">
+        <h3 class="sub-title" style="margin-top:0; color:#065f46;">🔬 วิธีทดสอบประสิทธิภาพโมเดล AI จริง (REAL AI TELEMETRY PANEL)</h3>
+        <p>เมื่อถ่ายภาพครบทั้ง 3 ช่องแล้ว คลิกปุ่มสีเขียว <b>"ตรวจสอบข้อมูลด้วยโมเดล AI จริง (Real 1:1 Face Verification)"</b> ระบบจะเปิดแผงวิเคราะห์เชิงลึกแสดงผลลัพธ์จริงดังนี้:</p>
+        <ul>
+          <li><b>การวาดโครงหน้า 68 จุด (68-Point Face Landmarks):</b> วาดกรอบใบหน้าและจุดคิ้ว ตา จมูก ปาก กรอบกราม ลงบนภาพที่ 1.2 และ 1.3</li>
+          <li><b>การคำนวณเวกเตอร์ 128 มิติ (ResNet-34 Euclidean Distance):</b> คำนวณระยะห่างระหว่างใบหน้าจริงกับรูปบนบัตร (เกณฑ์ผ่าน <code>Distance &le; 0.58</code> หรือความเหมือน <code>&ge; 72%</code>) พร้อมแสดงเวลาประมวลผล (Inference Time ms)</li>
+          <li><b>การตรวจวัดคุณภาพพิกเซลจริง:</b> แสดงค่าความคมชัด (<code>Laplacian Sharpness</code>) และเปอร์เซ็นต์แสงสะท้อนบนบัตร (<code>Glare %</code>)</li>
+          <li><b>ทดสอบกรณีข้อมูลไม่ผ่านเกณฑ์ (Fallback Flow หน้า 21):</b> ลองหันกล้องไปถ่ายภาพไม่เห็นใบหน้า หรือเอารูปบุคคลอื่นมาถ่าย ระบบ AI จะปฏิเสธอัตโนมัติและให้เลือก <b>"ถ่ายใหม่"</b> หรือส่งเข้าคิวให้ <b>ผู้ดูแลระบบ (Admin) กดอนุมัติ</b></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="page-footer">
+      <span>คู่มือการใช้งานระบบ Allianz Ayudhya E-Learning (LMS) & AI Proctoring</span>
+      <span>หน้า 3 / 5 &nbsp;|&nbsp; https://azaylms.onrender.com</span>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- PAGE 4: CLASSROOM AI PROCTORING (STEP 04.3) & POST-TEST EXAM (05-06)  -->
+  <!-- ===================================================================== -->
+  <div class="page">
+    <div>
+      <div class="page-header">
+        <div class="page-header-left">
+          <img src="allianz-logo.webp" alt="Allianz Ayudhya" />
+          <span class="page-header-title">ALLIANZ AYUDHYA — E-LEARNING (LMS) & AI PROCTORING</span>
+        </div>
+        <span class="page-header-tag">ส่วนที่ 3: ห้องเรียน AI Proctoring และการสอบหลังเรียน</span>
+      </div>
+
+      <h2 class="sec-title"><span class="sec-num">04</span> ขั้นตอนที่ 04.3: ห้องเรียนวิดีโอ 60 วินาที & ระบบควบคุมการสอบอัตโนมัติ</h2>
+      <p>
+        ในหน้าห้องเรียน ระบบได้ผสานการควบคุมวิดีโอตามกฎเหล็กของ คปภ. เข้ากับระบบเฝ้าระวังด้วย AI แบบ Real-time โดยผู้รีวิวสามารถทดลองฟีเจอร์ทั้งหมดได้ดังนี้:
+      </p>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3 class="sub-title" style="margin-top:0;">1. ระบบควบคุมวิดีโอบทเรียน (Demo บทละ 60 วินาที)</h3>
+          <ul>
+            <li><b>ห้ามกดข้ามเนื้อหาข้างหน้า:</b> หากคลิกแถบเวลาไปยังส่วนที่ยังไม่ได้เรียน ระบบจะบล็อกและบันทึก Warning Log ทันที</li>
+            <li><b>ย้อนดูเนื้อหาที่เรียนผ่านแล้วได้:</b> สามารถกดปุ่ม <code>ย้อน 5 วินาที</code> หรือคลิกแถบเวลาส่วนที่ดูจบแล้วได้</li>
+            <li><b>ล็อกความเร็วและเสียง:</b> ล็อกความเร็วที่ <code>1.0x</code> และเสียง <code>100%</code> หากกดปุ่มจะขึ้นแจ้งเตือนและบันทึก Log</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3 class="sub-title" style="margin-top:0;">2. การเปิด/ปิด (ซ่อน) หน้าต่างกล้อง AI</h3>
+          <ul>
+            <li>คลิกปุ่มสีเขียว <b>"ซ่อนหน้าต่างกล้อง AI"</b> บนแถบหัวห้องเรียน (หรือปุ่ม <code>-</code> บนกรอบกล้องมุมขวาบน)</li>
+            <li>หน้าต่างกล้องจะยุบเหลือป้ายสถานะขนาดเล็ก <code>AI Proctoring ทำงานอยู่</code> เพื่อไม่ให้บังเนื้อหาสไลด์</li>
+            <li><b>AI ยังคงตรวจจับใบหน้าเบื้องหลังตลอดเวลา</b> และคลิกซ้ำเพื่อขยายกลับมาดูภาพกล้องได้ทันที</li>
+          </ul>
+        </div>
+
+        <div class="card-amber">
+          <h3 class="sub-title" style="margin-top:0; color:#92400e;">3. ตรวจจับการเปิดแท็บอื่น & หยุดวิดีโออัตโนมัติ</h3>
+          <ul>
+            <li>ขณะกำลังเล่นวิดีโอ ลองสลับไปเปิดแท็บอื่นในเบราว์เซอร์ ย่อหน้าต่าง หรือคลิกปุ่มจำลอง <b>"ทดสอบสลับแท็บ"</b></li>
+            <li><b>วิดีโอจะหยุดเล่นทันที!</b> และแสดงหน้าจอแจ้งเตือนสีแดงทับหน้าวิดีโอ พร้อมนับจำนวนครั้งที่สลับแท็บสะสม</li>
+            <li>เวลาเรียนจะไม่เดินต่อจนกว่าผู้เรียนจะกลับมากดปุ่ม <b>"กลับมาดูเนื้อหาและเล่นบทเรียนต่อ"</b></li>
+          </ul>
+        </div>
+
+        <div class="card-blue">
+          <h3 class="sub-title" style="margin-top:0;">4. สุ่มตรวจใบหน้า 2 นาที + Active Liveness</h3>
+          <ul>
+            <li>เมื่อถึงจุด Checkpoint (วินาทีที่ 20, 45) หรือกดปุ่ม <b>"จำลองสุ่มตรวจใบหน้าทันที"</b> หน้าต่างสุ่มตรวจจะเด้งขึ้นมาพร้อมเวลานับถอยหลัง <b>02:00 นาที</b></li>
+            <li>มีโจทย์ <b>Active Liveness</b> สั่งให้ขยับศีรษะ/กะพริบตาจนขึ้นป้าย <code>✓ ยืนยันบุคคลมีชีวิตจริง</code></li>
+            <li>หากไม่ยืนยันภายใน 2 นาที หรือนิ่งเกิน 15 นาที ระบบจะเตะออกและ <b>ย้อนเวลากลับไปที่จุด Checkpoint ล่าสุด</b></li>
+          </ul>
+        </div>
+      </div>
+
+      <h2 class="sec-title" style="margin-top:10px;"><span class="sec-num">05</span> ขั้นตอนที่ 05 – 06: การทำแบบทดสอบหลังเรียน และรับใบรับรองการอบรม</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3 class="sub-title" style="margin-top:0;">ขั้นตอนที่ 05: แบบทดสอบหลังเรียน (Post-Test)</h3>
+          <ul>
+            <li><b>สุ่มสลับข้อสอบและตัวเลือก ก-ข-ค-ง:</b> ทุกครั้งที่เริ่มสอบใหม่ ลำดับข้อและตัวเลือกจะถูกสุ่มสลับอัตโนมัติ (มีปุ่ม <code>สุ่มชุดลำดับข้อสอบใหม่</code> ให้กดทดสอบ)</li>
+            <li><b>ลายน้ำ & บล็อกการคัดลอก:</b> แสดงลายน้ำเลขบัตรประชาชนพาดผ่านหน้าข้อสอบ และบล็อกคลิกขวา/Copy</li>
+            <li><b>เกณฑ์ผ่าน & โควตา:</b> ต้องตอบทีละข้อ เกณฑ์ผ่าน <b>ร้อยละ 60 (3/5 ข้อ)</b> สอบได้สูงสุด <b>5 ครั้ง</b></li>
+            <li>เมื่อผ่านเกณฑ์และกด <b>"ส่งผลการเรียน"</b> ระบบจะล็อกคอร์สถาวรตามระเบียบข้อ 8</li>
+          </ul>
+        </div>
+
+        <div class="card-emerald">
+          <h3 class="sub-title" style="margin-top:0; color:#065f46;">ขั้นตอนที่ 06: ใบรับรอง อลิอันซ์ อยุธยา (Certificate)</h3>
+          <ul>
+            <li>ระบบออกใบรับรองการอบรมออนไลน์ภายใต้แบรนด์ <b>อลิอันซ์ อยุธยา (Allianz Ayudhya)</b> พร้อมรหัส <code>AZAY-CERT-2026-XXXXXX</code></li>
+            <li>ส่งอีเมลแจ้งผลพร้อมลิงก์ดาวน์โหลดเข้าสู่กล่องอีเมลจำลองอัตโนมัติ</li>
+            <li>คลิกปุ่ม <b>"พิมพ์ / ดาวน์โหลด PDF"</b> เพื่อนำใบรับรองไปยื่นในระบบ <b>e-Licensing ของสำนักงาน คปภ.</b> (หลังวันจบรอบอบรม 2 วันเป็นต้นไป)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-footer">
+      <span>คู่มือการใช้งานระบบ Allianz Ayudhya E-Learning (LMS) & AI Proctoring</span>
+      <span>หน้า 4 / 5 &nbsp;|&nbsp; https://azaylms.onrender.com</span>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- PAGE 5: ADMIN PROCTORING HUB, USER ACTIVITY LOGS & API INTEGRATION    -->
+  <!-- ===================================================================== -->
+  <div class="page">
+    <div>
+      <div class="page-header">
+        <div class="page-header-left">
+          <img src="allianz-logo.webp" alt="Allianz Ayudhya" />
+          <span class="page-header-title">ALLIANZ AYUDHYA — E-LEARNING (LMS) & AI PROCTORING</span>
+        </div>
+        <span class="page-header-tag">ส่วนที่ 4: คู่มือผู้ดูแลระบบ (Admin) & การเชื่อมต่อ API</span>
+      </div>
+
+      <h2 class="sec-title"><span class="sec-num">06</span> คู่มือระบบผู้ดูแลควบคุมการสอบ (Admin & Proctoring Control Hub)</h2>
+      <p>
+        คลิกปุ่มสีเหลือง <b>"Admin & Plugin API"</b> มุมขวาบนของหน้าเว็บ เพื่อเข้าสู่ศูนย์ควบคุมการสอบสำหรับผู้ดูแลระบบ ซึ่งประกอบด้วย 4 เมนูย่อยดังนี้:
+      </p>
+
+      <div class="grid-2">
+        <div class="card-blue">
+          <h3 class="sub-title" style="margin-top:0;">1. อนุมัติ e-KYC & คะแนนความโปร่งใส (Integrity Score)</h3>
+          <ul>
+            <li>ตรวจสอบภาพถ่าย e-KYC ทั้ง 3 รูปของผู้สมัครเปรียบเทียบกัน พร้อมกดปุ่ม <b>อนุมัติยืนยันตัวตน</b> หรือ <b>ไม่อนุมัติ</b></li>
+            <li>แสดง <b>คะแนนความโปร่งใส (Candidate Integrity Score 100%)</b> ซึ่งคำนวณอัตโนมัติจากพฤติกรรมของผู้เรียน (หัก 3% ต่อทุกเหตุการณ์ <code>WARNING</code> เช่น สลับแท็บ/หันหน้าหนีจอ และหัก 12% ต่อทุกเหตุการณ์ <code>CRITICAL</code> เช่น พบบุคคลอื่นในเฟรม/ใบหน้าไม่ตรง)</li>
+          </ul>
+        </div>
+
+        <div class="card-blue">
+          <h3 class="sub-title" style="margin-top:0;">2. บันทึกกิจกรรมผู้เรียนละเอียด (User Activity Log)</h3>
+          <ul>
+            <li>บันทึกทุกกิจกรรมสำคัญพร้อมวัน-เวลา, เลขบัตรประชาชน, หมวดหมู่ (<code>ANTI_CHEAT</code>, <code>KYC</code>, <code>CLASSROOM</code>, <code>EXAM</code>) และระดับความรุนแรง</li>
+            <li>สามารถกรองดูเฉพาะเหตุการณ์ทุจริต หรือกดปุ่มสีเขียว <b>"Export Activity Log (CSV)"</b> เพื่อดาวน์โหลดเป็นไฟล์ Excel ใช้ประกอบการพิจารณาตัดสินใจของคณะกรรมการคุมสอบ</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="sub-title" style="margin-top:0;">3. เมนูตั้งค่าควบคุมการสอบ (Admin Proctoring Control Settings)</h3>
+        <p style="margin-bottom:6px;">ผู้ดูแลระบบสามารถปรับค่าพารามิเตอร์และเปิด/ปิดฟีเจอร์ป้องกันการทุจริตให้มีผลทันทีโดยไม่ต้องแก้ไขโค้ด:</p>
+        <div class="grid-3" style="margin-bottom:0;">
+          <div>
+            <b>ตั้งค่าเวลา & Timeout:</b>
+            <ul style="font-size:11px;">
+              <li>ความยาวบทเรียน Demo (ค่าเริ่มต้น 60s)</li>
+              <li>เวลาสุ่มตรวจใบหน้า (ค่าเริ่มต้น 120s)</li>
+              <li>เวลาอนุญาตให้นิ่งสูงสุด (ค่าเริ่มต้น 900s)</li>
+            </ul>
+          </div>
+          <div>
+            <b>เกณฑ์ความแม่นยำ AI:</b>
+            <ul style="font-size:11px;">
+              <li>ความเหมือนขั้นต่ำ (ค่าเริ่มต้น 72%)</li>
+              <li>Euclidean Distance (ค่าเริ่มต้น 0.58)</li>
+              <li>เตือนเมื่อพบ >1 ใบหน้า / หันหน้าหนีจอ</li>
+              <li>เปิด/ปิด โจทย์ Active Liveness</li>
+            </ul>
+          </div>
+          <div>
+            <b>การล็อกเบราว์เซอร์ & ข้อสอบ:</b>
+            <ul style="font-size:11px;">
+              <li>หยุดวิดีโออัตโนมัติเมื่อเปิดแท็บอื่น</li>
+              <li>ตรวจจับเสียงพูดคุย (VAD) & ต่อ 2 หน้าจอ</li>
+              <li>แสดงลายน้ำเลขบัตร ปชช. & บล็อกคลิกขวา</li>
+              <li>สุ่มสลับข้อสอบ/ตัวเลือก & เกณฑ์สอบผ่าน</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <h2 class="sec-title" style="margin-top:10px;"><span class="sec-num">07</span> การเชื่อมต่อกับระบบสอบเดิมขององค์กร (Plugin & REST API Specification)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 32%;">REST API Endpoint</th>
+            <th style="width: 28%;">หน้าที่การทำงาน</th>
+            <th>ตัวอย่างข้อมูลที่รับ-ส่ง (Payload / Response)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>POST /api/kyc/submit</code></td>
+            <td>ส่งภาพ 3 รูปบันทึกผลตรวจ AI e-KYC</td>
+            <td>รับ <code>idCard</code>, ภาพ Base64 3 รูป, <code>similarityScore</code> และค่าความคมชัด/ระยะห่างเวกเตอร์</td>
+          </tr>
+          <tr>
+            <td><code>POST /api/proctoring/verify-face</code></td>
+            <td>บันทึกภาพสุ่มตรวจใบหน้าระหว่างเรียน/สอบ</td>
+            <td>รับ <code>idCard</code>, <code>checkType</code> (<code>PRE_SESSION</code> / <code>RANDOM_CHECKPOINT</code>), <code>similarityScore</code></td>
+          </tr>
+          <tr>
+            <td><code>POST /api/activity/log</code></td>
+            <td>บันทึก User Activity Log ทุกเหตุการณ์</td>
+            <td>รับ <code>idCard</code>, <code>category</code>, <code>action</code>, <code>severity</code> (<code>INFO</code>/<code>WARNING</code>/<code>CRITICAL</code>), <code>details</code></td>
+          </tr>
+          <tr>
+            <td><code>POST /api/admin/settings</code></td>
+            <td>อัปเดตนโยบายควบคุมการสอบ</td>
+            <td>บันทึกค่าพารามิเตอร์ของ Admin ทั้งหมดลงฐานข้อมูลและปรับปรุงคอร์สทันที</td>
+          </tr>
+          <tr>
+            <td><code>GET /api/state</code></td>
+            <td>ดึงข้อมูลผู้สอบ, Log และตั้งค่าทั้งหมด</td>
+            <td>คืนค่า JSON ประกอบด้วย <code>users</code>, <code>activityLogs</code>, <code>proctoringLogs</code>, <code>proctorSettings</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="page-footer">
+      <span>คู่มือการใช้งานระบบ Allianz Ayudhya E-Learning (LMS) & AI Proctoring</span>
+      <span>หน้า 5 / 5 &nbsp;|&nbsp; https://azaylms.onrender.com</span>
+    </div>
+  </div>
+
+</body>
+</html>
