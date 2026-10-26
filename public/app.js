@@ -217,7 +217,7 @@ async function populateCameraDevicesList() {
     );
 
     const htmlStr = optionsHtml.join('');
-    ['cameraDeviceSelect', 'diagCameraDeviceSelect'].forEach(selectId => {
+    ['cameraDeviceSelect', 'diagCameraDeviceSelect', 'examCameraDeviceSelect'].forEach(selectId => {
       const el = document.getElementById(selectId);
       if (el) el.innerHTML = htmlStr;
     });
@@ -236,6 +236,7 @@ async function onCameraDeviceChange(deviceId) {
     updateCameraStatusUI(false, 'ใช้งานโหมดกล้องจำลอง AI (Virtual Cam)');
     await attachStreamToVideoElement(document.getElementById('diagVideoPreview'), 'diagFallbackCanvas', null, 'diagVideoPlaceholder');
     await attachStreamToVideoElement(document.getElementById('classroomPipVideo'), 'classroomPipFallbackCanvas', null);
+    await attachStreamToVideoElement(document.getElementById('examPipVideo'), 'examPipFallbackCanvas', null);
     await attachStreamToVideoElement(document.getElementById('kycModalVideo'), 'kycModalFallbackCanvas', null);
     await attachStreamToVideoElement(document.getElementById('proctorModalVideo'), 'proctorModalFallbackCanvas', null);
     return;
@@ -247,6 +248,7 @@ async function reconnectSharedCamera() {
   const stream = await getOrStartSharedCamera(true);
   await attachStreamToVideoElement(document.getElementById('diagVideoPreview'), 'diagFallbackCanvas', stream, 'diagVideoPlaceholder');
   await attachStreamToVideoElement(document.getElementById('classroomPipVideo'), 'classroomPipFallbackCanvas', stream);
+  await attachStreamToVideoElement(document.getElementById('examPipVideo'), 'examPipFallbackCanvas', stream);
   await attachStreamToVideoElement(document.getElementById('kycModalVideo'), 'kycModalFallbackCanvas', stream);
   await attachStreamToVideoElement(document.getElementById('proctorModalVideo'), 'proctorModalFallbackCanvas', stream);
 
@@ -327,6 +329,7 @@ function startAnimatedFallbackCanvases() {
   const canvasIds = [
     'diagFallbackCanvas',
     'classroomPipFallbackCanvas',
+    'examPipFallbackCanvas',
     'kycModalFallbackCanvas',
     'proctorModalFallbackCanvas'
   ];
@@ -456,8 +459,11 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ============================================================================
-// TAB SWITCH AUTO-PAUSE, PIP TOGGLE & BROWSER ANTI-CHEAT GUARDS
+// TAB SWITCH AUTO-PAUSE, PIP TOGGLE, FULLSCREEN & ANTI-SCREEN-CAPTURE GUARDS
 // ============================================================================
+let isExamPipWindowHidden = false;
+let screenCaptureAttemptCount = 0;
+
 function toggleClassroomPipVisibility() {
   isPipWindowHidden = !isPipWindowHidden;
   const box = document.getElementById('classroomPipBoxContainer');
@@ -480,13 +486,101 @@ function toggleClassroomPipVisibility() {
   }
 }
 
+function toggleExamPipVisibility() {
+  isExamPipWindowHidden = !isExamPipWindowHidden;
+  const box = document.getElementById('examPipBoxContainer');
+  const pill = document.getElementById('examPipMinimizedPill');
+  const btnIcon = document.getElementById('iconToggleExamPip');
+  const btnText = document.getElementById('textToggleExamPip');
+
+  if (isExamPipWindowHidden) {
+    if (box) box.classList.add('hidden');
+    if (pill) pill.classList.remove('hidden');
+    if (btnIcon) btnIcon.className = 'fa-solid fa-eye';
+    if (btnText) btnText.textContent = 'แสดงหน้าต่างกล้อง AI';
+    logUserActivity('EXAM', 'HIDE_EXAM_PIP_CAMERA', 'INFO', 'ผู้เข้าสอบซ่อนหน้าต่างกล้อง AI ระหว่างทำข้อสอบ (AI ยังคงตรวจจับเบื้องหลัง)');
+  } else {
+    if (box) box.classList.remove('hidden');
+    if (pill) pill.classList.add('hidden');
+    if (btnIcon) btnIcon.className = 'fa-solid fa-eye-slash';
+    if (btnText) btnText.textContent = 'ซ่อนหน้าต่างกล้อง AI';
+    logUserActivity('EXAM', 'SHOW_EXAM_PIP_CAMERA', 'INFO', 'ผู้เข้าสอบเปิดแสดงหน้าต่างกล้อง AI ระหว่างทำข้อสอบ');
+  }
+}
+
+async function toggleVideoFullscreen() {
+  const stage = document.getElementById('classroomFullscreenStage');
+  if (!stage) return;
+
+  try {
+    if (!document.fullscreenElement) {
+      if (stage.requestFullscreen) {
+        await stage.requestFullscreen();
+      } else if (stage.webkitRequestFullscreen) {
+        stage.webkitRequestFullscreen();
+      }
+      logUserActivity('CLASSROOM', 'ENTER_FULLSCREEN', 'INFO', 'ผู้เรียนขยายหน้าจอวิดีโอแบบเต็มจอ (Full Screen)');
+    } else {
+      if (document.exitFullscreen) {
+        await document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      }
+      logUserActivity('CLASSROOM', 'EXIT_FULLSCREEN', 'INFO', 'ผู้เรียนออกจากโหมดเต็มจอ (Exit Full Screen)');
+    }
+  } catch (err) {
+    console.warn('Fullscreen toggle error:', err);
+  }
+}
+
+function triggerAntiCaptureSecurityShield(shortcutLabel = 'PrintScreen') {
+  screenCaptureAttemptCount++;
+  pauseLessonVideo();
+
+  // Immediately overwrite system clipboard so any captured image is cleared
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText('⛔ [ALLIANZ AYUDHYA SECURITY] ระบบไม่อนุญาตให้บันทึกภาพหน้าจอหรือคัดลอกเนื้อหาการอบรมและข้อสอบ').catch(() => {});
+  }
+
+  const modal = document.getElementById('antiCaptureBlackoutModal');
+  const detailEl = document.getElementById('antiCaptureDetailText');
+  if (detailEl) {
+    detailEl.textContent = `ตรวจพบคำสั่งคีย์บอร์ด: ${shortcutLabel} (ครั้งที่ ${screenCaptureAttemptCount} — บันทึกเหตุการณ์ CRITICAL ลงใน User Activity Log แล้ว)`;
+  }
+  if (modal) {
+    modal.classList.remove('hidden');
+  }
+
+  logUserActivity(
+    'ANTI_CHEAT',
+    'KEYBOARD_SCREEN_CAPTURE_BLOCKED',
+    'CRITICAL',
+    `ตรวจพบการกดคีย์ลัดบันทึกภาพหน้าจอ (${shortcutLabel}) ครั้งที่ ${screenCaptureAttemptCount} — ระบบสั่งปิดหน้าจอดำ (Blackout Shield) และล้าง Clipboard ทันที`,
+    { shortcutLabel, attemptCount: screenCaptureAttemptCount, videoSec: currentVideoSec }
+  );
+}
+
+function dismissAntiCaptureShield() {
+  const modal = document.getElementById('antiCaptureBlackoutModal');
+  if (modal) modal.classList.add('hidden');
+}
+
 function setupTabSwitchAndAntiCheatGuards() {
+  // Sync Fullscreen button icon/label whenever fullscreen state changes
+  document.addEventListener('fullscreenchange', () => {
+    const icon = document.getElementById('iconFullscreenVideo');
+    const text = document.getElementById('textFullscreenVideo');
+    const isFs = !!document.fullscreenElement;
+    if (icon) icon.className = isFs ? 'fa-solid fa-compress' : 'fa-solid fa-expand';
+    if (text) text.textContent = isFs ? 'ย่อขนาดปกติ (Exit Full Screen)' : 'ขยายเต็มจอ (Full Screen)';
+  });
+
   // 1. Detect Tab Switching (document.hidden / visibilitychange)
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       handleTabOrWindowFocusLost('TAB_SWITCH_HIDDEN', 'ผู้เรียนสลับไปเปิดแท็บอื่นหรือย่อหน้าต่างเบราว์เซอร์');
     } else {
-      logUserActivity('CLASSROOM', 'TAB_FOCUS_RETURNED', 'INFO', `ผู้เรียนกลับมายังหน้าต่างห้องเรียน (สะสม ${tabSwitchCount} ครั้ง)`);
+      logUserActivity('CLASSROOM', 'TAB_FOCUS_RETURNED', 'INFO', `ผู้เรียนกลับมายังหน้าต่างห้องเรียน/ห้องสอบ (สะสม ${tabSwitchCount} ครั้ง)`);
     }
   });
 
@@ -502,14 +596,15 @@ function setupTabSwitchAndAntiCheatGuards() {
     }
   });
 
-  // 3. Detect Copy / Paste / Right-Click / PrintScreen inside Classroom or Exam
+  // 3. Detect Copy / Paste / Right-Click inside Classroom or Exam
   document.addEventListener('contextmenu', e => {
     const settings = appState.proctorSettings || { blockCopyPasteRightClick: true };
     const examSection = document.getElementById('section-step5');
-    if (settings.blockCopyPasteRightClick && examSection && !examSection.classList.contains('hidden')) {
+    const classroomView = document.getElementById('step4-view-classroom');
+    const isProtectedView = (examSection && !examSection.classList.contains('hidden')) || (classroomView && !classroomView.classList.contains('hidden'));
+    if (settings.blockCopyPasteRightClick && isProtectedView) {
       e.preventDefault();
-      logUserActivity('ANTI_CHEAT', 'BLOCKED_RIGHT_CLICK_IN_EXAM', 'WARNING', 'ผู้เข้าสอบพยายามคลิกขวาในหน้าทำแบบทดสอบหลังเรียน');
-      alert('⛔ ระบบล็อกการคลิกขวาในระหว่างการทำแบบทดสอบเพื่อป้องกันการคัดลอกข้อสอบ');
+      logUserActivity('ANTI_CHEAT', 'BLOCKED_RIGHT_CLICK', 'WARNING', 'ผู้เรียนพยายามคลิกขวาในหน้าห้องเรียน/ห้องสอบ');
     }
   });
 
@@ -522,11 +617,46 @@ function setupTabSwitchAndAntiCheatGuards() {
     }
   });
 
-  window.addEventListener('keydown', e => {
-    if (e.key === 'PrintScreen' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'S'))) {
-      logUserActivity('ANTI_CHEAT', 'SCREENSHOT_OR_DEVTOOLS_ATTEMPT', 'CRITICAL', `ตรวจพบการกดปุ่ม ${e.key} (พยายามแคปหน้าจอหรือเปิด DevTools)`);
+  // 4. Comprehensive Keyboard Screen-Capture Blocker (keydown + keyup)
+  const inspectKeyboardCaptureEvent = (e) => {
+    const key = e.key || '';
+    const code = e.code || '';
+    const keyCode = e.keyCode || e.which || 0;
+
+    // A) PrintScreen key (Windows / Linux)
+    if (key === 'PrintScreen' || code === 'PrintScreen' || keyCode === 44) {
+      e.preventDefault();
+      triggerAntiCaptureSecurityShield('PrintScreen (ปุ่มแคปหน้าจอ)');
+      return;
     }
-  });
+
+    // B) Windows Snipping Tool (Win + Shift + S) or macOS Screenshot (Cmd + Shift + 3 / 4 / 5)
+    if ((e.metaKey || e.ctrlKey) && e.shiftKey && ['s', 'S', '3', '4', '5'].includes(key)) {
+      e.preventDefault();
+      triggerAntiCaptureSecurityShield(`Win/Cmd + Shift + ${key.toUpperCase()} (Snipping Tool / Screenshot)`);
+      return;
+    }
+
+    // C) Ctrl+P (Print Screen to PDF) or F12 / Ctrl+Shift+I (DevTools inspection) during Classroom or Exam
+    const classroomView = document.getElementById('step4-view-classroom');
+    const examSection = document.getElementById('section-step5');
+    const isProtectedView = (examSection && !examSection.classList.contains('hidden')) || (classroomView && !classroomView.classList.contains('hidden'));
+
+    if (isProtectedView) {
+      if ((e.ctrlKey || e.metaKey) && (key === 'p' || key === 'P')) {
+        e.preventDefault();
+        triggerAntiCaptureSecurityShield('Ctrl + P (สั่งพิมพ์/บันทึกหน้าจอ)');
+        return;
+      }
+      if (key === 'F12' || ((e.ctrlKey || e.metaKey) && e.shiftKey && ['I', 'i', 'J', 'j', 'C', 'c'].includes(key))) {
+        e.preventDefault();
+        triggerAntiCaptureSecurityShield(`DevTools Shortcut (${key})`);
+      }
+    }
+  };
+
+  window.addEventListener('keydown', inspectKeyboardCaptureEvent, true);
+  window.addEventListener('keyup', inspectKeyboardCaptureEvent, true);
 }
 
 function handleTabOrWindowFocusLost(actionCode, reasonText) {
@@ -543,13 +673,15 @@ function handleTabOrWindowFocusLost(actionCode, reasonText) {
   if (!isClassroomActive && !isExamActive) return;
 
   tabSwitchCount++;
-  const badge = document.getElementById('tabSwitchCountBadge');
-  if (badge) {
-    badge.textContent = `${tabSwitchCount} ครั้ง`;
-    if (tabSwitchCount >= (settings.maxTabSwitchWarnings || 5)) {
-      badge.className = 'font-mono font-bold text-rose-400 ml-1 animate-pulse';
+  ['tabSwitchCountBadge', 'examTabSwitchBadge'].forEach(badgeId => {
+    const badge = document.getElementById(badgeId);
+    if (badge) {
+      badge.textContent = `${tabSwitchCount} ครั้ง`;
+      if (tabSwitchCount >= (settings.maxTabSwitchWarnings || 5)) {
+        badge.className = 'font-mono font-bold text-rose-400 ml-1 animate-pulse';
+      }
     }
-  }
+  });
 
   const wasPlaying = isVideoPlaying;
   if (isClassroomActive && settings.pauseOnTabSwitch) {
@@ -562,19 +694,28 @@ function handleTabOrWindowFocusLost(actionCode, reasonText) {
     }
   }
 
+  if (isExamActive && settings.pauseOnTabSwitch) {
+    const examOverlay = document.getElementById('examTabSwitchOverlay');
+    const examStatEl = document.getElementById('examTabSwitchOverlayStat');
+    if (examOverlay) examOverlay.classList.remove('hidden');
+    if (examStatEl) {
+      examStatEl.textContent = `จำนวนครั้งที่สลับหน้าจอระหว่างสอบสะสม: ${tabSwitchCount} / ${settings.maxTabSwitchWarnings || 5} ครั้ง`;
+    }
+  }
+
   const severity = tabSwitchCount >= (settings.maxTabSwitchWarnings || 5) ? 'CRITICAL' : 'WARNING';
   const lesson = getActiveLesson();
   logUserActivity(
     'ANTI_CHEAT',
     actionCode,
     severity,
-    `${reasonText} (ครั้งที่ ${tabSwitchCount}) — ${wasPlaying ? `ระบบสั่งหยุดวิดีโอบทที่ ${lesson?.id || 'L1'} อัตโนมัติที่วินาที ${currentVideoSec}s` : 'อยู่ในหน้าห้องเรียน/ห้องสอบ'}`,
-    { tabSwitchCount, videoSec: currentVideoSec, lessonId: lesson?.id }
+    `${reasonText} (ครั้งที่ ${tabSwitchCount}) — ${isExamActive ? 'ตรวจพบขณะกำลังทำแบบทดสอบหลังเรียน (Post-Test)' : wasPlaying ? `ระบบสั่งหยุดวิดีโอบทที่ ${lesson?.id || 'L1'} อัตโนมัติที่วินาที ${currentVideoSec}s` : 'อยู่ในหน้าห้องเรียน'}`,
+    { tabSwitchCount, videoSec: currentVideoSec, lessonId: lesson?.id, inExam: isExamActive }
   );
 }
 
 function simulateTabSwitchEvent() {
-  handleTabOrWindowFocusLost('SIMULATED_TAB_SWITCH', 'ทดสอบจำลองการสลับไปเปิดแท็บอื่นระหว่างเรียน');
+  handleTabOrWindowFocusLost('SIMULATED_TAB_SWITCH', 'ทดสอบจำลองการสลับไปเปิดแท็บอื่นระหว่างเรียน/สอบ');
 }
 
 function resumeFromTabSwitchOverlay() {
@@ -582,6 +723,12 @@ function resumeFromTabSwitchOverlay() {
   if (overlay) overlay.classList.add('hidden');
   logUserActivity('CLASSROOM', 'RESUME_AFTER_TAB_SWITCH', 'INFO', `ผู้เรียนกดยืนยันกลับมาดูเนื้อหาต่อที่วินาที ${currentVideoSec}s`);
   playLessonVideo();
+}
+
+function resumeFromExamTabSwitchOverlay() {
+  const overlay = document.getElementById('examTabSwitchOverlay');
+  if (overlay) overlay.classList.add('hidden');
+  logUserActivity('EXAM', 'RESUME_EXAM_AFTER_TAB_SWITCH', 'INFO', 'ผู้เข้าสอบกดรับทราบคำเตือนและกลับเข้าทำข้อสอบต่อ');
 }
 
 // ============================================================================
@@ -910,7 +1057,10 @@ function switchMainTab(tabId) {
 
   if (tabId === 'step2') renderEligibleRoster();
   if (tabId === 'step4') renderCurriculumSidebar();
-  if (tabId === 'step5') renderExamUI();
+  if (tabId === 'step5') {
+    startExamPipCamera();
+    renderExamUI();
+  }
   if (tabId === 'step6') renderCertificateUI();
   if (tabId === 'admin') renderAdminDashboard();
 }
@@ -1642,14 +1792,27 @@ async function startClassroomPipCamera() {
   startLiveProctoringAiLoop();
 }
 
+async function startExamPipCamera() {
+  const examVideo = document.getElementById('examPipVideo');
+  if (!examVideo) return;
+  const stream = await getOrStartSharedCamera();
+  await attachStreamToVideoElement(examVideo, 'examPipFallbackCanvas', stream);
+  startLiveProctoringAiLoop();
+}
+
 function startLiveProctoringAiLoop() {
   if (liveProctoringAiInterval) clearInterval(liveProctoringAiInterval);
 
   liveProctoringAiInterval = setInterval(async () => {
-    const pipVideo = document.getElementById('classroomPipVideo');
-    const scoreBadge = document.getElementById('liveFaceScoreBadge');
-    const miniBadge = document.getElementById('liveFaceScoreBadgeMini');
-    const pipStatusText = document.getElementById('pipCameraStatusText');
+    const examSection = document.getElementById('section-step5');
+    const isExamActive = examSection && !examSection.classList.contains('hidden');
+    const pipVideo = isExamActive
+      ? (document.getElementById('examPipVideo') || document.getElementById('classroomPipVideo'))
+      : document.getElementById('classroomPipVideo');
+
+    const scoreBadges = [document.getElementById('liveFaceScoreBadge'), document.getElementById('examFaceScoreBadge')];
+    const miniBadges = [document.getElementById('liveFaceScoreBadgeMini'), document.getElementById('examFaceScoreBadgeMini')];
+    const statusTexts = [document.getElementById('pipCameraStatusText'), document.getElementById('examPipStatusText')];
     const settings = appState.proctorSettings || { faceMatchThresholdPct: 72, detectMultipleFaces: true, detectHeadPoseLookingAway: true };
 
     if (!pipVideo || !isAiModelLoaded || pipVideo.videoWidth === 0) {
@@ -1663,23 +1826,27 @@ function startLiveProctoringAiLoop() {
         .withFaceDescriptors();
 
       if (detections.length === 0) {
-        if (scoreBadge) scoreBadge.textContent = '0% (ไม่พบหน้า)';
-        if (miniBadge) miniBadge.textContent = '0%';
-        if (pipStatusText) {
-          pipStatusText.textContent = '⚠️ ไม่พบใบหน้าในกรอบ!';
-          pipStatusText.className = 'absolute bottom-1 inset-x-1 bg-rose-600/90 text-[9px] font-bold text-center text-white py-0.5 rounded px-1';
-        }
-        if (isVideoPlaying) {
-          logUserActivity('ANTI_CHEAT', 'FACE_MISSING_FROM_FRAME', 'WARNING', 'ไม่พบใบหน้าผู้เรียนในกรอบกล้องขณะกำลังเล่นวิดีโอบทเรียน', { videoSec: currentVideoSec });
+        scoreBadges.forEach(b => { if (b) b.textContent = '0% (ไม่พบหน้า)'; });
+        miniBadges.forEach(b => { if (b) b.textContent = '0%'; });
+        statusTexts.forEach(t => {
+          if (t) {
+            t.textContent = '⚠️ ไม่พบใบหน้าในกรอบ!';
+            t.className = 'absolute bottom-1 inset-x-1 bg-rose-600/90 text-[9px] font-bold text-center text-white py-0.5 rounded px-1';
+          }
+        });
+        if (isVideoPlaying || isExamActive) {
+          logUserActivity('ANTI_CHEAT', 'FACE_MISSING_FROM_FRAME', 'WARNING', isExamActive ? 'ไม่พบใบหน้าผู้เข้าสอบในกรอบกล้องขณะกำลังทำข้อสอบ Post-Test' : 'ไม่พบใบหน้าผู้เรียนในกรอบกล้องขณะกำลังเล่นวิดีโอบทเรียน', { videoSec: currentVideoSec, inExam: isExamActive });
         }
       } else if (detections.length > 1 && settings.detectMultipleFaces) {
-        if (scoreBadge) scoreBadge.textContent = `⚠️ ${detections.length} คน`;
-        if (miniBadge) miniBadge.textContent = `⚠️ ${detections.length} คน`;
-        if (pipStatusText) {
-          pipStatusText.textContent = `🚨 ตรวจพบบุคคลอื่น (${detections.length} คน)!`;
-          pipStatusText.className = 'absolute bottom-1 inset-x-1 bg-rose-600/90 text-[9px] font-bold text-center text-white py-0.5 rounded px-1';
-        }
-        logUserActivity('ANTI_CHEAT', 'MULTIPLE_FACES_DETECTED', 'CRITICAL', `ตรวจพบบุคคลในเฟรมกล้องจำนวน ${detections.length} คน (ฝ่าฝืนระเบียบห้ามมีบุคคลอื่นร่วมอบรม)`, { faceCount: detections.length, videoSec: currentVideoSec });
+        scoreBadges.forEach(b => { if (b) b.textContent = `⚠️ ${detections.length} คน`; });
+        miniBadges.forEach(b => { if (b) b.textContent = `⚠️ ${detections.length} คน`; });
+        statusTexts.forEach(t => {
+          if (t) {
+            t.textContent = `🚨 ตรวจพบบุคคลอื่น (${detections.length} คน)!`;
+            t.className = 'absolute bottom-1 inset-x-1 bg-rose-600/90 text-[9px] font-bold text-center text-white py-0.5 rounded px-1';
+          }
+        });
+        logUserActivity('ANTI_CHEAT', 'MULTIPLE_FACES_DETECTED', 'CRITICAL', `ตรวจพบบุคคลในเฟรมกล้องจำนวน ${detections.length} คน ${isExamActive ? '(ขณะทำข้อสอบ Post-Test)' : '(ขณะเรียนวิดีโอ)'}`, { faceCount: detections.length, videoSec: currentVideoSec, inExam: isExamActive });
       } else {
         const det = detections[0];
         let matchPct = Math.round(det.detection.score * 100);
@@ -1704,28 +1871,34 @@ function startLiveProctoringAiLoop() {
           }
         }
 
-        if (scoreBadge) scoreBadge.textContent = `${matchPct.toFixed(0)}%`;
-        if (miniBadge) miniBadge.textContent = `${matchPct.toFixed(0)}%`;
+        scoreBadges.forEach(b => { if (b) b.textContent = `${matchPct.toFixed(0)}%`; });
+        miniBadges.forEach(b => { if (b) b.textContent = `${matchPct.toFixed(0)}%`; });
 
         if (isLookingAway) {
-          if (pipStatusText) {
-            pipStatusText.textContent = '⚠️ กรุณามองตรงที่หน้าจอ!';
-            pipStatusText.className = 'absolute bottom-1 inset-x-1 bg-amber-500 text-[9px] font-bold text-center text-slate-950 py-0.5 rounded px-1';
-          }
-          if (isVideoPlaying) {
-            logUserActivity('ANTI_CHEAT', 'HEAD_POSE_LOOKING_AWAY', 'WARNING', 'ตรวจพบการหันศีรษะ/สายตาออกจากหน้าจอเกินเกณฑ์ (Head Pose Deviation)', { matchPct, videoSec: currentVideoSec });
+          statusTexts.forEach(t => {
+            if (t) {
+              t.textContent = '⚠️ กรุณามองตรงที่หน้าจอ!';
+              t.className = 'absolute bottom-1 inset-x-1 bg-amber-500 text-[9px] font-bold text-center text-slate-950 py-0.5 rounded px-1';
+            }
+          });
+          if (isVideoPlaying || isExamActive) {
+            logUserActivity('ANTI_CHEAT', 'HEAD_POSE_LOOKING_AWAY', 'WARNING', `ตรวจพบการหันศีรษะ/สายตาออกจากหน้าจอเกินเกณฑ์ ${isExamActive ? '(ขณะทำข้อสอบ)' : '(ขณะเรียนวิดีโอ)'}`, { matchPct, videoSec: currentVideoSec, inExam: isExamActive });
           }
         } else if (matchPct >= minThreshold) {
-          if (pipStatusText) {
-            pipStatusText.textContent = `🟢 ยืนยันตัวตนถูกต้อง (${matchPct.toFixed(1)}%)`;
-            pipStatusText.className = 'absolute bottom-1 inset-x-1 bg-black/70 text-[9px] text-center text-emerald-300 py-0.5 rounded px-1';
-          }
+          statusTexts.forEach(t => {
+            if (t) {
+              t.textContent = `🟢 ยืนยันตัวตนถูกต้อง (${matchPct.toFixed(1)}%)`;
+              t.className = 'absolute bottom-1 inset-x-1 bg-black/70 text-[9px] text-center text-emerald-300 py-0.5 rounded px-1';
+            }
+          });
         } else {
-          if (pipStatusText) {
-            pipStatusText.textContent = `🚨 ใบหน้าไม่ตรงกับผู้เรียน (${matchPct.toFixed(1)}%)`;
-            pipStatusText.className = 'absolute bottom-1 inset-x-1 bg-rose-600/90 text-[9px] font-bold text-center text-white py-0.5 rounded px-1';
-          }
-          logUserActivity('ANTI_CHEAT', 'FACE_MISMATCH_IN_CLASSROOM', 'CRITICAL', `ใบหน้าหน้ากล้องไม่ตรงกับผู้เข้าอบรมที่ยืนยันตัวตนไว้ (ความเหมือน ${matchPct.toFixed(1)}% < เกณฑ์ ${minThreshold}%)`, { matchPct, videoSec: currentVideoSec });
+          statusTexts.forEach(t => {
+            if (t) {
+              t.textContent = `🚨 ใบหน้าไม่ตรงกับผู้เรียน (${matchPct.toFixed(1)}%)`;
+              t.className = 'absolute bottom-1 inset-x-1 bg-rose-600/90 text-[9px] font-bold text-center text-white py-0.5 rounded px-1';
+            }
+          });
+          logUserActivity('ANTI_CHEAT', 'FACE_MISMATCH_IN_CLASSROOM', 'CRITICAL', `ใบหน้าหน้ากล้องไม่ตรงกับผู้เข้าอบรมที่ยืนยันตัวตนไว้ (ความเหมือน ${matchPct.toFixed(1)}% < เกณฑ์ ${minThreshold}%)`, { matchPct, videoSec: currentVideoSec, inExam: isExamActive });
         }
       }
     } catch (err) {
@@ -3028,19 +3201,23 @@ async function startAcousticAndMultiMonitorGuards() {
   // 1. Multi-Monitor Detection (window.screen.isExtended)
   const updateMultiMonitorStatus = () => {
     const settings = appState.proctorSettings || { enableMultiMonitorDetection: true };
-    const badge = document.getElementById('multiMonitorBadge');
-    if (!badge) return;
+    const badges = ['multiMonitorBadge', 'examMultiMonitorBadge'].map(id => document.getElementById(id)).filter(Boolean);
+    if (badges.length === 0) return;
 
     const isExtended = window.screen && window.screen.isExtended === true;
     if (isExtended && settings.enableMultiMonitorDetection) {
-      badge.textContent = '⚠️ ตรวจพบ 2 หน้าจอ!';
-      badge.className = 'font-mono font-bold text-rose-400 animate-pulse';
-      if (isVideoPlaying) {
+      badges.forEach(badge => {
+        badge.textContent = '⚠️ ตรวจพบ 2 หน้าจอ!';
+        badge.className = 'font-mono font-bold text-rose-400 animate-pulse';
+      });
+      if (isVideoPlaying || currentMainStep === 'step5') {
         logUserActivity('ANTI_CHEAT', 'MULTI_MONITOR_DETECTED', 'WARNING', 'ตรวจพบการเชื่อมต่อหน้าจอที่สอง (Extended Display) ระหว่างการเรียน/สอบ');
       }
     } else {
-      badge.textContent = '1 จอปกติ';
-      badge.className = 'font-mono font-bold text-emerald-400';
+      badges.forEach(badge => {
+        badge.textContent = '1 จอปกติ';
+        badge.className = 'font-mono font-bold text-emerald-400';
+      });
     }
   };
 
@@ -3063,8 +3240,8 @@ async function startAcousticAndMultiMonitorGuards() {
     const dataArray = new Uint8Array(audioAnalyserNode.frequencyBinCount);
     audioMonitorInterval = setInterval(() => {
       const settings = appState.proctorSettings || { enableVoiceNoiseDetection: true };
-      const badge = document.getElementById('voiceNoiseLevelBadge');
-      if (!badge || !settings.enableVoiceNoiseDetection) return;
+      const badges = ['voiceNoiseLevelBadge', 'examVoiceNoiseBadge'].map(id => document.getElementById(id)).filter(Boolean);
+      if (badges.length === 0 || !settings.enableVoiceNoiseDetection) return;
 
       audioAnalyserNode.getByteFrequencyData(dataArray);
       let sum = 0;
@@ -3072,14 +3249,18 @@ async function startAcousticAndMultiMonitorGuards() {
       const avgLevel = Math.round(sum / dataArray.length);
 
       if (avgLevel > 62) {
-        badge.textContent = `🚨 เสียงพูดคุย (${avgLevel} dB)`;
-        badge.className = 'font-mono font-bold text-rose-400 animate-pulse';
-        if (isVideoPlaying) {
+        badges.forEach(badge => {
+          badge.textContent = `🚨 เสียงพูดคุย (${avgLevel} dB)`;
+          badge.className = 'font-mono font-bold text-rose-400 animate-pulse';
+        });
+        if (isVideoPlaying || currentMainStep === 'step5') {
           logUserActivity('ANTI_CHEAT', 'VOICE_SPEECH_DETECTED', 'WARNING', `ตรวจพบเสียงพูดคุยหรือเสียงรบกวนดังเกินเกณฑ์ (${avgLevel} dB) ระหว่างอบรม/สอบ`, { dbLevel: avgLevel });
         }
       } else {
-        badge.textContent = `ปกติ (${Math.max(10, avgLevel)} dB)`;
-        badge.className = 'font-mono font-bold text-emerald-400';
+        badges.forEach(badge => {
+          badge.textContent = `ปกติ (${Math.max(10, avgLevel)} dB)`;
+          badge.className = 'font-mono font-bold text-emerald-400';
+        });
       }
     }, 2000);
   } catch (e) {
@@ -3087,10 +3268,17 @@ async function startAcousticAndMultiMonitorGuards() {
   }
 }
 
-// Start guards when entering classroom
+// Start guards when entering classroom or exam
 const origStartClassroomPipCamera = startClassroomPipCamera;
 startClassroomPipCamera = async function () {
   await origStartClassroomPipCamera();
+  updateDynamicWatermarks();
+  startAcousticAndMultiMonitorGuards();
+};
+
+const origStartExamPipCamera = startExamPipCamera;
+startExamPipCamera = async function () {
+  await origStartExamPipCamera();
   updateDynamicWatermarks();
   startAcousticAndMultiMonitorGuards();
 };
