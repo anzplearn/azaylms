@@ -444,19 +444,120 @@ async function logUserActivity(category, action, severity, details, metadata = {
   }
 }
 
-// Post-Test Exam State
+// Post-Test Exam & Fullscreen Enforcement State
 let currentExamQIndex = 0;
 let selectedExamAnswers = {};
+let isShowingExamResultScreen = false;
+let fullscreenLockTemporarilyBypassed = false;
+let activeFullscreenTarget = null; // 'classroom' | 'exam' | null
 
 // Initialize on page load
 window.addEventListener('DOMContentLoaded', async () => {
-  await refreshSystemState();
+  // Check if URL is accessing the dedicated "azay-torean" fast demo system
+  const isToreanUrl =
+    window.location.pathname.toLowerCase().includes('azay-torean') ||
+    window.location.hostname.toLowerCase().includes('azay-torean') ||
+    window.location.search.toLowerCase().includes('azay-torean');
+
+  if (isToreanUrl) {
+    await switchDemoSystemEdition('azay-torean', true);
+  } else {
+    await refreshSystemState();
+  }
+
   validateLicenseExpiryRule();
   validatePasswordRuleUI();
   setupUserActivityListeners();
   setupTabSwitchAndAntiCheatGuards();
   initRealAiFaceModels();
 });
+
+// ============================================================================
+// AZAY-TOREAN FAST DEMO SYSTEM SWITCHER (15s Lessons vs Standard OIC Mode)
+// ============================================================================
+async function switchDemoSystemEdition(mode, silent = false) {
+  try {
+    const res = await fetch('/api/demo-mode/switch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode })
+    });
+    const data = await res.json();
+    if (data.success) {
+      await refreshSystemState();
+      updateVideoPlayerUI();
+      if (!silent) {
+        if (mode === 'azay-torean') {
+          alert('⚡ เปิดใช้งานโหมดสาธิตด่วน "azay-torean" เรียบร้อย!\n• ความยาววิดีโอบทเรียนลดเหลือ 15 วินาที/บท\n• สุ่มตรวจจับใบหน้าอัตโนมัติที่วินาทีที่ 7\n• เวลา Countdown ยืนยันใบหน้าลดเหลือ 20 วินาที');
+        } else {
+          alert('🏛️ สลับกลับสู่โหมดมาตรฐาน คปภ. (เวลาเรียนจริงตามความยาวคลิป YouTube และ Timeout 2 นาที / 15 นาที)');
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Error switching demo edition:', err);
+  }
+}
+
+async function toggleDemoSystemEdition() {
+  const currentEdition = (appState.proctorSettings && appState.proctorSettings.demoEdition) || 'standard';
+  const nextMode = currentEdition === 'azay-torean' ? 'standard' : 'azay-torean';
+  await switchDemoSystemEdition(nextMode, false);
+}
+
+function syncDemoEditionUI() {
+  const settings = appState.proctorSettings || {};
+  const isTorean = settings.demoEdition === 'azay-torean' || Number(settings.lessonDurationSec) === 15;
+
+  const headerBadge = document.getElementById('headerToreanBadge');
+  const toggleBtn = document.getElementById('btnHeaderToreanToggle');
+  const toggleText = document.getElementById('textHeaderToreanToggle');
+  const portalBadge = document.getElementById('portalEditionBadge');
+  const loginPill = document.getElementById('loginToreanStatusPill');
+  const btnStd = document.getElementById('btnPortalModeStandard');
+  const btnTor = document.getElementById('btnPortalModeTorean');
+  const examFsBadge = document.getElementById('examFullscreenPolicyBadge');
+
+  if (examFsBadge) {
+    const enforceFs = settings.enforceFullscreenMode !== false;
+    examFsBadge.innerHTML = enforceFs
+      ? `<i class="fa-solid fa-expand mr-1"></i>บังคับโหมดเต็มจออัตโนมัติ (ON)`
+      : `<i class="fa-solid fa-up-right-and-down-left-from-center mr-1"></i>โหมดเต็มจออิสระ (Flexible)`;
+    examFsBadge.className = enforceFs
+      ? 'text-[11px] bg-amber-500/20 border border-amber-400/40 text-amber-300 px-2 py-0.5 rounded-full font-bold'
+      : 'text-[11px] bg-slate-700 border border-slate-600 text-slate-300 px-2 py-0.5 rounded-full font-bold';
+  }
+
+  if (isTorean) {
+    if (headerBadge) headerBadge.classList.remove('hidden');
+    if (toggleText) toggleText.textContent = '⚡ โหมด azay-torean (15วิ/บท) • คลิกสลับเวลาจริง';
+    if (toggleBtn) toggleBtn.className = 'bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-extrabold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 shadow transition';
+    if (portalBadge) {
+      portalBadge.textContent = '⚡ ระบบเดโมด่วน AZAY-TOREAN (บทเรียน 15 วินาที • สุ่มตรวจวินาทีที่ 7)';
+      portalBadge.className = 'inline-block bg-emerald-400 text-slate-950 text-[11px] font-extrabold px-3 py-0.5 rounded-full shadow';
+    }
+    if (loginPill) {
+      loginPill.textContent = '⚡ azay-torean (15s)';
+      loginPill.className = 'text-[10px] bg-emerald-500 text-slate-950 px-2 py-0.5 rounded font-mono font-extrabold';
+    }
+    if (btnTor) btnTor.className = 'py-2 px-2.5 rounded-xl font-extrabold border-2 border-emerald-300 bg-emerald-400 text-slate-950 shadow-lg transition';
+    if (btnStd) btnStd.className = 'py-2 px-2.5 rounded-xl font-bold border border-white/20 bg-white/5 hover:bg-white/15 text-slate-300 transition';
+  } else {
+    if (headerBadge) headerBadge.classList.add('hidden');
+    if (toggleText) toggleText.textContent = 'สลับเป็น azay-torean (15วิ/บท)';
+    if (toggleBtn) toggleBtn.className = 'bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 shadow transition';
+    if (portalBadge) {
+      portalBadge.textContent = '🏛️ โหมดมาตรฐาน คปภ. (ความยาววิดีโอจริง)';
+      portalBadge.className = 'inline-block bg-amber-500 text-slate-950 text-[11px] font-extrabold px-3 py-0.5 rounded-full';
+    }
+    if (loginPill) {
+      loginPill.textContent = 'Standard (เวลาจริง)';
+      loginPill.className = 'text-[10px] bg-white/15 text-white px-2 py-0.5 rounded font-mono';
+    }
+    if (btnStd) btnStd.className = 'py-2 px-2.5 rounded-xl font-extrabold border-2 border-sky-300 bg-sky-400 text-slate-950 shadow-lg transition';
+    if (btnTor) btnTor.className = 'py-2 px-2.5 rounded-xl font-bold border border-amber-400/50 bg-amber-500/20 hover:bg-amber-500/40 text-amber-300 transition';
+  }
+}
 
 // ============================================================================
 // TAB SWITCH AUTO-PAUSE, PIP TOGGLE, FULLSCREEN & ANTI-SCREEN-CAPTURE GUARDS
@@ -508,9 +609,84 @@ function toggleExamPipVisibility() {
   }
 }
 
+// Automatically enter Full Screen when starting Classroom Video or Post-Test Exam
+async function enterEnforcedActivityFullscreen(targetType = 'classroom') {
+  activeFullscreenTarget = targetType;
+  const settings = appState.proctorSettings || { enforceFullscreenMode: true };
+  if (settings.enforceFullscreenMode === false || fullscreenLockTemporarilyBypassed) return;
+
+  const lockModal = document.getElementById('fullscreenLockEnforcementModal');
+  if (lockModal) lockModal.classList.add('hidden');
+
+  const targetEl =
+    targetType === 'classroom'
+      ? (document.getElementById('classroomFullscreenStage') || document.documentElement)
+      : document.documentElement;
+
+  try {
+    if (!document.fullscreenElement) {
+      if (targetEl.requestFullscreen) {
+        await targetEl.requestFullscreen();
+      } else if (targetEl.webkitRequestFullscreen) {
+        targetEl.webkitRequestFullscreen();
+      }
+      logUserActivity(
+        targetType === 'exam' ? 'EXAM' : 'CLASSROOM',
+        'AUTO_FULLSCREEN_ACTIVATED',
+        'INFO',
+        `ระบบเปิดโหมดเต็มหน้าจออัตโนมัติ (Auto Full Screen) เมื่อเข้าสู่${targetType === 'exam' ? 'ห้องสอบ Post-Test' : 'ห้องเรียนวิดีโอ'}`
+      );
+    }
+  } catch (err) {
+    // If browser requires explicit click gesture, show the 1-click Fullscreen prompt modal
+    showFullscreenEnforcementLockModal(targetType, 'กรุณาคลิกปุ่มด้านล่าง 1 ครั้งเพื่อเปิดโหมดแสดงผลเต็มหน้าจอ (Full Screen) ก่อนเริ่มเรียน/ทำข้อสอบ');
+  }
+}
+
+function showFullscreenEnforcementLockModal(targetType = 'classroom', customReason = null) {
+  const settings = appState.proctorSettings || { enforceFullscreenMode: true };
+  if (settings.enforceFullscreenMode === false || fullscreenLockTemporarilyBypassed) return;
+
+  pauseLessonVideo();
+  const lockModal = document.getElementById('fullscreenLockEnforcementModal');
+  const descEl = document.getElementById('fullscreenLockModalDesc');
+  if (descEl) {
+    descEl.textContent =
+      customReason ||
+      `ตรวจพบการย่อหน้าจอหรือกดออกจากโหมด Full Screen ระหว่าง${targetType === 'exam' ? 'การทำแบบทดสอบหลังเรียน (Post-Test)' : 'การเรียนวิดีโอบทเรียน'} ระบบได้ล็อกหน้าจอชั่วคราวตามนโยบายควบคุมการสอบ กรุณาคลิกปุ่มด้านล่างเพื่อกลับเข้าสู่โหมดเต็มจอ`;
+  }
+  if (lockModal) {
+    lockModal.classList.remove('hidden');
+  }
+}
+
+async function reenterEnforcedFullscreen() {
+  const lockModal = document.getElementById('fullscreenLockEnforcementModal');
+  if (lockModal) lockModal.classList.add('hidden');
+
+  const examSection = document.getElementById('section-step5');
+  const isExamActive = examSection && !examSection.classList.contains('hidden');
+  const targetEl = isExamActive
+    ? document.documentElement
+    : (document.getElementById('classroomFullscreenStage') || document.documentElement);
+
+  try {
+    if (!document.fullscreenElement && targetEl.requestFullscreen) {
+      await targetEl.requestFullscreen();
+    }
+  } catch (e) {}
+}
+
+function temporarilyBypassFullscreenLockForDemo() {
+  fullscreenLockTemporarilyBypassed = true;
+  const lockModal = document.getElementById('fullscreenLockEnforcementModal');
+  if (lockModal) lockModal.classList.add('hidden');
+  logUserActivity('ADMIN', 'BYPASS_FULLSCREEN_LOCK_DEMO', 'INFO', 'ผู้สาธิตปลดล็อกการบังคับโหมดเต็มจอชั่วคราวเพื่อความสะดวกในการพรีเซนต์');
+}
+
 async function toggleVideoFullscreen() {
-  const stage = document.getElementById('classroomFullscreenStage');
-  if (!stage) return;
+  const stage = document.getElementById('classroomFullscreenStage') || document.documentElement;
+  const settings = appState.proctorSettings || { enforceFullscreenMode: true };
 
   try {
     if (!document.fullscreenElement) {
@@ -521,6 +697,10 @@ async function toggleVideoFullscreen() {
       }
       logUserActivity('CLASSROOM', 'ENTER_FULLSCREEN', 'INFO', 'ผู้เรียนขยายหน้าจอวิดีโอแบบเต็มจอ (Full Screen)');
     } else {
+      if (settings.enforceFullscreenMode !== false && !fullscreenLockTemporarilyBypassed) {
+        alert('🔒 ระบบเปิดใช้งานนโยบาย "บังคับโหมดเต็มจออัตโนมัติ (Enforce Full Screen)" อยู่ ไม่สามารถย่อหน้าจอระหว่างเรียนได้\n(ผู้ดูแลระบบสามารถเปิด/ปิดนโยบายนี้ได้ที่หน้า Admin Settings)');
+        return;
+      }
       if (document.exitFullscreen) {
         await document.exitFullscreen();
       } else if (document.webkitExitFullscreen) {
@@ -530,6 +710,28 @@ async function toggleVideoFullscreen() {
     }
   } catch (err) {
     console.warn('Fullscreen toggle error:', err);
+  }
+}
+
+async function toggleExamFullscreen() {
+  const settings = appState.proctorSettings || { enforceFullscreenMode: true };
+  try {
+    if (!document.fullscreenElement) {
+      if (document.documentElement.requestFullscreen) {
+        await document.documentElement.requestFullscreen();
+      }
+      logUserActivity('EXAM', 'ENTER_EXAM_FULLSCREEN', 'INFO', 'ผู้เข้าสอบเปิดโหมดเต็มจอ (Full Screen) ในห้องสอบ Post-Test');
+    } else {
+      if (settings.enforceFullscreenMode !== false && !fullscreenLockTemporarilyBypassed && !(currentUser && currentUser.courseSubmitted)) {
+        alert('🔒 ระบบบังคับโหมดเต็มจอระหว่างทำข้อสอบ (Enforce Full Screen Lock) ไม่สามารถย่อหน้าจอระหว่างทำข้อสอบได้');
+        return;
+      }
+      if (document.exitFullscreen) {
+        await document.exitFullscreen();
+      }
+    }
+  } catch (err) {
+    console.warn('Exam fullscreen toggle error:', err);
   }
 }
 
@@ -566,13 +768,37 @@ function dismissAntiCaptureShield() {
 }
 
 function setupTabSwitchAndAntiCheatGuards() {
-  // Sync Fullscreen button icon/label whenever fullscreen state changes
+  // Sync Fullscreen button icon/label & Enforce Fullscreen Lock if user presses ESC during Classroom/Exam
   document.addEventListener('fullscreenchange', () => {
     const icon = document.getElementById('iconFullscreenVideo');
     const text = document.getElementById('textFullscreenVideo');
+    const examIcon = document.getElementById('iconFullscreenExam');
+    const examText = document.getElementById('textFullscreenExam');
     const isFs = !!document.fullscreenElement;
+
     if (icon) icon.className = isFs ? 'fa-solid fa-compress' : 'fa-solid fa-expand';
-    if (text) text.textContent = isFs ? 'ย่อขนาดปกติ (Exit Full Screen)' : 'ขยายเต็มจอ (Full Screen)';
+    if (text) text.textContent = isFs ? 'โหมดเต็มจอทำงานอยู่ (Full Screen)' : 'ขยายเต็มจอ (Full Screen)';
+    if (examIcon) examIcon.className = isFs ? 'fa-solid fa-compress' : 'fa-solid fa-expand';
+    if (examText) examText.textContent = isFs ? 'ห้องสอบเต็มจอทำงานอยู่' : 'เต็มจอ (Full Screen)';
+
+    // If user exited Fullscreen while inside Classroom (4.3) or Post-Test Exam (Step 05) and enforceFullscreenMode is ON
+    if (!isFs && currentAuthRole === 'LEARNER') {
+      const settings = appState.proctorSettings || { enforceFullscreenMode: true };
+      const classroomView = document.getElementById('step4-view-classroom');
+      const examSection = document.getElementById('section-step5');
+      const isClassroomActive = classroomView && !classroomView.classList.contains('hidden');
+      const isExamActive = examSection && !examSection.classList.contains('hidden') && !(currentUser && currentUser.courseSubmitted);
+
+      if ((isClassroomActive || isExamActive) && settings.enforceFullscreenMode !== false && !fullscreenLockTemporarilyBypassed) {
+        logUserActivity(
+          'ANTI_CHEAT',
+          'FULLSCREEN_EXIT_BLOCKED',
+          'WARNING',
+          `ผู้เรียนกดออกจากโหมดเต็มจอ (ESC / Exit Full Screen) ระหว่าง${isExamActive ? 'ทำข้อสอบ Post-Test' : 'เรียนวิดีโอ'} — ระบบล็อกหน้าจอและบังคับกลับเข้าสู่โหมดเต็มจอ`
+        );
+        showFullscreenEnforcementLockModal(isExamActive ? 'exam' : 'classroom');
+      }
+    }
   });
 
   // 1. Detect Tab Switching (document.hidden / visibilitychange)
@@ -887,8 +1113,10 @@ async function refreshSystemState() {
       currentUser = appState.users[0];
     }
 
+    syncDemoEditionUI();
     updateTopHeaderUI();
     renderEligibleRoster();
+    renderKycApprovalStatusBanner(false);
     renderCurriculumSidebar();
     renderExamUI();
     renderCertificateUI();
@@ -1056,12 +1284,23 @@ function switchMainTab(tabId) {
   }
 
   if (tabId === 'step2') renderEligibleRoster();
-  if (tabId === 'step4') renderCurriculumSidebar();
+  if (tabId === 'step4') {
+    renderKycApprovalStatusBanner(false);
+    renderCurriculumSidebar();
+  }
   if (tabId === 'step5') {
     startExamPipCamera();
     renderExamUI();
+    if (!(currentUser && currentUser.courseSubmitted)) {
+      enterEnforcedActivityFullscreen('exam');
+    }
   }
-  if (tabId === 'step6') renderCertificateUI();
+  if (tabId === 'step6') {
+    if (document.fullscreenElement && document.exitFullscreen) {
+      document.exitFullscreen().catch(() => {});
+    }
+    renderCertificateUI();
+  }
   if (tabId === 'admin') renderAdminDashboard();
 }
 
@@ -1084,10 +1323,15 @@ function switchStep4View(viewName) {
     activeBtn.classList.remove('text-slate-600');
   }
 
+  if (viewName === 'kyc3photos') {
+    renderKycApprovalStatusBanner(false);
+  }
+
   if (viewName === 'classroom') {
     ensureYouTubeIframeApiLoaded();
     startClassroomPipCamera();
     renderCurriculumSidebar();
+    enterEnforcedActivityFullscreen('classroom');
   }
 }
 
@@ -1714,26 +1958,11 @@ async function submitKycVerification(forceManualReview = false) {
     currentUser = data.user;
     await refreshSystemState();
 
-    const box = document.getElementById('kycResultBox');
-    box.classList.remove('hidden');
-
     if (data.kycStatus === 'APPROVED') {
-      box.className = 'mt-5 p-5 rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-emerald-950 space-y-3';
-      box.innerHTML = `
-        <div class="flex items-center justify-between flex-wrap gap-2">
-          <div class="font-bold text-base flex items-center gap-2">
-            <i class="fa-solid fa-circle-check text-emerald-600 text-xl"></i>
-            <span>ผ่านการยืนยันตัวตนด้วย AI จริง! (ความเหมือน ${similarityScore.toFixed(1)}% | Distance: ${euclideanDist.toFixed(4)})</span>
-          </div>
-          <button onclick="openPreSessionCheckAndEnterClassroom()" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow">
-            คลิก "เริ่มเรียน" (เข้าสู่ห้องเรียนหน้า 22) <i class="fa-solid fa-arrow-right ml-1"></i>
-          </button>
-        </div>
-        <p class="text-xs text-emerald-800">
-          โมเดล ResNet-34 ตรวจสอบพบใบหน้าในภาพทั้งสองและยืนยันว่าเป็นบุคคลเดียวกัน (ใช้เวลาประมวลผล ${inferenceMs} ms) พร้อมจดจำโครงหน้า 128 มิติของคุณไว้ใช้ตรวจจับแบบ Real-time ในห้องเรียนแล้ว
-        </p>
-      `;
+      renderKycApprovalStatusBanner(true);
     } else {
+      const box = document.getElementById('kycResultBox');
+      box.classList.remove('hidden');
       const reasonHtml = aiFailureReasons.length > 0
         ? aiFailureReasons.map(r => `<li>${r}</li>`).join('')
         : '<li>ผู้เรียนกดส่งคำขอให้ผู้ดูแลระบบตรวจสอบด้วยตนเอง (Manual Review)</li>';
@@ -1742,17 +1971,17 @@ async function submitKycVerification(forceManualReview = false) {
       box.innerHTML = `
         <div class="font-bold text-base flex items-center gap-2 text-rose-700">
           <i class="fa-solid fa-circle-xmark text-xl"></i>
-          <span>❌ ข้อมูลไม่ผ่านเกณฑ์ AI จริง (ความเหมือน ${similarityScore.toFixed(1)}%) — อ้างอิงคู่มือหน้า 21</span>
+          <span>⏳ รอการตรวจสอบ/อนุมัติโดยผู้ดูแลระบบ (ความเหมือน AI: ${similarityScore.toFixed(1)}%) — อ้างอิงคู่มือหน้า 21</span>
         </div>
         <ul class="list-disc list-inside text-xs text-rose-800 font-semibold space-y-1">
           ${reasonHtml}
         </ul>
         <p class="text-xs text-rose-700">
-          ตามคู่มือหน้า 21 คุณสามารถคลิกถ่ายภาพใหม่อีกครั้งให้ชัดเจนและตรงกรอบ หรือคลิกไปที่หน้าผู้ดูแลระบบ (Admin) เพื่อกดอนุมัติการยืนยันตัวตน
+          ตามคู่มือหน้า 21 คุณสามารถคลิกถ่ายภาพใหม่อีกครั้งให้ชัดเจนและตรงกรอบ หรือสลับไปที่หน้าผู้ดูแลระบบ (Admin) เพื่อกดอนุมัติการยืนยันตัวตน
         </p>
         <div class="flex flex-wrap gap-3 pt-1">
-          <button onclick="logoutPortalSession('ADMIN')" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs shadow">
-            <i class="fa-solid fa-user-shield mr-1"></i> สลับเข้าสู่ระบบผู้ดูแลระบบ (Admin Login) เพื่ออนุมัติคำขอนี้
+          <button onclick="logoutPortalSession('ADMIN')" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs shadow">
+            <i class="fa-solid fa-user-shield mr-1"></i> สลับเข้าสู่ระบบผู้ดูแลระบบ (Admin Login) เพื่อกดอนุมัติคำขอนี้
           </button>
         </div>
       `;
@@ -1765,8 +1994,89 @@ async function submitKycVerification(forceManualReview = false) {
   }
 }
 
+function renderKycApprovalStatusBanner(showPopup = false) {
+  const box = document.getElementById('kycResultBox');
+  if (!box || !currentUser) return;
+
+  if (currentUser.kycStatus === 'APPROVED') {
+    const kyc = currentUser.kycData || {};
+    const isAdminApproved =
+      kyc.approvalMethod === 'ADMIN_MANUAL' ||
+      (kyc.reviewedBy && String(kyc.reviewedBy).toLowerCase().includes('admin'));
+
+    const approvalSourceBadgeHtml = isAdminApproved
+      ? `<span class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-500 text-slate-950 font-extrabold text-xs shadow-sm">
+           <i class="fa-solid fa-user-shield"></i> ✓ ผ่านการอนุมัติโดย Admin (${kyc.reviewedBy || 'System Administrator'})
+         </span>`
+      : `<span class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-600 text-white font-extrabold text-xs shadow-sm">
+           <i class="fa-solid fa-robot"></i> ✓ ผ่านการอนุมัติอัตโนมัติด้วย AI (ความเหมือน ${(kyc.similarityScore || 92.4).toFixed(1)}%)
+         </span>`;
+
+    const approvalDescHtml = isAdminApproved
+      ? `ผู้ดูแลระบบ (Admin) ได้ตรวจสอบภาพถ่ายบัตรประชาชนและใบหน้าทั้ง 3 รูปของคุณและกดอนุมัติเข้าสู่อบรมเรียบร้อยแล้ว`
+      : `ระบบ AI Face Recognition (ResNet-34 128D) ตรวจสอบพบใบหน้าตรงกับบัตรประชาชน (ความเหมือน ${(kyc.similarityScore || 92.4).toFixed(1)}%) และอนุมัติเข้าเรียนอัตโนมัติ`;
+
+    box.classList.remove('hidden');
+    box.className = 'mt-5 p-6 rounded-3xl border-2 border-emerald-500 bg-gradient-to-r from-emerald-50 via-teal-50 to-sky-50 text-emerald-950 shadow-md space-y-4';
+    box.innerHTML = `
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="space-y-2">
+          <div class="flex flex-wrap items-center gap-2">
+            ${approvalSourceBadgeHtml}
+            <span class="text-[11px] font-mono text-slate-500">อนุมัติเมื่อ: ${new Date(kyc.approvedAt || currentUser.updatedAt || Date.now()).toLocaleTimeString('th-TH')}</span>
+          </div>
+          <div class="font-extrabold text-base sm:text-lg text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-circle-check text-emerald-600 text-xl"></i>
+            <span>ยืนยันตัวตนสำเร็จ! คุณพร้อมเข้าสู่ห้องเรียนออนไลน์แล้ว</span>
+          </div>
+          <p class="text-xs text-slate-700 leading-relaxed">${approvalDescHtml}</p>
+        </div>
+
+        <button onclick="openPreSessionCheckAndEnterClassroom()" class="shrink-0 px-7 py-4 rounded-2xl bg-gradient-to-r from-blue-700 to-emerald-600 hover:from-blue-800 hover:to-emerald-700 text-white font-extrabold text-sm sm:text-base shadow-xl transition transform hover:scale-[1.02] flex items-center justify-center gap-2.5 animate-pulse">
+          <span>🚀 เริ่มต้นบทเรียนทันที</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+    `;
+
+    if (showPopup) {
+      const popup = document.getElementById('kycApprovedCelebrationModal');
+      const popupBadge = document.getElementById('kycPopupApprovalBadge');
+      const popupDetail = document.getElementById('kycPopupDetailBox');
+      if (popupBadge) {
+        popupBadge.textContent = isAdminApproved
+          ? '✓ ผ่านการอนุมัติโดย Admin (Approved by Administrator)'
+          : `✓ ผ่านการอนุมัติอัตโนมัติด้วย AI (ความเหมือน ${(kyc.similarityScore || 92.4).toFixed(1)}%)`;
+        popupBadge.className = isAdminApproved
+          ? 'inline-block bg-amber-400 text-slate-950 text-xs font-extrabold px-3.5 py-1 rounded-full shadow'
+          : 'inline-block bg-emerald-900/50 border border-emerald-300 text-emerald-100 text-xs font-extrabold px-3.5 py-1 rounded-full';
+      }
+      if (popupDetail) {
+        popupDetail.innerHTML = `
+          <div class="font-bold text-sm text-emerald-950">${isAdminApproved ? '🛡️ อนุมัติโดยผู้ดูแลระบบ (Admin Override)' : '🤖 อนุมัติอัตโนมัติด้วย AI Neural Network (ResNet-34)'}</div>
+          <div class="text-xs text-slate-700">${approvalDescHtml}</div>
+        `;
+      }
+      if (popup) popup.classList.remove('hidden');
+    }
+  }
+}
+
+function closeKycCelebrationModalOnly() {
+  const popup = document.getElementById('kycApprovedCelebrationModal');
+  if (popup) popup.classList.add('hidden');
+}
+
+async function closeKycCelebrationAndStartLesson() {
+  closeKycCelebrationModalOnly();
+  await openPreSessionCheckAndEnterClassroom();
+}
+
 async function openPreSessionCheckAndEnterClassroom() {
   if (!currentUser) return;
+  closeKycCelebrationModalOnly();
+  // Request Fullscreen immediately inside user's click gesture so browser allows it 100%
+  await enterEnforcedActivityFullscreen('classroom');
   await fetch('/api/proctoring/verify-face', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -2579,8 +2889,103 @@ function reshuffleExamQuestions() {
   shuffledExamOrder = buildShuffledExamQuestions();
   currentExamQIndex = 0;
   selectedExamAnswers = {};
+  isShowingExamResultScreen = false;
   logUserActivity('EXAM', 'RESHUFFLE_EXAM_POOL', 'INFO', 'สุ่มสลับลำดับข้อสอบและตัวเลือก ก-ข-ค-ง ใหม่');
   renderExamUI();
+}
+
+function startNextExamRetake() {
+  closeExamResultInstantModal();
+  shuffledExamOrder = buildShuffledExamQuestions();
+  currentExamQIndex = 0;
+  selectedExamAnswers = {};
+  isShowingExamResultScreen = false;
+  renderExamUI();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function closeExamResultInstantModal() {
+  const modal = document.getElementById('examResultInstantModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function showExamResultInstantModal(attempt, anyPassed, remainingAttempts) {
+  const modal = document.getElementById('examResultInstantModal');
+  const card = document.getElementById('examResultModalCard');
+  if (!modal || !card || !attempt) return;
+
+  const isPass = !!attempt.passed || anyPassed;
+  card.className = `bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border-2 ${
+    isPass ? 'border-emerald-500' : 'border-rose-500'
+  } text-center`;
+
+  if (isPass) {
+    card.innerHTML = `
+      <div class="bg-emerald-600 text-white px-6 py-6 space-y-2">
+        <div class="w-16 h-16 rounded-full bg-white text-emerald-600 mx-auto flex items-center justify-center text-3xl shadow-lg animate-bounce">
+          <i class="fa-solid fa-trophy"></i>
+        </div>
+        <span class="inline-block bg-emerald-900/50 border border-emerald-300 text-emerald-100 text-xs font-extrabold px-3.5 py-1 rounded-full">
+          PASS • สอบผ่านเกณฑ์มาตรฐาน คปภ.
+        </span>
+        <h3 class="text-2xl font-extrabold">🎉 ยินดีด้วย! คุณสอบผ่านแล้ว</h3>
+      </div>
+      <div class="p-6 space-y-4">
+        <div class="grid grid-cols-2 gap-3 text-center">
+          <div class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200">
+            <div class="text-xs text-emerald-800 font-semibold">คะแนนที่ทำได้</div>
+            <div class="text-3xl font-extrabold text-emerald-600">${attempt.score} / ${attempt.total}</div>
+            <div class="text-xs font-bold text-emerald-700">คิดเป็น ${attempt.percentage}% (เกณฑ์ >= 60%)</div>
+          </div>
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+            <div class="text-xs text-slate-600 font-semibold">ครั้งที่สอบสำเร็จ</div>
+            <div class="text-3xl font-extrabold text-blue-800">ครั้งที่ ${attempt.attemptNo}</div>
+            <div class="text-xs font-bold text-emerald-700">✓ AI Proctoring ยืนยันโปร่งใส</div>
+          </div>
+        </div>
+        <button onclick="finalizeCourseAndIssueCertificate(true)" class="w-full py-4 rounded-2xl bg-gradient-to-r from-blue-700 to-emerald-600 hover:from-blue-800 hover:to-emerald-700 text-white font-extrabold text-base shadow-xl transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-award"></i>
+          <span>ส่งผลการเรียนและรับใบรับรองการอบรมทันที (Step 06)</span>
+        </button>
+        <button onclick="closeExamResultInstantModal()" class="text-xs text-slate-500 hover:text-slate-700 font-semibold underline">
+          ปิดหน้าต่างป๊อปอัปเพื่อดูสรุปผลในหน้าจอเดียว
+        </button>
+      </div>
+    `;
+  } else {
+    card.innerHTML = `
+      <div class="bg-rose-600 text-white px-6 py-6 space-y-2">
+        <div class="w-16 h-16 rounded-full bg-white text-rose-600 mx-auto flex items-center justify-center text-3xl shadow-lg">
+          <i class="fa-solid fa-circle-xmark"></i>
+        </div>
+        <span class="inline-block bg-rose-900/50 border border-rose-300 text-rose-100 text-xs font-extrabold px-3.5 py-1 rounded-full">
+          FAIL • คะแนนยังไม่ผ่านเกณฑ์ร้อยละ 60
+        </span>
+        <h3 class="text-2xl font-extrabold">คะแนนของคุณยังไม่ผ่านเกณฑ์</h3>
+      </div>
+      <div class="p-6 space-y-4">
+        <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200 space-y-1">
+          <div class="text-2xl font-extrabold text-rose-600">ได้คะแนน ${attempt.score} / ${attempt.total} ข้อ (${attempt.percentage}%)</div>
+          <div class="text-xs text-rose-800">
+            ${remainingAttempts > 0
+              ? `คุณยังมีสิทธิ์สอบแก้ตัวได้อีก <b>${remainingAttempts} ครั้ง</b> (ระบบจะสุ่มสลับลำดับข้อสอบใหม่ให้ทันที)`
+              : `คุณใช้สิทธิ์สอบครบ 5 ครั้งแล้ว ตามระเบียบข้อ 7 จะต้องทำการสมัครอบรมใหม่`}
+          </div>
+        </div>
+        ${remainingAttempts > 0 ? `
+          <button onclick="startNextExamRetake()" class="w-full py-4 rounded-2xl bg-blue-700 hover:bg-blue-800 text-white font-extrabold text-base shadow-xl transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-rotate-right"></i>
+            <span>เริ่มทำแบบทดสอบแก้ตัวครั้งถัดไปทันที</span>
+          </button>
+        ` : ''}
+        <button onclick="closeExamResultInstantModal()" class="text-xs text-slate-500 hover:text-slate-700 font-semibold underline">
+          ดูสรุปผลในหน้าหลัก
+        </button>
+      </div>
+    `;
+  }
+
+  modal.classList.remove('hidden');
 }
 
 function updateDynamicWatermarks() {
@@ -2735,6 +3140,8 @@ async function submitExamAttempt() {
   }
 
   currentUser = data.user;
+  isShowingExamResultScreen = true;
+
   logUserActivity(
     'EXAM',
     data.attempt.passed ? 'EXAM_ATTEMPT_PASSED' : 'EXAM_ATTEMPT_FAILED',
@@ -2742,67 +3149,117 @@ async function submitExamAttempt() {
     `ส่งกระดาษคำตอบครั้งที่ ${data.attempt.attemptNo}: ได้คะแนน ${data.attempt.score}/${data.attempt.total} (${data.attempt.percentage}%)`,
     data.attempt
   );
+
   // Reshuffle for next attempt if failed
   if (!data.attempt.passed) {
     shuffledExamOrder = buildShuffledExamQuestions();
     currentExamQIndex = 0;
     selectedExamAnswers = {};
   }
+
   await refreshSystemState();
   renderExamUI();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  const attempts = (currentUser && currentUser.examAttempts) || [];
+  const anyPassed = attempts.some(a => a.passed);
+  const maxAttempts = (appState.proctorSettings && appState.proctorSettings.maxExamAttempts) || 5;
+  const remaining = Math.max(0, maxAttempts - attempts.length);
+  showExamResultInstantModal(data.attempt, anyPassed, remaining);
 }
 
 function renderExamAttemptsSummary() {
   const box = document.getElementById('examResultSummaryBox');
+  const qViewPanel = document.getElementById('examQuestionViewPanel');
   const attempts = (currentUser && currentUser.examAttempts) || [];
+
   if (attempts.length === 0) {
-    box.classList.add('hidden');
+    if (box) box.classList.add('hidden');
+    if (qViewPanel) qViewPanel.classList.remove('hidden');
     return;
   }
 
-  box.classList.remove('hidden');
   const latest = attempts[attempts.length - 1];
   const anyPassed = attempts.some(a => a.passed);
+  const maxAttempts = (appState.proctorSettings && appState.proctorSettings.maxExamAttempts) || 5;
+  const remaining = Math.max(0, maxAttempts - attempts.length);
+
+  // Fit-to-Screen Single-Page UX: When showing result screen (or passed), hide question form so result is at top with zero scrolling!
+  if (isShowingExamResultScreen || anyPassed) {
+    if (qViewPanel) qViewPanel.classList.add('hidden');
+  } else {
+    if (qViewPanel) qViewPanel.classList.remove('hidden');
+  }
+
+  box.classList.remove('hidden');
 
   if (anyPassed) {
-    box.className = 'p-5 rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-emerald-950 space-y-3';
+    box.className = 'p-6 sm:p-8 rounded-3xl border-2 border-emerald-500 bg-gradient-to-br from-emerald-50 via-teal-50 to-white text-emerald-950 space-y-5 relative z-20 shadow-xl text-center';
     box.innerHTML = `
-      <div class="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <div class="font-extrabold text-base text-emerald-800">
-            🎉 ผ่านเกณฑ์การทดสอบ! คะแนนครั้งล่าสุด: ${latest.score}/${latest.total} (${latest.percentage}% - Pass)
-          </div>
-          <p class="text-xs text-emerald-700 mt-0.5">
-            ตามคู่มือหน้า 29: เมื่อผ่านแบบทดสอบตามเกณฑ์ไม่น้อยกว่าร้อยละ 60 กรุณาคลิกปุ่ม <b>"ส่งผลการเรียน"</b> เพื่อขอรับใบรับรองประกาศนียบัตร
-          </p>
-        </div>
-        <button onclick="finalizeCourseAndIssueCertificate()" class="px-6 py-3 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-extrabold text-xs shadow-lg transition">
-          คลิก "ส่งผลการเรียน" เพื่อขอใบรับรอง (หน้า 29)
+      <div class="w-16 h-16 rounded-full bg-emerald-600 text-white mx-auto flex items-center justify-center text-3xl shadow-lg">
+        <i class="fa-solid fa-trophy"></i>
+      </div>
+      <div class="space-y-1">
+        <span class="inline-block bg-emerald-600 text-white text-xs font-extrabold px-3.5 py-1 rounded-full">
+          PASS • ผ่านเกณฑ์การประเมินผลหลังการอบรม
+        </span>
+        <h4 class="text-xl sm:text-2xl font-extrabold text-emerald-900 pt-1">
+          🎉 ยินดีด้วย! คุณสอบผ่านด้วยคะแนน ${latest.score} / ${latest.total} ข้อ (${latest.percentage}%)
+        </h4>
+        <p class="text-xs sm:text-sm text-emerald-800 max-w-xl mx-auto">
+          ตามคู่มือหน้า 29: เมื่อผ่านแบบทดสอบตามเกณฑ์ไม่น้อยกว่าร้อยละ 60 กรุณาคลิกปุ่ม <b>"ส่งผลการเรียน"</b> ด้านล่างเพื่อออกใบรับรองการอบรมทันที
+        </p>
+      </div>
+      <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
+        <button onclick="finalizeCourseAndIssueCertificate(true)" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-700 to-emerald-600 hover:from-blue-800 hover:to-emerald-700 text-white font-extrabold text-sm sm:text-base shadow-xl transition transform hover:scale-[1.02] flex items-center gap-2.5 animate-pulse">
+          <i class="fa-solid fa-award text-lg"></i>
+          <span>คลิก "ส่งผลการเรียน" และรับใบรับรองการอบรมทันที (Step 06)</span>
+        </button>
+        <button onclick="startNextExamRetake()" class="px-4 py-3 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 font-bold text-xs">
+          <i class="fa-solid fa-rotate-right mr-1"></i> ทดลองทำข้อสอบซ้ำ (สำหรับผู้สาธิต)
         </button>
       </div>
     `;
   } else {
-    const remaining = Math.max(0, 5 - attempts.length);
-    box.className = 'p-5 rounded-2xl border-2 border-rose-400 bg-rose-50 text-rose-950 space-y-2';
+    box.className = 'p-6 sm:p-8 rounded-3xl border-2 border-rose-400 bg-gradient-to-br from-rose-50 to-white text-rose-950 space-y-4 relative z-20 shadow-xl text-center';
     box.innerHTML = `
-      <div class="font-extrabold text-base text-rose-700">
-        ❌ คะแนนไม่ผ่านเกณฑ์ร้อยละ 60: ได้คะแนน ${latest.score}/${latest.total} (${latest.percentage}%)
+      <div class="w-16 h-16 rounded-full bg-rose-600 text-white mx-auto flex items-center justify-center text-3xl shadow-lg">
+        <i class="fa-solid fa-circle-xmark"></i>
       </div>
-      <p class="text-xs text-rose-800">
-        ${remaining > 0
-          ? `คุณสามารถทำแบบทดสอบแก้ตัวได้อีก <b>${remaining} ครั้ง</b> (จากโควตาสูงสุด 5 ครั้ง)`
-          : `คุณทำแบบทดสอบครบ 5 ครั้งแล้วและยังไม่ผ่านเกณฑ์ ตามระเบียบข้อ 7 (หน้า 2 และหน้า 29) จะต้องทำการสมัครใหม่!`}
-      </p>
+      <div class="space-y-1">
+        <span class="inline-block bg-rose-600 text-white text-xs font-extrabold px-3.5 py-1 rounded-full">
+          FAIL • คะแนนยังไม่ผ่านเกณฑ์ร้อยละ 60
+        </span>
+        <h4 class="text-xl sm:text-2xl font-extrabold text-rose-800 pt-1">
+          ❌ คะแนนครั้งที่ ${latest.attemptNo}: ได้ ${latest.score} / ${latest.total} ข้อ (${latest.percentage}%)
+        </h4>
+        <p class="text-xs sm:text-sm text-rose-800 max-w-xl mx-auto">
+          ${remaining > 0
+            ? `คุณสามารถทำแบบทดสอบแก้ตัวได้อีก <b>${remaining} ครั้ง</b> (จากโควตาสูงสุด ${maxAttempts} ครั้ง)`
+            : `คุณทำแบบทดสอบครบ ${maxAttempts} ครั้งแล้วและยังไม่ผ่านเกณฑ์ ตามระเบียบข้อ 7 (หน้า 2 และหน้า 29) จะต้องทำการสมัครใหม่!`}
+        </p>
+      </div>
+      ${remaining > 0 ? `
+        <div class="pt-2">
+          <button onclick="startNextExamRetake()" class="px-8 py-3.5 rounded-2xl bg-blue-700 hover:bg-blue-800 text-white font-extrabold text-sm shadow-xl transition inline-flex items-center gap-2">
+            <i class="fa-solid fa-rotate-right"></i>
+            <span>เริ่มทำแบบทดสอบแก้ตัวครั้งถัดไปทันที (สุ่มคำถามใหม่)</span>
+          </button>
+        </div>
+      ` : ''}
     `;
   }
 }
 
-async function finalizeCourseAndIssueCertificate() {
+async function finalizeCourseAndIssueCertificate(skipConfirm = false) {
   if (!currentUser) return;
-  const confirmLock = confirm(
-    'ต้องการส่งผลการเรียนเพื่อขอใบรับรองหรือไม่?\n(ตามระเบียบข้อ 8 เมื่อกดส่งผลการอบรมเรียบร้อยแล้ว จะไม่สามารถกลับเข้ามายังหลักสูตรได้อีก)'
-  );
-  if (!confirmLock) return;
+  closeExamResultInstantModal();
+  if (!skipConfirm) {
+    const confirmLock = confirm(
+      'ต้องการส่งผลการเรียนเพื่อขอใบรับรองหรือไม่?\n(ตามระเบียบข้อ 8 เมื่อกดส่งผลการอบรมเรียบร้อยแล้ว จะไม่สามารถกลับเข้ามายังหลักสูตรได้อีก)'
+    );
+    if (!confirmLock) return;
+  }
 
   const res = await fetch('/api/exam/finalize', {
     method: 'POST',
@@ -3015,7 +3472,7 @@ function populateAdminSettingsForm() {
     if (el) el.checked = !!val;
   };
 
-  setVal('setLessonDurationSec', s.lessonDurationSec || 60);
+  setVal('setLessonDurationSec', typeof s.lessonDurationSec === 'number' ? s.lessonDurationSec : 0);
   setVal('setRandomPromptTimeoutSec', s.randomPromptTimeoutSec || 120);
   setVal('setInactivityTimeoutSec', s.inactivityTimeoutSec || 900);
   setVal('setFaceMatchThresholdPct', s.faceMatchThresholdPct || 72);
@@ -3023,6 +3480,7 @@ function populateAdminSettingsForm() {
   setChk('setDetectMultipleFaces', s.detectMultipleFaces);
   setChk('setDetectHeadPoseLookingAway', s.detectHeadPoseLookingAway);
   setChk('setEnableActiveLivenessChallenge', s.enableActiveLivenessChallenge !== false);
+  setChk('setEnforceFullscreenMode', s.enforceFullscreenMode !== false);
   setChk('setPauseOnTabSwitch', s.pauseOnTabSwitch);
   setVal('setMaxTabSwitchWarnings', s.maxTabSwitchWarnings || 5);
   setChk('setBlockCopyPasteRightClick', s.blockCopyPasteRightClick);
@@ -3034,9 +3492,19 @@ function populateAdminSettingsForm() {
   setVal('setMaxExamAttempts', s.maxExamAttempts || 5);
 }
 
+async function applyAdminQuickPreset(mode) {
+  await switchDemoSystemEdition(mode, false);
+  populateAdminSettingsForm();
+}
+
 async function saveAdminProctorSettings() {
+  const durInput = Number(document.getElementById('setLessonDurationSec').value);
   const payload = {
-    lessonDurationSec: Number(document.getElementById('setLessonDurationSec').value) || 60,
+    demoEdition: durInput === 15 ? 'azay-torean' : 'standard',
+    lessonDurationSec: durInput >= 0 ? durInput : 0,
+    enforceFullscreenMode: document.getElementById('setEnforceFullscreenMode')
+      ? document.getElementById('setEnforceFullscreenMode').checked
+      : true,
     randomPromptTimeoutSec: Number(document.getElementById('setRandomPromptTimeoutSec').value) || 120,
     inactivityTimeoutSec: Number(document.getElementById('setInactivityTimeoutSec').value) || 900,
     faceMatchThresholdPct: Number(document.getElementById('setFaceMatchThresholdPct').value) || 72,
@@ -3062,6 +3530,7 @@ async function saveAdminProctorSettings() {
   });
   const data = await res.json();
   if (data.success) {
+    fullscreenLockTemporarilyBypassed = false;
     shuffledExamOrder = null;
     await refreshSystemState();
     updateVideoPlayerUI();
@@ -3108,7 +3577,20 @@ async function adminReviewKyc(idCard, decision) {
     body: JSON.stringify({ idCard, decision, note: 'อนุมัติโดยผู้ดูแลระบบตามขั้นตอนหน้า 21' })
   });
   await refreshSystemState();
-  alert(`ดำเนินการ ${decision === 'APPROVED' ? 'อนุมัติ' : 'ปฏิเสธ'} การยืนยันตัวตนของเลขบัตร ${idCard} และส่งอีเมลแจ้งผู้เรียนเรียบร้อยแล้ว`);
+  if (decision === 'APPROVED') {
+    const goBackLearner = confirm(
+      `✅ อนุมัติการยืนยันตัวตนของเลขบัตร ${idCard} เรียบร้อยแล้ว!\n\nต้องการสลับกลับไปที่หน้าจอผู้เรียน (Learner - Step 04.2) ทันทีเพื่อแสดงสถานะ "✓ ผ่านการอนุมัติโดย Admin" และปุ่ม "🚀 เริ่มต้นบทเรียนทันที" หรือไม่?`
+    );
+    if (goBackLearner) {
+      currentAuthRole = 'LEARNER';
+      applyRoleBasedScreenState();
+      switchMainTab('step4');
+      switchStep4View('kyc3photos');
+      renderKycApprovalStatusBanner(true);
+    }
+  } else {
+    alert(`ดำเนินการปฏิเสธการยืนยันตัวตนของเลขบัตร ${idCard} และส่งอีเมลแจ้งผู้เรียนเรียบร้อยแล้ว`);
+  }
 }
 
 // ============================================================================

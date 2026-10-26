@@ -51,6 +51,14 @@
       width: 100%;
       height: 100%;
     }
+    /* Pro Screen / Exam Fullscreen Stage Styling */
+    #examFullscreenStage:fullscreen {
+      overflow-y: auto;
+      background-color: #0f172a;
+      width: 100vw;
+      height: 100vh;
+      padding: 1.5rem;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -81,6 +89,74 @@
   </div>
 
   <!-- ======================================================================= -->
+  <!-- ENFORCED FULL-SCREEN LOCK MODAL (Blocks Exiting Full Screen in Class/Exam) -->
+  <!-- ======================================================================= -->
+  <div id="fullscreenLockEnforcementModal" class="hidden fixed inset-0 z-[9990] bg-slate-950/95 backdrop-blur-md text-white flex flex-col items-center justify-center p-6 text-center select-none">
+    <div class="bg-slate-900 border-2 border-amber-500 rounded-3xl max-w-lg w-full p-7 shadow-2xl space-y-4">
+      <div class="w-16 h-16 rounded-full bg-amber-500 text-slate-950 mx-auto flex items-center justify-center text-3xl shadow-lg animate-bounce">
+        <i class="fa-solid fa-expand"></i>
+      </div>
+      <span class="inline-block bg-amber-500/20 border border-amber-400/50 text-amber-300 text-[11px] font-extrabold px-3 py-1 rounded-full">
+        PROCTORING FULL SCREEN LOCK • บังคับโหมดเต็มจออัตโนมัติ
+      </span>
+      <h3 id="fullscreenLockModalTitle" class="text-lg sm:text-xl font-extrabold text-white">
+        ⚠️ ระบบกำหนดให้แสดงผลแบบเต็มหน้าจอ (Full Screen) ตลอดการเรียนและการสอบ
+      </h3>
+      <p id="fullscreenLockModalDesc" class="text-xs text-slate-300 leading-relaxed">
+        ตรวจพบว่าคุณย่อหน้าจอหรือออกจากโหมด Full Screen ระบบได้หยุดเวลาเรียน/ล็อกหน้าข้อสอบชั่วคราวเพื่อป้องกันการเปิดดูข้อมูลอื่น กรุณาคลิกปุ่มด้านล่างเพื่อกลับเข้าสู่โหมดเต็มจอ
+      </p>
+      <button onclick="reenterEnforcedFullscreen()" class="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm shadow-xl transition flex items-center justify-center gap-2">
+        <i class="fa-solid fa-expand"></i>
+        <span>กลับเข้าสู่โหมดเต็มจอ (Full Screen) เพื่อเรียน/สอบต่อทันที</span>
+      </button>
+      <div class="pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
+        <span>*ตั้งค่าเปิด/ปิดนโยบายนี้ได้ที่หน้า Admin Settings</span>
+        <button onclick="temporarilyBypassFullscreenLockForDemo()" class="text-sky-400 hover:text-sky-300 underline font-semibold">
+          ปลดล็อกชั่วคราว (สำหรับผู้พรีเซนต์ Demo)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- e-KYC APPROVAL CELEBRATION & SEAMLESS START LESSON POP-UP MODAL         -->
+  <!-- ======================================================================= -->
+  <div id="kycApprovedCelebrationModal" class="hidden fixed inset-0 z-[9980] bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border-2 border-emerald-500 text-center">
+      <div class="bg-emerald-600 text-white px-6 py-5 space-y-2">
+        <div class="w-16 h-16 rounded-full bg-white text-emerald-600 mx-auto flex items-center justify-center text-3xl shadow-lg">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <div id="kycPopupApprovalBadge" class="inline-block bg-emerald-900/50 border border-emerald-300 text-emerald-100 text-xs font-extrabold px-3.5 py-1 rounded-full">
+          ✓ ผ่านการอนุมัติอัตโนมัติด้วย AI (AI Auto-Approved)
+        </div>
+        <h3 class="text-xl font-extrabold">ยืนยันตัวตน (e-KYC) สำเร็จเรียบร้อย!</h3>
+      </div>
+      <div class="p-6 space-y-4">
+        <div id="kycPopupDetailBox" class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-950 space-y-1">
+          <!-- Populated by JS -->
+        </div>
+        <button onclick="closeKycCelebrationAndStartLesson()" class="w-full py-4 rounded-2xl bg-gradient-to-r from-blue-700 to-emerald-600 hover:from-blue-800 hover:to-emerald-700 text-white font-extrabold text-base shadow-xl transition transform hover:scale-[1.01] flex items-center justify-center gap-2.5">
+          <span>🚀 เริ่มต้นบทเรียนทันที (เข้าสู่ห้องเรียน Full Screen)</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+        <button onclick="closeKycCelebrationModalOnly()" class="text-xs text-slate-500 hover:text-slate-700 font-semibold underline">
+          ดูรายละเอียดผลวิเคราะห์โครงหน้า AI ในหน้านี้ก่อน
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- POST-TEST INSTANT RESULT POP-UP MODAL (No Scrolling Needed!)            -->
+  <!-- ======================================================================= -->
+  <div id="examResultInstantModal" class="hidden fixed inset-0 z-[9985] bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div id="examResultModalCard" class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border-2 border-emerald-500 text-center">
+      <!-- Populated dynamically by JS on submitExamAttempt() -->
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
   <!-- CENTRAL ROLE-BASED LOGIN PORTAL (Separates Learner vs Admin Screens)    -->
   <!-- ======================================================================= -->
   <div id="roleAuthPortalOverlay" class="fixed inset-0 z-50 tii-gradient flex items-center justify-center p-4 overflow-y-auto no-print">
@@ -92,10 +168,31 @@
         </div>
         <h2 class="font-extrabold text-base tracking-wide text-white pt-1">ALLIANZ AYUDHYA E-LEARNING (LMS)</h2>
         <p class="text-xs text-sky-300">ระบบอบรมออนไลน์และควบคุมการสอบด้วย AI Face Recognition</p>
+        <div id="portalEditionBadge" class="inline-block bg-amber-500 text-slate-950 text-[11px] font-extrabold px-3 py-0.5 rounded-full">
+          🏛️ โหมดมาตรฐาน คปภ. (Standard Edition)
+        </div>
       </div>
 
       <!-- Login Form -->
       <div class="p-6 space-y-4">
+        <!-- AZAY-TOREAN Fast Demo System Switcher Box -->
+        <div class="p-3 rounded-2xl bg-gradient-to-r from-indigo-950 to-slate-900 text-white border border-indigo-500/50 space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-[11px] font-extrabold text-amber-300 flex items-center gap-1">
+              <i class="fa-solid fa-bolt"></i> เลือกระบบสำหรับพรีเซนต์ลูกค้า:
+            </span>
+            <span id="loginToreanStatusPill" class="text-[10px] bg-white/15 px-2 py-0.5 rounded font-mono">Standard</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-[11px]">
+            <button type="button" id="btnPortalModeStandard" onclick="switchDemoSystemEdition('standard')" class="py-2 px-2.5 rounded-xl font-bold border border-white/20 bg-white/10 hover:bg-white/20 text-white transition">
+              🏛️ ระบบหลัก (เวลาจริง)
+            </button>
+            <button type="button" id="btnPortalModeTorean" onclick="switchDemoSystemEdition('azay-torean')" class="py-2 px-2.5 rounded-xl font-extrabold border border-amber-400 bg-amber-500 hover:bg-amber-400 text-slate-950 shadow transition">
+              ⚡ azay-torean (15วิ/บท)
+            </button>
+          </div>
+        </div>
+
         <div class="text-center">
           <h3 class="font-extrabold text-base text-slate-900">เข้าสู่ระบบแยกตามสิทธิ์การใช้งาน</h3>
           <p class="text-xs text-slate-500 mt-0.5">กรุณาระบุชื่อผู้ใช้งาน (Username) และรหัสผ่าน (Password)</p>
@@ -161,9 +258,10 @@
           <img src="/allianz-logo.webp" alt="Allianz Ayudhya" class="h-9 w-auto object-contain" />
         </div>
         <div>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 flex-wrap">
             <h1 class="font-bold text-lg leading-tight tracking-wide">อลิอันซ์ อยุธยา (ALLIANZ AYUDHYA)</h1>
             <span id="headerRoleBadge" class="text-xs bg-sky-500 text-white px-2.5 py-0.5 rounded-full font-bold shadow-sm">👤 โหมดผู้เรียน (Learner)</span>
+            <span id="headerToreanBadge" class="hidden text-xs bg-amber-400 text-slate-950 px-2.5 py-0.5 rounded-full font-extrabold shadow-sm animate-pulse">⚡ AZAY-TOREAN DEMO (15s/บท)</span>
           </div>
           <p class="text-xs text-sky-100">ระบบอบรมออนไลน์ E-Learning & AI Face Recognition Proctoring (หลักสูตรขอรับ/ขอต่อใบอนุญาตฯ ครั้ง 1-3)</p>
         </div>
@@ -171,6 +269,12 @@
 
       <!-- Right Action Controls -->
       <div class="flex items-center gap-2 flex-wrap">
+        <!-- Quick Switcher for azay-torean 15s Demo Mode -->
+        <button id="btnHeaderToreanToggle" onclick="toggleDemoSystemEdition()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 shadow transition" title="สลับระหว่างโหมดเวลาเรียนจริง และโหมดเดโมด่วน azay-torean (15 วินาที/บท)">
+          <i class="fa-solid fa-bolt"></i>
+          <span id="textHeaderToreanToggle">สลับเป็น azay-torean (15วิ/บท)</span>
+        </button>
+
         <!-- Real AI Engine Status Pill -->
         <div id="aiEngineStatusBadge" class="bg-slate-900/90 border border-sky-400/40 px-3 py-1.5 rounded-lg text-xs flex items-center gap-2">
           <span id="aiEngineDot" class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
@@ -1227,22 +1331,31 @@
     <!-- STEP 05: ทำแบบทดสอบหลังเรียน & ส่งผลการเรียน (PDF Pages 28-29)          -->
     <!-- ===================================================================== -->
     <section id="section-step5" class="tab-section hidden space-y-6">
-      <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+      <div id="examFullscreenStage" class="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <!-- Exam Top Header + Live Proctoring Telemetry Badges -->
         <div class="bg-slate-900 text-white px-6 py-4 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
               <span class="text-xs bg-orange-500 text-white px-2.5 py-0.5 rounded-full font-bold">ขั้นตอนที่ 05 (หน้า 28–29)</span>
               <span class="text-[11px] bg-emerald-600/30 border border-emerald-400/40 text-emerald-300 px-2 py-0.5 rounded-full font-bold">
                 <i class="fa-solid fa-shield-halved mr-1"></i>AI Exam Proctoring Active
+              </span>
+              <span id="examFullscreenPolicyBadge" class="text-[11px] bg-amber-500/20 border border-amber-400/40 text-amber-300 px-2 py-0.5 rounded-full font-bold">
+                <i class="fa-solid fa-expand mr-1"></i>บังคับโหมดเต็มจออัตโนมัติ
               </span>
             </div>
             <h3 class="font-bold text-lg mt-1">แบบทดสอบประเมินความรู้หลังการอบรม (Post-Test)</h3>
             <p class="text-xs text-slate-300">เกณฑ์ผ่านไม่น้อยกว่าร้อยละ 60 (3/5 ข้อ) สามารถสอบได้สูงสุด 5 ครั้ง • ระบบเปิดกล้อง AI ตรวจจับใบหน้าและป้องกันการแคปหน้าจอตลอดการสอบ</p>
           </div>
-          <div class="bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-center shrink-0">
-            <div class="text-[11px] text-slate-400">ครั้งที่ทำแบบทดสอบ</div>
-            <div id="examAttemptCounter" class="text-lg font-extrabold text-amber-400">ครั้งที่ 1 / 5</div>
+          <div class="flex items-center gap-2.5 shrink-0">
+            <button onclick="toggleExamFullscreen()" id="btnFullscreenExam" class="px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs shadow flex items-center gap-1.5 transition">
+              <i class="fa-solid fa-expand" id="iconFullscreenExam"></i>
+              <span id="textFullscreenExam">เต็มจอ (Full Screen)</span>
+            </button>
+            <div class="bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-center">
+              <div class="text-[11px] text-slate-400">ครั้งที่ทำแบบทดสอบ</div>
+              <div id="examAttemptCounter" class="text-lg font-extrabold text-amber-400">ครั้งที่ 1 / 5</div>
+            </div>
           </div>
         </div>
 
@@ -1327,8 +1440,8 @@
           </button>
         </div>
 
-        <!-- Exam Question Interactive Container (Sequential Question-by-Question per Page 28) -->
-        <div id="examInteractiveContainer" class="p-6 space-y-6 relative overflow-hidden">
+        <!-- Exam Question Interactive Container (Fit-to-Screen Single-Page Layout) -->
+        <div id="examInteractiveContainer" class="p-6 space-y-5 relative overflow-hidden">
           <!-- EXAM TAB SWITCH / FOCUS LOSS PAUSE OVERLAY BANNER -->
           <div id="examTabSwitchOverlay" class="hidden absolute inset-0 bg-slate-950/95 backdrop-blur-md z-30 flex flex-col items-center justify-center p-6 text-center space-y-4 text-white">
             <div class="w-16 h-16 rounded-full bg-rose-600 text-white flex items-center justify-center text-3xl shadow-lg animate-bounce">
@@ -1352,39 +1465,45 @@
             <div class="transform -rotate-12 text-base font-mono font-extrabold text-slate-900 whitespace-nowrap p-8">ALLIANZ AYUDHYA EXAM • 1100801279957</div>
           </div>
 
-          <div class="flex items-center justify-between text-xs border-b border-slate-200 pb-3 flex-wrap gap-2 relative z-20">
-            <div class="flex items-center gap-2">
-              <span id="examQuestionProgressText" class="font-bold text-blue-800">ข้อที่ 1 จาก 5</span>
-              <span id="examShuffleBadge" class="bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full text-[10px] font-bold">
-                <i class="fa-solid fa-shuffle mr-1"></i>สุ่มสลับลำดับข้อและตัวเลือกแล้ว
-              </span>
-            </div>
-            <div class="flex items-center gap-2 flex-wrap">
-              <button onclick="reshuffleExamQuestions()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-2.5 py-1 rounded-lg border border-slate-300">
-                <i class="fa-solid fa-dice mr-1"></i>สุ่มชุดลำดับข้อสอบใหม่
-              </button>
-              <button onclick="demoFillPassingExamAnswers()" class="text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold px-3 py-1 rounded-lg border border-emerald-200">
-                <i class="fa-solid fa-check-double mr-1"></i>ตัวช่วยเลือกคำตอบที่ถูกทั้งหมด (ผ่าน 100%)
-              </button>
-            </div>
-          </div>
+          <!-- FIT-TO-SCREEN EXAM RESULT SUMMARY PANEL (Replaces Question View on Finish — No Scrolling Needed!) -->
+          <div id="examResultSummaryBox" class="hidden p-6 rounded-2xl border-2 space-y-4 relative z-20 shadow-lg"></div>
 
-          <!-- Current Question Box -->
-          <div id="examQuestionBox" class="space-y-4">
-            <!-- Populated by JS -->
-          </div>
+          <!-- QUESTION VIEW PANEL (Automatically hidden when Result Summary is displayed so everything fits in 1 screen) -->
+          <div id="examQuestionViewPanel" class="space-y-5 relative z-20">
+            <div class="flex items-center justify-between text-xs border-b border-slate-200 pb-3 flex-wrap gap-2">
+              <div class="flex items-center gap-2">
+                <span id="examQuestionProgressText" class="font-bold text-blue-800">ข้อที่ 1 จาก 5</span>
+                <span id="examShuffleBadge" class="bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full text-[10px] font-bold">
+                  <i class="fa-solid fa-shuffle mr-1"></i>สุ่มสลับลำดับข้อและตัวเลือกแล้ว
+                </span>
+              </div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <button onclick="reshuffleExamQuestions()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-2.5 py-1 rounded-lg border border-slate-300">
+                  <i class="fa-solid fa-dice mr-1"></i>สุ่มชุดลำดับข้อสอบใหม่
+                </button>
+                <button onclick="demoFillPassingExamAnswers()" class="text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold px-3 py-1 rounded-lg border border-emerald-200">
+                  <i class="fa-solid fa-check-double mr-1"></i>ตัวช่วยเลือกคำตอบที่ถูกทั้งหมด (ผ่าน 100%)
+                </button>
+              </div>
+            </div>
 
-          <!-- Navigation Buttons (Page 28 Rule 2: Must select answer before moving to next question) -->
-          <div class="flex items-center justify-between pt-4 border-t border-slate-200 relative z-20">
-            <button id="btnExamPrev" onclick="prevExamQuestion()" class="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs">
-              <i class="fa-solid fa-arrow-left mr-1"></i> ย้อนก่อนหน้า
-            </button>
-            <button id="btnExamNext" onclick="nextExamQuestion()" class="px-6 py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs shadow">
-              ข้อถัดไป <i class="fa-solid fa-arrow-right ml-1"></i>
-            </button>
-            <button id="btnExamFinish" onclick="submitExamAttempt()" class="hidden px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow">
-              FINISH (ส่งกระดาษคำตอบ)
-            </button>
+            <!-- Current Question Box -->
+            <div id="examQuestionBox" class="space-y-4">
+              <!-- Populated by JS -->
+            </div>
+
+            <!-- Navigation Buttons (Page 28 Rule 2: Must select answer before moving to next question) -->
+            <div class="flex items-center justify-between pt-4 border-t border-slate-200">
+              <button id="btnExamPrev" onclick="prevExamQuestion()" class="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs">
+                <i class="fa-solid fa-arrow-left mr-1"></i> ย้อนก่อนหน้า
+              </button>
+              <button id="btnExamNext" onclick="nextExamQuestion()" class="px-6 py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs shadow">
+                ข้อถัดไป <i class="fa-solid fa-arrow-right ml-1"></i>
+              </button>
+              <button id="btnExamFinish" onclick="submitExamAttempt()" class="hidden px-7 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm shadow-lg animate-pulse">
+                <i class="fa-solid fa-paper-plane mr-1"></i> FINISH (ส่งกระดาษคำตอบและดูผลสอบทันที)
+              </button>
+            </div>
           </div>
 
           <!-- Exam Proctoring Simulator Toolbar (Same as Classroom) -->
@@ -1404,9 +1523,6 @@
               </button>
             </div>
           </div>
-
-          <!-- Exam Attempt History & "ส่งผลการเรียน" Modal Trigger (Page 29) -->
-          <div id="examResultSummaryBox" class="hidden p-5 rounded-2xl border space-y-3 relative z-20"></div>
         </div>
       </div>
     </section>
@@ -1597,17 +1713,28 @@
             <div class="font-bold text-sm text-blue-950 flex items-center gap-2">
               <i class="fa-solid fa-clock text-blue-600"></i> 1. ตั้งค่าเวลาเรียน & Timeout
             </div>
-            <div>
-              <label class="block font-semibold text-slate-700 mb-1">ความยาวเนื้อหาบทเรียน Demo (วินาที)</label>
-              <input type="number" id="setLessonDurationSec" value="60" min="15" max="3600" class="w-full border border-slate-300 rounded-xl px-3 py-2 font-mono font-bold text-sm bg-white" />
+            <div class="p-2.5 rounded-xl bg-amber-50 border border-amber-200 space-y-1.5">
+              <div class="font-extrabold text-[11px] text-amber-900">⚡ ปุ่มตั้งค่าลัดสำหรับพรีเซนต์ลูกค้า:</div>
+              <div class="grid grid-cols-2 gap-1.5">
+                <button type="button" onclick="applyAdminQuickPreset('azay-torean')" class="py-1.5 px-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-[11px] shadow">
+                  ⚡ azay-torean (15วิ/บท)
+                </button>
+                <button type="button" onclick="applyAdminQuickPreset('standard')" class="py-1.5 px-2 rounded-lg bg-blue-700 hover:bg-blue-800 text-white font-bold text-[11px] shadow">
+                  🏛️ มาตรฐาน คปภ. (เวลาจริง)
+                </button>
+              </div>
             </div>
             <div>
-              <label class="block font-semibold text-slate-700 mb-1">เวลาตอบสนองเมื่อสุ่มตรวจใบหน้า (วินาที - มาตรฐาน 120s)</label>
-              <input type="number" id="setRandomPromptTimeoutSec" value="120" min="15" max="600" class="w-full border border-slate-300 rounded-xl px-3 py-2 font-mono font-bold text-sm bg-white" />
+              <label class="block font-semibold text-slate-700 mb-1">ความยาวเนื้อหาบทเรียน (วินาที • 0 = เวลาคลิปจริง, 15 = เดโมไว)</label>
+              <input type="number" id="setLessonDurationSec" value="0" min="0" max="3600" class="w-full border border-slate-300 rounded-xl px-3 py-2 font-mono font-bold text-sm bg-white" />
             </div>
             <div>
-              <label class="block font-semibold text-slate-700 mb-1">เวลาอนุญาตให้นิ่งสูงสุด (Inactivity วินาที - มาตรฐาน 900s)</label>
-              <input type="number" id="setInactivityTimeoutSec" value="900" min="60" max="3600" class="w-full border border-slate-300 rounded-xl px-3 py-2 font-mono font-bold text-sm bg-white" />
+              <label class="block font-semibold text-slate-700 mb-1">เวลาตอบสนองเมื่อสุ่มตรวจใบหน้า (วินาที - มาตรฐาน 120s / เดโม 20s)</label>
+              <input type="number" id="setRandomPromptTimeoutSec" value="120" min="10" max="600" class="w-full border border-slate-300 rounded-xl px-3 py-2 font-mono font-bold text-sm bg-white" />
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">เวลาอนุญาตให้นิ่งสูงสุด (Inactivity วินาที - มาตรฐาน 900s / เดโม 30s)</label>
+              <input type="number" id="setInactivityTimeoutSec" value="900" min="15" max="3600" class="w-full border border-slate-300 rounded-xl px-3 py-2 font-mono font-bold text-sm bg-white" />
             </div>
           </div>
 
@@ -1643,6 +1770,13 @@
             <div class="font-bold text-sm text-blue-950 flex items-center gap-2">
               <i class="fa-solid fa-shield-cat text-rose-600"></i> 3. การล็อกเบราว์เซอร์ & เกณฑ์สอบผ่าน
             </div>
+            <label class="flex items-start gap-2 cursor-pointer p-2 rounded-xl bg-amber-50 border border-amber-200">
+              <input type="checkbox" id="setEnforceFullscreenMode" checked class="w-4 h-4 mt-0.5 rounded text-blue-600" />
+              <div>
+                <span class="font-extrabold text-amber-950 block">บังคับแสดงผลเต็มจออัตโนมัติ (Enforce Full Screen Lock)</span>
+                <span class="text-[11px] text-amber-800">เปิด Full Screen ทันทีที่เข้าห้องเรียน/ห้องสอบ และล็อกหน้าจอหากผู้เรียนกดย่อจอ (ESC)</span>
+              </div>
+            </label>
             <label class="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" id="setPauseOnTabSwitch" checked class="w-4 h-4 rounded text-blue-600" />
               <span class="font-semibold text-slate-800">หยุดวิดีโออัตโนมัติและแจ้งเตือนทันทีเมื่อเปิดแท็บอื่น</span>

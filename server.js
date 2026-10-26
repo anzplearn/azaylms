@@ -208,11 +208,13 @@ const INITIAL_DB = {
   emails: [],
   webhooks: [],
   proctorSettings: {
-    lessonDurationSec: 0, // 0 = ใช้ความยาววิดีโอ YouTube จริง (167s, 327s, 76s)
+    demoEdition: process.env.DEMO_SYSTEM_NAME === 'azay-torean' ? 'azay-torean' : 'standard',
+    lessonDurationSec: process.env.DEMO_SYSTEM_NAME === 'azay-torean' ? 15 : 0, // 0 = ใช้ความยาววิดีโอ YouTube จริง (167s, 327s, 76s), 15 = โหมดเดโมด่วน azay-torean (15 วินาที)
+    enforceFullscreenMode: true,
     faceMatchThresholdPct: 72,
     euclideanThreshold: 0.58,
-    randomPromptTimeoutSec: 120,
-    inactivityTimeoutSec: 900,
+    randomPromptTimeoutSec: process.env.DEMO_SYSTEM_NAME === 'azay-torean' ? 20 : 120,
+    inactivityTimeoutSec: process.env.DEMO_SYSTEM_NAME === 'azay-torean' ? 30 : 900,
     pauseOnTabSwitch: true,
     maxTabSwitchWarnings: 5,
     detectMultipleFaces: true,
@@ -228,27 +230,40 @@ const INITIAL_DB = {
   }
 };
 
+function applyCustomLessonDurationToCourses(db) {
+  if (!db.courses || !db.courses[0]) return;
+  db.courses[0].lessons = JSON.parse(JSON.stringify(INITIAL_DB.courses[0].lessons));
+  const customDur = Number(db.proctorSettings.lessonDurationSec) || 0;
+  if (customDur > 0 && customDur !== 60) {
+    db.courses[0].lessons.forEach((l) => {
+      l.durationSec = customDur;
+      l.displayDuration = `⚡ โหมดเดโม ${customDur} วินาที (จากคลิปจริง ${Math.floor(l.realDurationSec / 60)}:${String(l.realDurationSec % 60).padStart(2, '0')} นาที)`;
+      // Place checkpoint halfway (e.g., at 7s for a 15s demo lesson) so random face check triggers automatically during demo
+      const midSec = Math.max(4, Math.floor(customDur / 2));
+      l.checkpoints = [midSec];
+    });
+  }
+}
+
 function loadDB() {
   if (!fs.existsSync(DB_FILE)) {
-    fs.writeFileSync(DB_FILE, JSON.stringify(INITIAL_DB, null, 2), 'utf8');
-    return JSON.parse(JSON.stringify(INITIAL_DB));
+    const seed = JSON.parse(JSON.stringify(INITIAL_DB));
+    applyCustomLessonDurationToCourses(seed);
+    fs.writeFileSync(DB_FILE, JSON.stringify(seed, null, 2), 'utf8');
+    return seed;
   }
   try {
     const db = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
     // Ensure new fields exist on existing db.json
     if (!db.activityLogs) db.activityLogs = [];
     if (!db.proctorSettings) db.proctorSettings = INITIAL_DB.proctorSettings;
-    if (db.courses && db.courses[0]) {
-      // Sync official Allianz Ayudhya YouTube lessons metadata
-      db.courses[0].lessons = JSON.parse(JSON.stringify(INITIAL_DB.courses[0].lessons));
-      const customDur = Number(db.proctorSettings.lessonDurationSec) || 0;
-      if (customDur > 0 && customDur !== 60) {
-        db.courses[0].lessons.forEach((l) => {
-          l.durationSec = customDur;
-          l.displayDuration = `${Math.floor(l.realDurationSec / 60)}:${String(l.realDurationSec % 60).padStart(2, '0')} นาที (กำหนดเอง ${customDur}s)`;
-        });
-      }
+    if (typeof db.proctorSettings.enforceFullscreenMode !== 'boolean') {
+      db.proctorSettings.enforceFullscreenMode = true;
     }
+    if (!db.proctorSettings.demoEdition) {
+      db.proctorSettings.demoEdition = process.env.DEMO_SYSTEM_NAME === 'azay-torean' ? 'azay-torean' : 'standard';
+    }
+    applyCustomLessonDurationToCourses(db);
     return db;
   } catch (e) {
     return JSON.parse(JSON.stringify(INITIAL_DB));
@@ -489,7 +504,9 @@ app.post('/api/kyc/submit', (req, res) => {
     similarityScore: score,
     qualityChecks: qualityChecks || { brightness: 'PASS', glareFree: 'PASS', faceDetected: 'PASS' },
     submittedAt: new Date().toISOString(),
-    reviewedBy: isAutoApproved ? 'AI Auto-Verifier (ArcFace/MediaPipe)' : null
+    approvedAt: isAutoApproved ? new Date().toISOString() : null,
+    approvalMethod: isAutoApproved ? 'AI_AUTO' : null,
+    reviewedBy: isAutoApproved ? 'AI Auto-Verifier (ResNet-34 128D Face Recognition)' : null
   };
 
   user.kycStatus = isAutoApproved ? 'APPROVED' : 'PENDING_ADMIN';
@@ -531,6 +548,8 @@ app.post('/api/admin/kyc-review', (req, res) => {
   if (!user) return res.status(404).json({ error: 'ไม่พบข้อมูลผู้ใช้งาน' });
 
   user.kycStatus = decision;
+  user.kycData.approvedAt = decision === 'APPROVED' ? new Date().toISOString() : null;
+  user.kycData.approvalMethod = decision === 'APPROVED' ? 'ADMIN_MANUAL' : 'ADMIN_REJECTED';
   user.kycData.reviewedBy = `Admin (${note || 'Manual Verification'})`;
   user.updatedAt = new Date().toISOString();
 
@@ -831,7 +850,9 @@ app.post('/api/admin/settings', (req, res) => {
 
   db.proctorSettings = {
     ...db.proctorSettings,
+    demoEdition: newSettings.demoEdition || db.proctorSettings.demoEdition || 'standard',
     lessonDurationSec: Number(newSettings.lessonDurationSec) >= 0 ? Number(newSettings.lessonDurationSec) : 0,
+    enforceFullscreenMode: typeof newSettings.enforceFullscreenMode === 'boolean' ? newSettings.enforceFullscreenMode : true,
     faceMatchThresholdPct: Number(newSettings.faceMatchThresholdPct) || 72,
     euclideanThreshold: Number(newSettings.euclideanThreshold) || 0.58,
     randomPromptTimeoutSec: Number(newSettings.randomPromptTimeoutSec) || 120,
@@ -850,17 +871,8 @@ app.post('/api/admin/settings', (req, res) => {
     maxExamAttempts: Number(newSettings.maxExamAttempts) || 5
   };
 
-  // Update lesson durations dynamically
-  if (db.courses && db.courses[0]) {
-    db.courses[0].lessons = JSON.parse(JSON.stringify(INITIAL_DB.courses[0].lessons));
-    const dur = db.proctorSettings.lessonDurationSec;
-    if (dur > 0) {
-      db.courses[0].lessons.forEach((l) => {
-        l.durationSec = dur;
-        l.displayDuration = `${Math.floor(l.realDurationSec / 60)}:${String(l.realDurationSec % 60).padStart(2, '0')} นาที (โหมดทดสอบ ${dur}s)`;
-      });
-    }
-  }
+  // Update lesson durations & checkpoints dynamically
+  applyCustomLessonDurationToCourses(db);
 
   db.activityLogs.unshift({
     id: 'ACT-' + Date.now(),
@@ -869,7 +881,7 @@ app.post('/api/admin/settings', (req, res) => {
     category: 'ADMIN',
     action: 'UPDATE_PROCTOR_SETTINGS',
     severity: 'INFO',
-    details: `อัปเดตตั้งค่าควบคุมการสอบ: ความยาวบทเรียน ${db.proctorSettings.lessonDurationSec}s, เกณฑ์ใบหน้า >=${db.proctorSettings.faceMatchThresholdPct}%, หยุดวิดีโอเมื่อสลับแท็บ=${db.proctorSettings.pauseOnTabSwitch ? 'เปิด' : 'ปิด'}`,
+    details: `อัปเดตตั้งค่าควบคุมการสอบ: ความยาวบทเรียน ${db.proctorSettings.lessonDurationSec}s, บังคับเต็มจอ=${db.proctorSettings.enforceFullscreenMode ? 'เปิด' : 'ปิด'}, เกณฑ์ใบหน้า >=${db.proctorSettings.faceMatchThresholdPct}%, หยุดวิดีโอเมื่อสลับแท็บ=${db.proctorSettings.pauseOnTabSwitch ? 'เปิด' : 'ปิด'}`,
     metadata: db.proctorSettings,
     snapshotUrl: null,
     timestamp: new Date().toISOString()
@@ -879,7 +891,68 @@ app.post('/api/admin/settings', (req, res) => {
   res.json({ success: true, proctorSettings: db.proctorSettings, courses: db.courses });
 });
 
-// 19. Clear Activity Logs (Admin utility)
+// 19. Switch between Standard OIC Mode and "azay-torean" Fast Demo Mode (15s Lessons)
+app.post('/api/demo-mode/switch', (req, res) => {
+  const db = loadDB();
+  const mode = (req.body && req.body.mode) === 'azay-torean' ? 'azay-torean' : 'standard';
+
+  if (mode === 'azay-torean') {
+    db.proctorSettings = {
+      ...db.proctorSettings,
+      demoEdition: 'azay-torean',
+      lessonDurationSec: 15,
+      randomPromptTimeoutSec: 20,
+      inactivityTimeoutSec: 30,
+      enforceFullscreenMode: true
+    };
+  } else {
+    db.proctorSettings = {
+      ...db.proctorSettings,
+      demoEdition: 'standard',
+      lessonDurationSec: 0,
+      randomPromptTimeoutSec: 120,
+      inactivityTimeoutSec: 900
+    };
+  }
+
+  applyCustomLessonDurationToCourses(db);
+  db.activityLogs.unshift({
+    id: 'ACT-' + Date.now(),
+    idCard: 'SYSTEM',
+    studentName: 'ระบบสาธิต (Demo Engine)',
+    category: 'ADMIN',
+    action: mode === 'azay-torean' ? 'ACTIVATE_AZAY_TOREAN_DEMO' : 'ACTIVATE_STANDARD_OIC_MODE',
+    severity: 'INFO',
+    details:
+      mode === 'azay-torean'
+        ? 'เปิดใช้งานระบบสาธิตด่วน azay-torean: ปรับเวลาบทเรียนเหลือ 15 วินาที/บท, สุ่มตรวจใบหน้าที่วินาทีที่ 7, Timeout 20 วินาที'
+        : 'สลับกลับสู่โหมดเวลาเรียนจริงตามมาตรฐาน คปภ. (ความยาววิดีโอจริง, Timeout 2 นาที / 15 นาที)',
+    metadata: db.proctorSettings,
+    snapshotUrl: null,
+    timestamp: new Date().toISOString()
+  });
+
+  saveDB(db);
+  res.json({ success: true, mode, proctorSettings: db.proctorSettings, courses: db.courses });
+});
+
+// Dedicated URL entry point for the "azay-torean" fast demo system
+app.get(['/azay-torean', '/azay-torean/*'], (req, res) => {
+  const db = loadDB();
+  db.proctorSettings = {
+    ...db.proctorSettings,
+    demoEdition: 'azay-torean',
+    lessonDurationSec: 15,
+    randomPromptTimeoutSec: 20,
+    inactivityTimeoutSec: 30,
+    enforceFullscreenMode: true
+  };
+  applyCustomLessonDurationToCourses(db);
+  saveDB(db);
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// 20. Clear Activity Logs (Admin utility)
 app.post('/api/admin/clear-logs', (req, res) => {
   const db = loadDB();
   db.activityLogs = [];
