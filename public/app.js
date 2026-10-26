@@ -821,6 +821,7 @@ function switchStep4View(viewName) {
   }
 
   if (viewName === 'classroom') {
+    ensureYouTubeIframeApiLoaded();
     startClassroomPipCamera();
     renderCurriculumSidebar();
   }
@@ -1615,6 +1616,97 @@ function startLiveProctoringAiLoop() {
   }, 1800);
 }
 
+// ============================================================================
+// REAL YOUTUBE IFRAME PLAYER ENGINE (Allianz Ayudhya Official Videos)
+// ============================================================================
+let ytPlayer = null;
+let ytApiReady = false;
+let currentLoadedYoutubeId = null;
+
+function ensureYouTubeIframeApiLoaded() {
+  if (window.YT && window.YT.Player) {
+    initOrSyncYouTubePlayer();
+    return;
+  }
+  if (!document.getElementById('yt-iframe-api-script')) {
+    const tag = document.createElement('script');
+    tag.id = 'yt-iframe-api-script';
+    tag.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(tag);
+  }
+}
+
+window.onYouTubeIframeAPIReady = function () {
+  ytApiReady = true;
+  initOrSyncYouTubePlayer();
+};
+
+function initOrSyncYouTubePlayer() {
+  const container = document.getElementById('ytVideoPlayer');
+  if (!container || !window.YT || !window.YT.Player) return;
+
+  const lesson = getActiveLesson();
+  const videoId = (lesson && lesson.youtubeId) || 'mqcsLggV9LI';
+
+  if (!ytPlayer) {
+    currentLoadedYoutubeId = videoId;
+    ytPlayer = new window.YT.Player('ytVideoPlayer', {
+      width: '100%',
+      height: '100%',
+      videoId,
+      playerVars: {
+        autoplay: 0,
+        controls: 0,
+        disablekb: 1,
+        rel: 0,
+        modestbranding: 1,
+        playsinline: 1,
+        iv_load_policy: 3,
+        fs: 0
+      },
+      events: {
+        onReady: (event) => {
+          try {
+            event.target.setPlaybackRate(1);
+            event.target.unMute();
+            event.target.setVolume(100);
+            if (currentVideoSec > 0) {
+              event.target.seekTo(currentVideoSec, true);
+            }
+          } catch (e) {}
+        },
+        onStateChange: (event) => {
+          // Enforce 1.0x speed & 100% volume whenever playing
+          if (event.data === window.YT.PlayerState.PLAYING) {
+            try {
+              if (event.target.getPlaybackRate() !== 1) {
+                event.target.setPlaybackRate(1);
+              }
+              event.target.unMute();
+              event.target.setVolume(100);
+            } catch (e) {}
+          } else if (event.data === window.YT.PlayerState.ENDED && isVideoPlaying) {
+            const activeLesson = getActiveLesson();
+            if (activeLesson) {
+              currentVideoSec = activeLesson.durationSec;
+              pauseLessonVideo();
+              saveLessonProgressToServer(activeLesson.id, activeLesson.durationSec, true);
+              logUserActivity('CLASSROOM', 'LESSON_COMPLETED', 'PASS', `เรียนจบบทเรียน YouTube "${activeLesson.title}" ครบ ${activeLesson.durationSec} วินาที (100%)`, { lessonId: activeLesson.id, youtubeId: activeLesson.youtubeId });
+              showPlayerAlert(`🎉 เรียนจบหัวข้อ "${activeLesson.title}" เรียบร้อยแล้ว! (บันทึก Checkpoint สมบูรณ์)`, 'emerald');
+              updateVideoPlayerUI();
+            }
+          }
+        }
+      }
+    });
+  } else if (typeof ytPlayer.cueVideoById === 'function' && currentLoadedYoutubeId !== videoId) {
+    currentLoadedYoutubeId = videoId;
+    try {
+      ytPlayer.cueVideoById({ videoId, startSeconds: currentVideoSec || 0 });
+    } catch (e) {}
+  }
+}
+
 function getActiveCourse() {
   return appState.courses && appState.courses.length > 0 ? appState.courses[0] : null;
 }
@@ -1643,6 +1735,15 @@ function selectLesson(index) {
   document.getElementById('activeLessonTitle').textContent = lesson.title;
   document.getElementById('slideSubHeader').textContent = lesson.section;
   document.getElementById('slideHeadline').textContent = lesson.title;
+
+  ensureYouTubeIframeApiLoaded();
+  if (ytPlayer && typeof ytPlayer.cueVideoById === 'function' && lesson.youtubeId) {
+    currentLoadedYoutubeId = lesson.youtubeId;
+    try {
+      ytPlayer.cueVideoById({ videoId: lesson.youtubeId, startSeconds: currentVideoSec || 0 });
+    } catch (e) {}
+  }
+
   updateVideoPlayerUI();
   renderCurriculumSidebar();
 }
@@ -1659,17 +1760,55 @@ function playLessonVideo() {
   const lesson = getActiveLesson();
   if (!lesson) return;
 
+  ensureYouTubeIframeApiLoaded();
   isVideoPlaying = true;
   const btn = document.getElementById('btnPlayPause');
   btn.innerHTML = `<i class="fa-solid fa-pause"></i> <span>หยุดชั่วคราว</span>`;
-  logUserActivity('CLASSROOM', 'VIDEO_PLAY', 'INFO', `เริ่มเล่นวิดีโอบทเรียน "${lesson.title}" ที่วินาที ${currentVideoSec}s`, { lessonId: lesson.id, sec: currentVideoSec });
+  logUserActivity('CLASSROOM', 'VIDEO_PLAY', 'INFO', `เริ่มเล่นวิดีโอบทเรียน "${lesson.title}" (YouTube: ${lesson.youtubeId || 'N/A'}) ที่วินาที ${currentVideoSec}s`, { lessonId: lesson.id, youtubeId: lesson.youtubeId, sec: currentVideoSec });
+
+  if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
+    try {
+      if (lesson.youtubeId && currentLoadedYoutubeId !== lesson.youtubeId) {
+        currentLoadedYoutubeId = lesson.youtubeId;
+        ytPlayer.loadVideoById({ videoId: lesson.youtubeId, startSeconds: currentVideoSec });
+      } else {
+        const ytTime = Math.floor(ytPlayer.getCurrentTime ? ytPlayer.getCurrentTime() : 0);
+        if (Math.abs(ytTime - currentVideoSec) > 2) {
+          ytPlayer.seekTo(currentVideoSec, true);
+        }
+        ytPlayer.playVideo();
+      }
+      ytPlayer.setPlaybackRate(1);
+      ytPlayer.unMute();
+      ytPlayer.setVolume(100);
+    } catch (e) {}
+  }
 
   if (videoTickInterval) clearInterval(videoTickInterval);
   videoTickInterval = setInterval(async () => {
     if (!isVideoPlaying) return;
 
-    currentVideoSec++;
     const duration = lesson.durationSec;
+
+    // Sync time with real YouTube player if playing, otherwise increment timer
+    if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function' && typeof ytPlayer.getPlayerState === 'function') {
+      const state = ytPlayer.getPlayerState();
+      if (state === 1) { // YT.PlayerState.PLAYING
+        const ytSec = Math.floor(ytPlayer.getCurrentTime());
+        // Prevent unauthorized forward jumps beyond 2 seconds
+        if (ytSec > currentVideoSec + 3) {
+          ytPlayer.seekTo(currentVideoSec, true);
+        } else if (ytSec >= currentVideoSec) {
+          currentVideoSec = ytSec;
+        } else {
+          currentVideoSec++;
+        }
+      } else {
+        currentVideoSec++;
+      }
+    } else {
+      currentVideoSec++;
+    }
 
     // Update live AI confidence badge if not already updated by live camera loop
     if (!isAiModelLoaded) {
@@ -1703,8 +1842,30 @@ function playLessonVideo() {
 function pauseLessonVideo() {
   isVideoPlaying = false;
   if (videoTickInterval) clearInterval(videoTickInterval);
+  if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
+    try {
+      ytPlayer.pauseVideo();
+    } catch (e) {}
+  }
   const btn = document.getElementById('btnPlayPause');
   if (btn) btn.innerHTML = `<i class="fa-solid fa-play"></i> <span>เล่นบทเรียน</span>`;
+}
+
+async function demoFastCompleteCurrentLesson() {
+  const lesson = getActiveLesson();
+  if (!lesson) return;
+  pauseLessonVideo();
+  currentVideoSec = lesson.durationSec;
+  if (ytPlayer && typeof ytPlayer.seekTo === 'function') {
+    try {
+      ytPlayer.seekTo(Math.max(0, lesson.durationSec - 1), true);
+      ytPlayer.pauseVideo();
+    } catch (e) {}
+  }
+  await saveLessonProgressToServer(lesson.id, lesson.durationSec, true);
+  updateVideoPlayerUI();
+  logUserActivity('CLASSROOM', 'DEMO_FAST_COMPLETE', 'PASS', `ผู้ทดสอบกดลัดจบบทเรียน "${lesson.title}" (100%)`, { lessonId: lesson.id });
+  showPlayerAlert(`⚡ [Demo Mode] บันทึกเรียนจบบทที่ "${lesson.title}" ครบ 100% เรียบร้อยแล้ว!`, 'emerald');
 }
 
 async function saveLessonProgressToServer(lessonId, watchedSec, completed) {
@@ -1768,6 +1929,11 @@ function handleTimelineClick(event) {
   }
 
   currentVideoSec = targetSec;
+  if (ytPlayer && typeof ytPlayer.seekTo === 'function') {
+    try {
+      ytPlayer.seekTo(currentVideoSec, true);
+    } catch (e) {}
+  }
   updateVideoPlayerUI();
   logUserActivity('CLASSROOM', 'VIDEO_REWIND', 'INFO', `ย้อนกลับไปดูเนื้อหาก่อนหน้าที่วินาที ${targetSec}s`);
   showPlayerAlert(`↺ ย้อนกลับไปดูเนื้อหาก่อนหน้าที่วินาที ${targetSec} (สามารถย้อนดูเนื้อหาที่เรียนผ่านไปแล้วได้)`, 'blue');
@@ -1775,6 +1941,11 @@ function handleTimelineClick(event) {
 
 function rewindLesson5Sec() {
   currentVideoSec = Math.max(0, currentVideoSec - 5);
+  if (ytPlayer && typeof ytPlayer.seekTo === 'function') {
+    try {
+      ytPlayer.seekTo(currentVideoSec, true);
+    } catch (e) {}
+  }
   updateVideoPlayerUI();
 }
 
@@ -1986,6 +2157,11 @@ async function simulateTimeoutKick(reason) {
   if (data.user) currentUser = data.user;
 
   currentVideoSec = data.rollbackSec || 0;
+  if (ytPlayer && typeof ytPlayer.seekTo === 'function') {
+    try {
+      ytPlayer.seekTo(currentVideoSec, true);
+    } catch (e) {}
+  }
   updateVideoPlayerUI();
   await refreshSystemState();
 
@@ -2042,8 +2218,8 @@ function renderCurriculumSidebar() {
           </span>
         </div>
         <div class="mt-1.5 flex items-center justify-between text-[11px] text-slate-500">
-          <span>${lesson.displayDuration}</span>
-          <span class="font-mono font-semibold text-blue-800">Checkpoint ล่าสุด: ${prog.maxCheckpointSec || 0}s</span>
+          <span class="flex items-center gap-1"><i class="fa-brands fa-youtube text-red-600"></i> ${lesson.displayDuration}</span>
+          <span class="font-mono font-semibold text-blue-800">ดูแล้ว: ${prog.watchedSec || 0}s / ${lesson.durationSec}s</span>
         </div>
       </div>
     `;

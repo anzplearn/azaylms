@@ -872,8 +872,15 @@
                 </div>
               </div>
 
-              <!-- Interactive Animated Slide Video Canvas (Strict No-Forward-Seek, No-Speed, No-Mute) -->
-              <div class="relative bg-slate-950 aspect-video flex flex-col justify-between p-6 text-white select-none overflow-hidden">
+              <!-- Real Allianz Ayudhya YouTube Video Player + Strict Anti-Cheat Overlays -->
+              <div class="relative bg-slate-950 aspect-video flex flex-col justify-between p-4 sm:p-5 text-white select-none overflow-hidden">
+                <!-- REAL YOUTUBE IFRAME CONTAINER (Background Layer z-0) -->
+                <div class="absolute inset-0 z-0 bg-black overflow-hidden">
+                  <div id="ytVideoPlayer" class="w-full h-full"></div>
+                </div>
+                <!-- ANTI-SEEK / ANTI-RIGHT-CLICK SHIELD OVER YOUTUBE IFRAME -->
+                <div id="ytClickShield" onclick="togglePlayLesson()" class="absolute inset-0 z-[5] cursor-pointer" title="คลิกเพื่อเล่น/หยุดชั่วคราว (ระบบล็อกการกรอไปข้างหน้าตามระเบียบ คปภ.)"></div>
+
                 <!-- DYNAMIC ANTI-LEAK WATERMARK OVERLAY -->
                 <div id="classroomDynamicWatermark" class="pointer-events-none absolute inset-0 z-20 flex flex-wrap items-center justify-around opacity-15 select-none overflow-hidden">
                   <div class="transform -rotate-12 text-sm font-mono font-extrabold text-sky-200 whitespace-nowrap p-6">ALLIANZ AYUDHYA • 1100801279957 • DO NOT COPY</div>
@@ -897,19 +904,22 @@
                 </div>
 
                 <!-- Watermark & Live Proctoring PIP Camera -->
-                <div class="flex items-start justify-between z-10 gap-3">
+                <div class="flex items-start justify-between z-10 gap-3 pointer-events-auto">
                   <div class="space-y-1.5">
-                    <div class="bg-black/60 backdrop-blur px-3 py-1.5 rounded-lg border border-white/10 text-xs flex items-center gap-2.5">
+                    <div class="bg-black/75 backdrop-blur px-3 py-1.5 rounded-lg border border-white/15 text-xs flex items-center gap-2.5 shadow-md">
                       <div class="bg-white px-2 py-0.5 rounded">
                         <img src="/allianz-logo.webp" alt="Allianz Ayudhya" class="h-5 w-auto object-contain" />
                       </div>
                       <div>
-                        <div class="font-bold text-sky-400">ALLIANZ AYUDHYA ACADEMY (อลิอันซ์ อยุธยา)</div>
-                        <div id="slideSubHeader" class="text-[11px] text-slate-300">บทที่ 1: กฎหมายที่เกี่ยวข้องกับตัวแทน/นายหน้าประกันชีวิต</div>
+                        <div class="font-bold text-sky-400 flex items-center gap-1.5">
+                          <span>ALLIANZ AYUDHYA ACADEMY</span>
+                          <span class="bg-red-600 text-white text-[9px] px-1.5 py-0.2 rounded font-extrabold"><i class="fa-brands fa-youtube mr-0.5"></i>OFFICIAL VIDEO</span>
+                        </div>
+                        <div id="slideSubHeader" class="text-[11px] text-slate-200">ก. ภาพรวมองค์กรและพันธกิจ อลิอันซ์ อยุธยา (Allianz Ayudhya)</div>
                       </div>
                     </div>
                     <!-- Camera Device Selector & Status Pill -->
-                    <div class="flex items-center gap-1.5 bg-slate-900/90 border border-slate-700 px-2.5 py-1 rounded-lg text-[11px]">
+                    <div class="flex items-center gap-1.5 bg-slate-900/90 border border-slate-700 px-2.5 py-1 rounded-lg text-[11px] w-fit">
                       <span id="camStatusDot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
                       <select id="cameraDeviceSelect" onchange="onCameraDeviceChange(this.value)" class="bg-transparent text-slate-200 outline-none max-w-[180px] truncate cursor-pointer">
                         <option value="">กำลังค้นหากล้อง Webcam...</option>
@@ -950,29 +960,23 @@
                   </div>
                 </div>
 
-                <!-- Center Slide Content (Matches Page 24 Slide Graphics) -->
-                <div id="slideCenterContent" class="my-auto max-w-xl mx-auto bg-white/95 text-slate-900 rounded-2xl p-5 shadow-xl border border-blue-200 z-10">
-                  <div class="text-xs font-bold text-blue-700 mb-1">สิทธิและหน้าที่ของผู้รับประโยชน์ตามกรมธรรม์</div>
-                  <h4 id="slideHeadline" class="text-base font-extrabold text-slate-900 mb-2">3.1 สิทธิของผู้รับประโยชน์ & 3.2 หน้าที่ของผู้รับประโยชน์</h4>
-                  <ul class="text-xs space-y-1.5 text-slate-700 list-disc list-inside">
-                    <li>รับเงินจำนวนเอาประกันภัยตามเงื่อนไขที่ระบุไว้ในสัญญาประกันชีวิต</li>
-                    <li>แจ้งให้บริษัทประกันภัยทราบถึงความตายของผู้เอาประกันภัย และรวบรวมเอกสารตามที่บริษัทร้องขอ</li>
-                    <li><b class="text-rose-600">กฎเหล็ก คปภ.:</b> ห้ามกดข้ามเนื้อหา ห้ามเร่งความเร็ว และต้องยืนยันใบหน้าเมื่อถึงจุด Checkpoint</li>
-                  </ul>
+                <!-- Hidden headline element for JS compatibility -->
+                <div id="slideCenterContent" class="hidden">
+                  <h4 id="slideHeadline"></h4>
                 </div>
 
                 <!-- Bottom Checkpoint Markers Bar -->
-                <div class="z-10 space-y-2">
+                <div class="z-10 space-y-2 pointer-events-auto">
                   <div id="playerAlertBanner" class="hidden bg-rose-600/95 text-white text-xs font-bold px-3 py-1.5 rounded-lg text-center animate-pulse"></div>
 
                   <!-- Custom Progress Bar with Checkpoint Pins -->
-                  <div class="relative w-full h-3 bg-slate-800 rounded-full overflow-hidden cursor-pointer" onclick="handleTimelineClick(event)">
-                    <div id="videoWatchedBar" class="h-full bg-blue-500/40 absolute left-0 top-0" style="width: 0%"></div>
+                  <div class="relative w-full h-3 bg-slate-800/90 rounded-full overflow-hidden cursor-pointer border border-white/10" onclick="handleTimelineClick(event)">
+                    <div id="videoWatchedBar" class="h-full bg-blue-500/50 absolute left-0 top-0" style="width: 0%"></div>
                     <div id="videoCurrentBar" class="h-full bg-orange-500 absolute left-0 top-0 transition-all" style="width: 0%"></div>
                   </div>
 
                   <!-- Custom Controls (Page 2 Rule 4 & Page 24: No speed change, no mute, backward seek only) -->
-                  <div class="flex flex-wrap items-center justify-between gap-2 text-xs bg-slate-900/90 px-3 py-2 rounded-xl border border-slate-800">
+                  <div class="flex flex-wrap items-center justify-between gap-2 text-xs bg-slate-900/95 backdrop-blur px-3 py-2 rounded-xl border border-slate-700 shadow-lg">
                     <div class="flex items-center gap-2">
                       <button onclick="togglePlayLesson()" id="btnPlayPause" class="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 font-bold text-white flex items-center gap-1.5">
                         <i class="fa-solid fa-play"></i> <span>เล่นบทเรียน</span>
@@ -981,12 +985,12 @@
                         <i class="fa-solid fa-rotate-left mr-1"></i>ย้อน 5 วินาที
                       </button>
                       <span class="font-mono text-xs text-slate-300 ml-2">
-                        <span id="currentTimeLabel">00:00</span> / <span id="durationTimeLabel">01:00</span>
+                        <span id="currentTimeLabel">00:00</span> / <span id="durationTimeLabel">02:47</span>
                       </span>
                     </div>
 
                     <!-- Locked Controls Demonstration -->
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 flex-wrap">
                       <button onclick="simulateTabSwitchEvent()" class="px-2.5 py-1 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400/40 text-[11px] font-bold flex items-center gap-1" title="จำลองการสลับไปเปิดแท็บอื่น">
                         <i class="fa-solid fa-window-restore"></i> ทดสอบสลับแท็บ
                       </button>
@@ -1015,6 +1019,9 @@
                   </button>
                   <button onclick="simulateTimeoutKick('INACTIVE_15MIN_KICK')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-900 text-white font-bold shadow-sm">
                     <i class="fa-solid fa-user-slash mr-1"></i>จำลองนิ่งเกิน 15 นาที
+                  </button>
+                  <button onclick="demoFastCompleteCurrentLesson()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-sm" title="ปุ่มลัดสำหรับผู้ทดสอบ: ข้ามจบบทเรียนปัจจุบันทันที">
+                    <i class="fa-solid fa-forward-fast mr-1"></i>ลัดจบบทนี้ทันที (สำหรับผู้ทดสอบ)
                   </button>
                 </div>
               </div>

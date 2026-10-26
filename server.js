@@ -41,27 +41,36 @@ const INITIAL_DB = {
       lessons: [
         {
           id: 'L1',
-          section: 'ก. กฎหมายที่เกี่ยวข้องกับตัวแทน/นายหน้าประกันชีวิต',
-          title: '1. ความหมายของการประกันชีวิตและบุคคลที่เกี่ยวข้องกับการประกันชีวิต',
-          durationSec: 60,
-          displayDuration: '11:57 นาที (Demo 60 วินาที)',
-          checkpoints: [20, 45]
+          youtubeId: 'mqcsLggV9LI',
+          youtubeUrl: 'https://www.youtube.com/watch?v=mqcsLggV9LI',
+          section: 'ก. ภาพรวมองค์กรและพันธกิจ อลิอันซ์ อยุธยา (Allianz Ayudhya)',
+          title: '1. อลิอันซ์ อยุธยา บริษัทประกันที่เคียงข้างคุณทุกจังหวะชีวิต',
+          realDurationSec: 167,
+          durationSec: 167,
+          displayDuration: '02:47 นาที (YouTube Official)',
+          checkpoints: [45, 115]
         },
         {
           id: 'L2',
-          section: 'ก. กฎหมายที่เกี่ยวข้องกับตัวแทน/นายหน้าประกันชีวิต',
-          title: '2. สิทธิและหน้าที่ของผู้รับประโยชน์ตามกรมธรรม์ประกันภัย',
-          durationSec: 60,
-          displayDuration: '13:27 นาที (Demo 60 วินาที)',
-          checkpoints: [25, 50]
+          youtubeId: 'lBa6fWSb_94',
+          youtubeUrl: 'https://www.youtube.com/watch?v=lBa6fWSb_94',
+          section: 'ข. นวัตกรรมดิจิทัลและการบริหารจัดการกรมธรรม์',
+          title: '2. การบริหารจัดการกรมธรรม์และบริการดิจิทัลผ่านแอปฯ My Allianz',
+          realDurationSec: 327,
+          durationSec: 327,
+          displayDuration: '05:27 นาที (YouTube Official)',
+          checkpoints: [90, 220]
         },
         {
           id: 'L3',
-          section: 'ข. ภาพรวมของธุรกิจประกันชีวิตและจรรยาบรรณวิชาชีพ',
-          title: '3. จรรยาบรรณและหลักปฏิบัติที่ดีของนายหน้าประกันภัย',
-          durationSec: 60,
-          displayDuration: '15:10 นาที (Demo 60 วินาที)',
-          checkpoints: [30]
+          youtubeId: 'xnT8CFcnEIk',
+          youtubeUrl: 'https://www.youtube.com/watch?v=xnT8CFcnEIk',
+          section: 'ค. สิทธิประโยชน์ของผู้รับประโยชน์และการเรียกร้องสินไหม',
+          title: '3. ขั้นตอนการแจ้งเคลมประกันชีวิตและสิทธิประโยชน์ตามกรมธรรม์',
+          realDurationSec: 76,
+          durationSec: 76,
+          displayDuration: '01:16 นาที (YouTube Official)',
+          checkpoints: [30, 60]
         }
       ],
       examQuestions: [
@@ -199,7 +208,7 @@ const INITIAL_DB = {
   emails: [],
   webhooks: [],
   proctorSettings: {
-    lessonDurationSec: 60,
+    lessonDurationSec: 0, // 0 = ใช้ความยาววิดีโอ YouTube จริง (167s, 327s, 76s)
     faceMatchThresholdPct: 72,
     euclideanThreshold: 0.58,
     randomPromptTimeoutSec: 120,
@@ -229,16 +238,16 @@ function loadDB() {
     // Ensure new fields exist on existing db.json
     if (!db.activityLogs) db.activityLogs = [];
     if (!db.proctorSettings) db.proctorSettings = INITIAL_DB.proctorSettings;
-    if (db.courses && db.courses[0] && db.courses[0].lessons) {
-      const targetDur = db.proctorSettings.lessonDurationSec || 60;
-      db.courses[0].lessons.forEach((l, idx) => {
-        l.durationSec = targetDur;
-        l.displayDuration = idx === 0
-          ? `11:57 นาที (Demo ${targetDur} วินาที)`
-          : idx === 1
-          ? `13:27 นาที (Demo ${targetDur} วินาที)`
-          : `15:10 นาที (Demo ${targetDur} วินาที)`;
-      });
+    if (db.courses && db.courses[0]) {
+      // Sync official Allianz Ayudhya YouTube lessons metadata
+      db.courses[0].lessons = JSON.parse(JSON.stringify(INITIAL_DB.courses[0].lessons));
+      const customDur = Number(db.proctorSettings.lessonDurationSec) || 0;
+      if (customDur > 0 && customDur !== 60) {
+        db.courses[0].lessons.forEach((l) => {
+          l.durationSec = customDur;
+          l.displayDuration = `${Math.floor(l.realDurationSec / 60)}:${String(l.realDurationSec % 60).padStart(2, '0')} นาที (กำหนดเอง ${customDur}s)`;
+        });
+      }
     }
     return db;
   } catch (e) {
@@ -822,7 +831,7 @@ app.post('/api/admin/settings', (req, res) => {
 
   db.proctorSettings = {
     ...db.proctorSettings,
-    lessonDurationSec: Number(newSettings.lessonDurationSec) || 60,
+    lessonDurationSec: Number(newSettings.lessonDurationSec) >= 0 ? Number(newSettings.lessonDurationSec) : 0,
     faceMatchThresholdPct: Number(newSettings.faceMatchThresholdPct) || 72,
     euclideanThreshold: Number(newSettings.euclideanThreshold) || 0.58,
     randomPromptTimeoutSec: Number(newSettings.randomPromptTimeoutSec) || 120,
@@ -842,16 +851,15 @@ app.post('/api/admin/settings', (req, res) => {
   };
 
   // Update lesson durations dynamically
-  if (db.courses && db.courses[0] && db.courses[0].lessons) {
+  if (db.courses && db.courses[0]) {
+    db.courses[0].lessons = JSON.parse(JSON.stringify(INITIAL_DB.courses[0].lessons));
     const dur = db.proctorSettings.lessonDurationSec;
-    db.courses[0].lessons.forEach((l, idx) => {
-      l.durationSec = dur;
-      l.displayDuration = idx === 0
-        ? `11:57 นาที (Demo ${dur} วินาที)`
-        : idx === 1
-        ? `13:27 นาที (Demo ${dur} วินาที)`
-        : `15:10 นาที (Demo ${dur} วินาที)`;
-    });
+    if (dur > 0) {
+      db.courses[0].lessons.forEach((l) => {
+        l.durationSec = dur;
+        l.displayDuration = `${Math.floor(l.realDurationSec / 60)}:${String(l.realDurationSec % 60).padStart(2, '0')} นาที (โหมดทดสอบ ${dur}s)`;
+      });
+    }
   }
 
   db.activityLogs.unshift({
