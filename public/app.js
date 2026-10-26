@@ -777,9 +777,123 @@ function updateTopHeaderUI() {
 }
 
 // ============================================================================
+// CENTRAL ROLE-BASED LOGIN PORTAL (Learner vs Admin Screen Separation)
+// ============================================================================
+let currentAuthRole = null; // 'LEARNER' | 'ADMIN'
+
+function fillPortalDemoCredentials(role) {
+  const userEl = document.getElementById('portalUsernameInput');
+  const passEl = document.getElementById('portalPasswordInput');
+  const errEl = document.getElementById('portalAuthErrorBox');
+  if (errEl) errEl.classList.add('hidden');
+
+  if (role === 'ADMIN') {
+    if (userEl) userEl.value = 'Admin';
+    if (passEl) passEl.value = 'Admin@2026';
+  } else {
+    if (userEl) userEl.value = 'Learner';
+    if (passEl) passEl.value = 'Learner@2026';
+  }
+}
+
+async function submitPortalLogin() {
+  const userEl = document.getElementById('portalUsernameInput');
+  const passEl = document.getElementById('portalPasswordInput');
+  const errEl = document.getElementById('portalAuthErrorBox');
+
+  const username = (userEl ? userEl.value : '').trim();
+  const password = passEl ? passEl.value : '';
+
+  // 1. Check Admin Credentials: Admin / Admin@2026
+  if (username.toLowerCase() === 'admin' && password === 'Admin@2026') {
+    currentAuthRole = 'ADMIN';
+    if (errEl) errEl.classList.add('hidden');
+    applyRoleBasedScreenState();
+    logUserActivity('AUTH', 'ADMIN_PORTAL_LOGIN', 'PASS', 'เข้าสู่ระบบในฐานะผู้ดูแลระบบ (Admin)');
+    return;
+  }
+
+  // 2. Check Learner Credentials: Learner / Learner@2026
+  if (username.toLowerCase() === 'learner' && password === 'Learner@2026') {
+    currentAuthRole = 'LEARNER';
+    if (errEl) errEl.classList.add('hidden');
+    // Ensure default learner profile exists
+    if (!currentUser && (!appState.users || appState.users.length === 0)) {
+      await submitRegistration();
+    }
+    applyRoleBasedScreenState();
+    logUserActivity('AUTH', 'LEARNER_PORTAL_LOGIN', 'PASS', 'เข้าสู่ระบบในฐานะผู้เรียน (Learner)');
+    return;
+  }
+
+  if (errEl) {
+    errEl.textContent = '❌ ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง! กรุณาใช้ Learner / Learner@2026 หรือ Admin / Admin@2026';
+    errEl.classList.remove('hidden');
+  }
+}
+
+function logoutPortalSession(prefillRole = null) {
+  pauseLessonVideo();
+  currentAuthRole = null;
+  const overlay = document.getElementById('roleAuthPortalOverlay');
+  if (overlay) overlay.classList.remove('hidden');
+  if (prefillRole) {
+    fillPortalDemoCredentials(prefillRole);
+  }
+}
+
+function applyRoleBasedScreenState() {
+  const overlay = document.getElementById('roleAuthPortalOverlay');
+  const stepNav = document.getElementById('learnerStepNavBar');
+  const demoBar = document.getElementById('learnerDemoToolbar');
+  const roleBadge = document.getElementById('headerRoleBadge');
+  const userBadge = document.getElementById('activeUserBadge');
+  const inboxBtn = document.getElementById('btnHeaderInbox');
+
+  if (overlay) overlay.classList.add('hidden');
+
+  if (currentAuthRole === 'ADMIN') {
+    // Show ONLY Admin Dashboard; Hide all Learner navigation & toolbars
+    if (stepNav) stepNav.classList.add('hidden');
+    if (demoBar) demoBar.classList.add('hidden');
+    if (userBadge) userBadge.classList.add('hidden');
+    if (inboxBtn) inboxBtn.classList.add('hidden');
+    if (roleBadge) {
+      roleBadge.textContent = '🛡️ ผู้ดูแลระบบ (Admin)';
+      roleBadge.className = 'text-xs bg-amber-400 text-slate-950 px-2.5 py-0.5 rounded-full font-extrabold shadow-sm';
+    }
+    document.querySelectorAll('.tab-section').forEach(sec => sec.classList.add('hidden'));
+    const adminSec = document.getElementById('section-admin');
+    if (adminSec) adminSec.classList.remove('hidden');
+    renderAdminDashboard();
+  } else {
+    // Show ONLY Learner Screens (Steps 01-06); Hide Admin Dashboard completely
+    if (stepNav) stepNav.classList.remove('hidden');
+    if (demoBar) demoBar.classList.remove('hidden');
+    if (inboxBtn) inboxBtn.classList.remove('hidden');
+    if (roleBadge) {
+      roleBadge.textContent = '👤 โหมดผู้เรียน (Learner)';
+      roleBadge.className = 'text-xs bg-sky-500 text-white px-2.5 py-0.5 rounded-full font-bold shadow-sm';
+    }
+    updateTopHeaderUI();
+    switchMainTab('step1');
+  }
+}
+
+// ============================================================================
 // MAIN NAVIGATION (Steps 01 - 06 + Admin Hub)
 // ============================================================================
 function switchMainTab(tabId) {
+  // Enforce strict role separation between Learner and Admin
+  if (tabId === 'admin' && currentAuthRole !== 'ADMIN') {
+    logoutPortalSession('ADMIN');
+    return;
+  }
+  if (tabId !== 'admin' && currentAuthRole === 'ADMIN') {
+    logoutPortalSession('LEARNER');
+    return;
+  }
+
   document.querySelectorAll('.tab-section').forEach(sec => sec.classList.add('hidden'));
   const target = document.getElementById(`section-${tabId}`);
   if (target) target.classList.remove('hidden');
@@ -1093,8 +1207,12 @@ async function submitSetPassword() {
 // STEP 04.1 & 04.2: LMS LOGIN, CONSENT & 3-PHOTO e-KYC (Pages 13-21)
 // ============================================================================
 async function handleLmsLogin() {
-  const idCard = document.getElementById('loginIdCard').value.trim();
+  let idCard = document.getElementById('loginIdCard').value.trim();
   const password = document.getElementById('loginPassword').value;
+
+  if (idCard.toLowerCase() === 'learner') {
+    idCard = (currentUser && currentUser.idCard) || '1100801279957';
+  }
 
   if (!appState.users.find(u => u.idCard === idCard)) {
     await submitRegistration();
@@ -1483,8 +1601,8 @@ async function submitKycVerification(forceManualReview = false) {
           ตามคู่มือหน้า 21 คุณสามารถคลิกถ่ายภาพใหม่อีกครั้งให้ชัดเจนและตรงกรอบ หรือคลิกไปที่หน้าผู้ดูแลระบบ (Admin) เพื่อกดอนุมัติการยืนยันตัวตน
         </p>
         <div class="flex flex-wrap gap-3 pt-1">
-          <button onclick="switchMainTab('admin')" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs shadow">
-            <i class="fa-solid fa-user-shield mr-1"></i> ไปที่หน้าผู้ดูแลระบบ (Admin) เพื่อกดอนุมัติคำขอนี้
+          <button onclick="logoutPortalSession('ADMIN')" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs shadow">
+            <i class="fa-solid fa-user-shield mr-1"></i> สลับเข้าสู่ระบบผู้ดูแลระบบ (Admin Login) เพื่ออนุมัติคำขอนี้
           </button>
         </div>
       `;
