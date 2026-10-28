@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>คู่มือการใช้งานระบบ Verztec E-Learning (LMS) & AI Proctoring (ฉบับอัปเดตล่าสุด)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Sarabun', sans-serif;
+      color: #1e293b;
+      background: #f8fafc;
+      font-size: 11.8px;
+      line-height: 1.48;
+    }
+    .page {
+      width: 210mm;
+      height: 297mm;
+      background: #ffffff;
+      position: relative;
+      page-break-after: always;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .page:last-child {
+      page-break-after: auto;
+    }
+
+    /* COVER PAGE */
+    .cover-page {
+      background: linear-gradient(150deg, #090909 0%, #141414 55%, #261f08 88%, #b45309 100%);
+      color: #ffffff;
+      padding: 18mm 18mm 14mm 18mm;
+    }
+    .cover-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+      padding-bottom: 12px;
+    }
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: #ffffff;
+      color: #141414;
+      font-weight: 800;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .brand-text-main {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+    .brand-text-sub {
+      font-size: 11px;
+      color: #fde68a;
+    }
+    .doc-badge {
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      padding: 5px 13px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fde047;
+    }
+
+    .cover-hero {
+      margin-top: 16px;
+      margin-bottom: 12px;
+    }
+    .cover-kicker {
+      display: inline-block;
+      background: #f59e0b;
+      color: #0f172a;
+      font-weight: 800;
+      font-size: 10.5px;
+      padding: 4px 12px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      margin-bottom: 10px;
+    }
+    .cover-title {
+      font-size: 30px;
+      font-weight: 800;
+      line-height: 1.2;
+      margin: 0 0 8px 0;
+      color: #ffffff;
+    }
+    .cover-subtitle {
+      font-size: 15px;
+      font-weight: 500;
+      color: #fde68a;
+      margin: 0 0 12px 0;
+      line-height: 1.4;
+    }
+    .cover-desc {
+      font-size: 12px;
+      color: #fef3c7;
+      background: rgba(255, 255, 255, 0.08);
+      border-left: 4px solid #f5c400;
+      padding: 10px 14px;
+      border-radius: 0 10px 10px 0;
+      line-height: 1.5;
+    }
+
+    .cover-url-card {
+      background: #ffffff;
+      color: #0f172a;
+      border-radius: 14px;
+      padding: 13px 16px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+      margin: 12px 0;
+    }
+    .cover-url-label {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: #d97706;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .cover-url-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .cover-url-item {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 8px 11px;
+    }
+    .cover-url-item-amber {
+      background: #fffbeb;
+      border: 1.5px solid #f59e0b;
+      border-radius: 10px;
+      padding: 8px 11px;
+    }
+    .cover-url-link {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #141414;
+      text-decoration: none;
+      display: block;
+    }
+    .cover-url-link-amber {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #b45309;
+      text-decoration: none;
+      display: block;
+    }
+    .cover-auth-strip {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed #cbd5e1;
+      font-size: 11px;
+    }
+
+    .cover-highlights {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+      margin: 8px 0;
+    }
+    .highlight-box {
+      background: rgba(15, 23, 42, 0.38);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      padding: 9px 11px;
+    }
+    .highlight-title {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #f5c400;
+      margin-bottom: 3px;
+    }
+    .highlight-text {
+      font-size: 10.5px;
+      color: #e2e8f0;
+      line-height: 1.38;
+    }
+
+    .cover-footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.22);
+      padding-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 10.5px;
+      color: #cbd5e1;
+    }
+
+    /* INNER PAGES */
+    .content-page {
+      padding: 12mm 15mm 11mm 15mm;
+    }
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #141414;
+      padding-bottom: 6px;
+      margin-bottom: 10px;
+    }
+    .page-header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .page-header-badge {
+      background: #141414;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .page-header-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #141414;
+    }
+    .page-header-tag {
+      font-size: 10.5px;
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .page-footer {
+      border-top: 1px solid #cbd5e1;
+      padding-top: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      color: #64748b;
+    }
+
+    /* TYPOGRAPHY & COMPONENTS */
+    h2.sec-title {
+      font-size: 14.5px;
+      font-weight: 800;
+      color: #141414;
+      margin: 0 0 7px 0;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: #fefce8;
+      border-left: 4px solid #141414;
+      padding: 5px 10px;
+      border-radius: 0 7px 7px 0;
+    }
+    .sec-num {
+      background: #141414;
+      color: #ffffff;
+      font-size: 10.5px;
+      padding: 1px 7px;
+      border-radius: 4px;
+    }
+    h3.sub-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 6px 0 4px 0;
+    }
+    p {
+      margin: 0 0 6px 0;
+    }
+
+    /* TABLES */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 8px;
+      font-size: 10.8px;
+    }
+    th {
+      background: #141414;
+      color: #ffffff;
+      text-align: left;
+      padding: 5px 8px;
+      font-weight: 700;
+      border: 1px solid #141414;
+    }
+    td {
+      padding: 4.5px 8px;
+      border: 1px solid #cbd5e1;
+      vertical-align: top;
+    }
+    tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+
+    /* CARDS & GRIDS */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-bottom: 8px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 7px;
+    }
+    .card-blue {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 7px;
+    }
+    .card-amber {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 7px;
+    }
+    .card-emerald {
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 7px;
+    }
+    .card-rose {
+      background: #fff1f2;
+      border: 1px solid #fecdd3;
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 7px;
+    }
+
+    .step-card {
+      border: 1px solid #cbd5e1;
+      border-left: 4px solid #d97706;
+      border-radius: 8px;
+      padding: 7px 10px;
+      margin-bottom: 7px;
+      background: #ffffff;
+    }
+    .step-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 3px;
+    }
+    .step-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: #141414;
+    }
+    .step-ref {
+      font-size: 9.8px;
+      font-weight: 700;
+      background: #fef3c7;
+      color: #b45309;
+      padding: 1.5px 7px;
+      border-radius: 999px;
+    }
+    ul {
+      margin: 2px 0 3px 0;
+      padding-left: 16px;
+    }
+    li {
+      margin-bottom: 2px;
+    }
+    code {
+      font-family: Consolas, Monaco, monospace;
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 1px 4px;
+      border-radius: 4px;
+      font-size: 10.2px;
+      border: 1px solid #e2e8f0;
+    }
+    .badge-pass {
+      background: #dcfce7;
+      color: #166534;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 9.8px;
+    }
+    .badge-warn {
+      background: #fef3c7;
+      color: #92400e;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 9.8px;
+    }
+    .badge-crit {
+      background: #fee2e2;
+      color: #991b1b;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 9.8px;
+    }
+
+    /* FLOWCHART HORIZONTAL */
+    .flow-row {
+      display: flex;
+      align-items: stretch;
+      justify-content: space-between;
+      gap: 5px;
+      margin: 6px 0 8px 0;
+    }
+    .flow-box {
+      flex: 1;
+      background: #f8fafc;
+      border: 1px solid #94a3b8;
+      border-top: 3px solid #141414;
+      border-radius: 6px;
+      padding: 5px 6px;
+      text-align: center;
+    }
+    .flow-box-num {
+      font-size: 9.5px;
+      font-weight: 800;
+      color: #d97706;
+    }
+    .flow-box-title {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 1px 0;
+    }
+    .flow-box-sub {
+      font-size: 9.2px;
+      color: #475569;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== PAGE 1: COVER PAGE ==================== -->
+  <div class="page cover-page">
+    <div>
+      <div class="cover-top-bar">
+        <div class="brand-logo">
+          <div style="background:#ffffff; padding:6px 14px; border-radius:10px; display:flex; align-items:center; box-shadow:0 4px 15px rgba(0,0,0,0.3);">
+            <img src="verztec-logo.png" alt="Verztec" style="height:34px; width:auto; object-fit:contain;" />
+          </div>
+          <div>
+            <div class="brand-text-main" style="color:#f5c400;">VERZTEC® THAILAND</div>
+            <div class="brand-text-sub">Enterprise E-Learning (LMS) & Real AI Proctoring Platform</div>
+          </div>
+        </div>
+        <div class="doc-badge">คู่มือฉบับสมบูรณ์ (v3.0 — อัปเดตล่าสุด)</div>
+      </div>
+
+      <div class="cover-hero">
+        <div class="cover-kicker">OIC Compliance • Role-Based Portal • Full Screen Lock • verztec-torean 15s Demo</div>
+        <h1 class="cover-title">คู่มือการใช้งานและแนะนำคุณสมบัติระบบ<br>การอบรมออนไลน์และ AI ควบคุมการสอบอัจฉริยะ</h1>
+        <p class="cover-subtitle">
+          สำหรับหลักสูตรขอรับและขอต่อใบอนุญาตตัวแทน/นายหน้าประกันภัย ตามมาตรฐานสำนักงาน คปภ.<br>
+          พร้อมระบบแยกสิทธิ์ผู้เรียน/ผู้ดูแลระบบ, วิดีโอทางการของเวอร์ซเทค (Verztec) 3 บท และระบบเดโมความเร็วสูง (verztec-torean)
+        </p>
+        <div class="cover-desc">
+          เอกสารฉบับนี้อัปเดตตามเวอร์ชันล่าสุดของระบบ ครอบคลุมตั้งแต่ <b>ระบบล็อกอินแยกบทบาท (Learner vs Admin)</b>, <b>การตรวจสอบยืนยันตัวตนด้วย AI e-KYC 3 รูปพร้อมระบุที่มาการอนุมัติ (AI vs Admin)</b>, <b>วิดีโอ YouTube ทางการของ Verztec 3 บทแบบไร้ปุ่มบังเนื้อหา</b>, <b>การบังคับแสดงผลเต็มจออัตโนมัติ (Auto-Full Screen & Exit Lock)</b>, <b>ระบบป้องกันการแคปหน้าจอด้วยคีย์บอร์ด (Anti-Capture Blackout Shield)</b>, <b>ระบบ AI Proctoring ระหว่างสอบ Post-Test พร้อมผลสอบในหน้าเดียว</b> และ <b>โหมดเดโมความเร็วสูง 15 วินาที (verztec-torean)</b>
+        </div>
+      </div>
+
+      <div class="cover-url-card">
+        <div class="cover-url-label">🌐 ช่องทางการเข้าใช้งานระบบ (Online 24 ชั่วโมง — เลือกได้ 2 โหมดตามวัตถุประสงค์)</div>
+        <div class="cover-url-grid">
+          <div class="cover-url-item">
+            <div style="font-size:10px; font-weight:800; color:#b45309;">1. ระบบมาตรฐานตามเกณฑ์ คปภ. (Standard Edition)</div>
+            <a class="cover-url-link" href="https://azaylms.onrender.com/verztec">https://azaylms.onrender.com/verztec</a>
+            <div style="font-size:10px; color:#475569; margin-top:2px;">ความยาวตามคลิปจริง (02:47, 05:27, 01:16 นาที) • สุ่มตรวจใบหน้า 2 นาที</div>
+          </div>
+          <div class="cover-url-item-amber">
+            <div style="font-size:10px; font-weight:800; color:#b45309;">2. ระบบเดโมความเร็วสูง 15 วินาที (verztec-torean Fast Demo)</div>
+            <a class="cover-url-link-amber" href="https://azaylms.onrender.com/verztec/verztec-torean">https://azaylms.onrender.com/verztec/verztec-torean</a>
+            <div style="font-size:10px; color:#78350f; margin-top:2px;">ปรับเวลาบทเรียนเหลือ <b>15 วินาที/บท</b> • เด้งสุ่มตรวจใบหน้าที่วินาทีที่ 7 ทันที</div>
+          </div>
+        </div>
+        <div class="cover-auth-strip">
+          <div>👨‍🎓 <b>บัญชีผู้เรียน (Learner):</b> Username <code>Learner</code> / Password <code>Learner@2026</code></div>
+          <div>🛡️ <b>บัญชีผู้ดูแลระบบ (Admin):</b> Username <code>Admin</code> / Password <code>Admin@2026</code></div>
+        </div>
+      </div>
+
+      <div class="cover-highlights">
+        <div class="highlight-box">
+          <div class="highlight-title">1. Role-Based Login Portal</div>
+          <div class="highlight-text">แยกหน้าจอผู้เรียน (Learner) และผู้ดูแลระบบ (Admin) ออกจากกันอย่างชัดเจน พร้อมปุ่มสลับบทบาททันที</div>
+        </div>
+        <div class="highlight-box">
+          <div class="highlight-title">2. e-KYC Status & Seamless CTA</div>
+          <div class="highlight-text">ระบุที่มาการอนุมัติชัดเจน (AI อัตโนมัติ vs Admin อนุมัติ) พร้อมปุ่มใหญ่ <b>"🚀 เริ่มต้นบทเรียนทันที"</b></div>
+        </div>
+        <div class="highlight-box">
+          <div class="highlight-title">3. วิดีโอแท้ 3 บท & 16:9 ไร้สิ่งบดบัง</div>
+          <div class="highlight-text">วิดีโอ Verztec แท้จาก YouTube 3 บท แยกกล่องกล้อง AI และปุ่มควบคุมออกนอกเฟรมวิดีโอ 100%</div>
+        </div>
+        <div class="highlight-box">
+          <div class="highlight-title">4. Auto-Full Screen & Exit Lock</div>
+          <div class="highlight-text">บังคับเปิดเต็มจออัตโนมัติทั้งห้องเรียนและหน้าสอบ พร้อมล็อกหน้าจอทันทีหากกด ESC ย่อหน้าจอ (ตั้งค่าเปิด/ปิดได้)</div>
+        </div>
+        <div class="highlight-box">
+          <div class="highlight-title">5. Anti-Capture Keyboard Shield</div>
+          <div class="highlight-text">ดักจับปุ่ม PrintScreen / Win+Shift+S / Cmd+Shift+S ตัดเป็นจอดำทันทีและล้างข้อมูลใน Clipboard</div>
+        </div>
+        <div class="highlight-box">
+          <div class="highlight-title">6. สอบพร้อม AI & ผลสอบในหน้าเดียว</div>
+          <div class="highlight-text">ตรวจจับใบหน้า/เสียง/สลับแท็บขณะสอบ Post-Test และแสดงผลสอบ Pass/Fail กลางจอทันทีโดยไม่ต้องเลื่อนเมาส์</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cover-footer">
+      <div>เอกสารคู่มือผู้ใช้งาน ผู้ดูแลระบบ และแนวทางการพรีเซนต์เดโม (User, Admin & Executive Demo Guide)</div>
+      <div>Verztec Consulting (Thailand) Co., Ltd. • https://www.verztec.co.th • 2026</div>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 2: SYSTEM OVERVIEW, DUAL EDITIONS & AUTH ==================== -->
+  <div class="page content-page">
+    <div>
+      <div class="page-header">
+        <div class="page-header-left">
+          <span class="page-header-badge">VERZTEC® LMS</span>
+          <span class="page-header-title">คู่มือการใช้งานและแนะนำคุณสมบัติระบบ (ฉบับอัปเดตล่าสุด)</span>
+        </div>
+        <span class="page-header-tag">ส่วนที่ 1: ภาพรวมระบบ, การแยกสิทธิ์ & โหมดเดโม verztec-torean</span>
+      </div>
+
+      <h2 class="sec-title"><span class="sec-num">01</span> ภาพรวมกระบวนการทำงานแบบครบวงจร (End-to-End Workflow)</h2>
+      <div class="flow-row">
+        <div class="flow-box">
+          <div class="flow-box-num">LOGIN PORTAL</div>
+          <div class="flow-box-title">แยกสิทธิ์เข้าใช้งาน</div>
+          <div class="flow-box-sub">Learner vs Admin<br>เลือกโหมด ปกติ / 15s</div>
+        </div>
+        <div class="flow-box">
+          <div class="flow-box-num">STEP 01–03</div>
+          <div class="flow-box-title">สมัคร & เช็คกล้อง</div>
+          <div class="flow-box-sub">QR 15 นาที • เช็ค Ping<br>ตั้งรหัสผ่านครั้งแรก</div>
+        </div>
+        <div class="flow-box">
+          <div class="flow-box-num">STEP 04.2</div>
+          <div class="flow-box-title">Real AI e-KYC 3 รูป</div>
+          <div class="flow-box-sub">ระบุที่มาอนุมัติ AI/Admin<br>ปุ่มพุ่งเข้าห้องเรียนทันที</div>
+        </div>
+        <div class="flow-box">
+          <div class="flow-box-num">STEP 04.3</div>
+          <div class="flow-box-title">ห้องเรียน Full Screen</div>
+          <div class="flow-box-sub">คลิปจริง 3 บท ไร้ปุ่มบัง<br>ล็อกย่อจอ & กันแคปจอ</div>
+        </div>
+        <div class="flow-box">
+          <div class="flow-box-num">STEP 05–06</div>
+          <div class="flow-box-title">สอบ AI & ใบรับรอง</div>
+          <div class="flow-box-sub">คุมสอบด้วย AI เต็มจอ<br>ผลสอบหน้าเดียวไม่ต้องเลื่อน</div>
+        </div>
+      </div>
+
+      <h2 class="sec-title"><span class="sec-num">02</span> การเข้าสู่ระบบแยกตามบทบาท (Role-Based Login) และโหมดการทำงาน 2 รูปแบบ</h2>
+      <div class="grid-2">
+        <div class="card-blue" style="margin-bottom:0;">
+          <h3 class="sub-title" style="margin-top:0; color:#b45309;">🔐 1. หน้าต่างเข้าสู่ระบบแยกบทบาท (Login Portal)</h3>
+          <p style="margin-bottom:4px;">เมื่อเปิดเข้าสู่ระบบ จะพบหน้าจอ Login เพื่อแยกสภาพแวดล้อมการใช้งานอย่างชัดเจน:</p>
+          <ul>
+            <li><b>หน้าจอผู้เรียน (Learner Portal):</b> ใช้บัญชี <code>Learner</code> / รหัสผ่าน <code>Learner@2026</code> แสดงเฉพาะขั้นตอนการเรียนและสอบ 01–06 โดยซ่อนเมนูตั้งค่าระบบของ Admin ทั้งหมด</li>
+            <li><b>หน้าจอผู้ดูแลระบบ (Admin Control Hub):</b> ใช้บัญชี <code>Admin</code> / รหัสผ่าน <code>Admin@2026</code> เข้าสู่ศูนย์อนุมัติ e-KYC, ตาราง Activity Log, และการตั้งค่าพารามิเตอร์ AI Proctoring ทันที</li>
+            <li>มีปุ่ม <b>"สลับบัญชี / ออก"</b> ที่แถบด้านบนสุด เพื่อสลับระหว่างหน้าผู้เรียนและหน้า Admin ได้ในคลิกเดียว</li>
+          </ul>
+        </div>
+        <div class="card-amber" style="margin-bottom:0;">
+          <h3 class="sub-title" style="margin-top:0; color:#b45309;">🚀 2. เปรียบเทียบโหมดมาตรฐาน vs โหมดเดโม (verztec-torean)</h3>
+          <p style="margin-bottom:4px;">สามารถสลับโหมดได้จากหน้า Login, ป้ายมุมซ้ายบนของเว็บ หรือในหน้าตั้งค่า Admin:</p>
+          <ul>
+            <li><b>โหมดมาตรฐาน (<code>/</code>):</b> ความยาววิดีโอตามคลิปจริง (บทที่ 1: 2:47 นาที, บทที่ 2: 5:27 นาที, บทที่ 3: 1:16 นาที), เวลาตอบสนองสุ่มตรวจใบหน้า 120 วินาที (2 นาที), Inactivity 15 นาที</li>
+            <li><b>โหมดเดโมความเร็วสูง (<code>/verztec-torean</code>):</b> ปรับลดเวลาเรียนเหลือเพียง <b>บทละ 15 วินาที</b>, เด้งหน้าต่างสุ่มตรวจใบหน้าอัตโนมัติที่ <b>วินาทีที่ 7</b>, นับถอยหลังสุ่มตรวจ <b>20 วินาที</b> และ Inactivity <b>30 วินาที</b> เพื่อใช้พรีเซนต์ลูกค้าได้ครบทุกฟีเจอร์โดยไม่ต้องรอนาน</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2 class="sec-title" style="margin-top:8px;"><span class="sec-num">03</span> ตารางสรุปคุณสมบัติเด่นและสิ่งที่อัปเกรดใหม่ล่าสุด (Latest Feature Matrix)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 24%;">หมวดหมู่ฟีเจอร์</th>
+            <th style="width: 28%;">เทคโนโลยี / โมดูล</th>
+            <th>รายละเอียดการทำงานจริงในระบบล่าสุด</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>1. Real AI e-KYC & ป้ายสถานะที่มาการอนุมัติ</b></td>
+            <td><code>ResNet-34 (128D)</code> + <code>Approval Source Badge</code></td>
+            <td>เปรียบเทียบใบหน้าจริงกับบัตรประชาชน พร้อมแสดงป้ายสถานะชัดเจนทั้งแบบ Pop-up และแถบสถานะว่า <b>"✓ ผ่านการอนุมัติอัตโนมัติด้วย AI"</b> หรือ <b>"✓ ผ่านการอนุมัติโดย Admin"</b> พร้อมปุ่มใหญ่ <b>"🚀 เริ่มต้นบทเรียนทันที"</b></td>
+          </tr>
+          <tr>
+            <td><b>2. วิดีโอแท้ 3 บท & เฟรม 16:9 ไร้สิ่งบดบัง 100%</b></td>
+            <td><code>YouTube IFrame API</code> + <code>Dedicated Sidebars</code></td>
+            <td>ใช้วิดีโอทางการของ Verztec 3 บท (ความยาวรวม ~9.5 นาที) โดยแยกกล้อง AI Proctoring, ป้ายสถานะ และแถบปุ่มควบคุมไว้ด้านนอกเฟรมวิดีโอทั้งหมด ไม่มีปุ่มหรือข้อความใดๆ บังเนื้อหาวิดีโอ</td>
+          </tr>
+          <tr>
+            <td><b>3. บังคับเต็มจออัตโนมัติ & ล็อกการย่อหน้าจอ</b></td>
+            <td><code>Auto-Full Screen</code> + <code>Exit Lock Shield</code></td>
+            <td>เมื่อเข้าสู่ห้องเรียนวิดีโอ (Step 04.3) หรือเริ่มทำข้อสอบ (Step 05) ระบบจะขยายเต็มจออัตโนมัติ หากผู้เรียนกด <code>ESC</code> ย่อจอ ระบบจะหยุดวิดีโอ/ล็อกหน้าข้อสอบทันทีจนกว่าจะกดกลับเข้าโหมดเต็มจอ (Admin เปิด/ปิดนโยบายนี้ได้)</td>
+          </tr>
+          <tr>
+            <td><b>4. ป้องกันการแคปหน้าจอจากคีย์บอร์ด</b></td>
+            <td><code>Anti-Capture Blackout</code> + <code>Clipboard Wipe</code></td>
+            <td>ดักจับปุ่ม <code>PrintScreen</code>, <code>Win+Shift+S</code>, <code>Cmd+Shift+3/4/5</code>, <code>Ctrl+P</code> และ <code>F12</code> ทันทีที่กด ระบบจะแสดงฉากกั้นสีดำเต็มจอ (Blackout Shield), ล้างข้อมูลรูปภาพใน Clipboard ทิ้ง และบันทึก <code>CRITICAL</code> Log</td>
+          </tr>
+          <tr>
+            <td><b>5. AI Proctoring ระหว่างสอบ Post-Test</b></td>
+            <td><code>Live Exam Camera</code> + <code>VAD & Multi-Screen</code></td>
+            <td>หน้าทำข้อสอบมีระบบตรวจจับใบหน้าทุก 1.8 วินาที, ตรวจจับคนอื่นในเฟรม (>1 คน), หันหน้าหนีจอ, เสียงพูดคุย (dB), ต่อ 2 หน้าจอ และล็อกข้อสอบเมื่อสลับแท็บ เหมือนในห้องเรียนทุกประการ</td>
+          </tr>
+          <tr>
+            <td><b>6. หน้าผลสอบ Fit-to-Screen ในหน้าเดียว</b></td>
+            <td><code>Zero-Scroll Result</code> + <code>Instant Result Modal</code></td>
+            <td>เมื่อกดส่งข้อสอบ ระบบจะเด้ง <b>Pop-up แจ้งผลสอบ (ผ่าน / ไม่ผ่าน)</b> กลางจอทันที และสลับการ์ดผลสอบขึ้นมาแทนที่ตัวข้อสอบในตำแหน่งสายตาเดียวกัน ผู้เรียนเห็นผลและกดส่งขอใบรับรองได้ทันทีโดยไม่ต้องเลื่อนเมาส์หา</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="page-footer">
+      <span>คู่มือการใช้งานระบบ Verztec E-Learning (LMS) & AI Proctoring (ฉบับอัปเดตล่าสุด)</span>
+      <span>หน้า 2 / 5 &nbsp;|&nbsp; https://azaylms.onrender.com/verztec</span>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 3: STEPS 01 TO 04.2 (REGISTRATION TO AI E-KYC) ==================== -->
+  <div class="page content-page">
+    <div>
+      <div class="page-header">
+        <div class="page-header-left">
+          <span class="page-header-badge">VERZTEC® LMS</span>
+          <span class="page-header-title">คู่มือการใช้งานสำหรับผู้เข้าอบรม (Learner Guide: ขั้นตอนที่ 01 – 04.2)</span>
+        </div>
+        <span class="page-header-tag">ส่วนที่ 2: การสมัครอบรม, เตรียมอุปกรณ์ & ยืนยันตัวตน e-KYC</span>
+      </div>
+
+      <h2 class="sec-title"><span class="sec-num">04</span> ขั้นตอนการใช้งานสำหรับผู้เข้าอบรม: ตั้งแต่ลงทะเบียนถึงการยืนยันตัวตน (Step 01 – 04.2)</h2>
+
+      <div class="step-card">
+        <div class="step-header">
+          <span class="step-title">ขั้นตอนที่ 01: สมัครอบรม ตรวจสอบวันหมดอายุบัตร และชำระเงินผ่าน QR Code (15 นาที)</span>
+          <span class="step-ref">อ้างอิงคู่มือ คปภ. หน้า 2, 6–9</span>
+        </div>
+        <ul>
+          <li><b>ศึกษาระเบียบปฏิบัติ 9 ข้อบังคับของ คปภ.:</b> ผู้เรียนต้องรับทราบกฎเหล็กทั้ง 9 ข้อก่อนสมัครอบรม (สามารถคลิกพับ/กางรายละเอียดได้)</li>
+          <li><b>ระบบตรวจสอบวันหมดอายุบัตรเดิมอัตโนมัติ (กฎ 2 วันทำการ):</b> เมื่อเลือกหลักสูตรและรอบอบรม ระบบจะคำนวณวันจบรอบอบรมเทียบกับวันหมดอายุบัตรเดิม หากจบก่อนวันหมดอายุน้อยกว่า <b>2 วันทำการ</b> ระบบจะบล็อกและแจ้งเตือนทันที</li>
+          <li><b>ชำระเงินผ่าน QR Code ภายใน 15 นาที:</b> แสดง QR Code พร้อมตัวนับเวลาถอยหลัง <code>15:00</code> นาที และคำเตือนห้ามโอนเงินเข้าบัญชีโดยตรง เมื่อชำระสำเร็จระบบจะส่งอีเมลยืนยันเข้าสู่กล่องอีเมลจำลองทันที</li>
+        </ul>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:6px;">
+        <div class="step-card" style="margin-bottom:0;">
+          <div class="step-header">
+            <span class="step-title">ขั้นตอนที่ 02: ตรวจสอบอุปกรณ์และกล้องจริง</span>
+            <span class="step-ref">อ้างอิงหน้า 3, 10</span>
+          </div>
+          <ul>
+            <li>คลิกปุ่ม <b>"เริ่มตรวจสอบอุปกรณ์จริง"</b> เพื่อวัดความหน่วงอินเทอร์เน็ต (<code>Ping &le; 500 ms</code>) และความละเอียดกล้อง (<code>&ge; 720p</code>)</li>
+            <li><b>คัดกรองกล้องฮาร์ดแวร์จริงอัตโนมัติ:</b> ข้ามกล้องเสมือน (Virtual Camera เช่น OBS/LoomieLive) เพื่อป้องกันการปลอมแปลงภาพวิดีโอ</li>
+          </ul>
+        </div>
+
+        <div class="step-card" style="margin-bottom:0;">
+          <div class="step-header">
+            <span class="step-title">ขั้นตอนที่ 03: ตั้งรหัสผ่านครั้งแรก & เข้าสู่ระบบ</span>
+            <span class="step-ref">อ้างอิงหน้า 11–15</span>
+          </div>
+          <ul>
+            <li>ใช้เลขบัตรประชาชน 13 หลักเป็น Username และตั้งรหัสผ่านตามเกณฑ์ (<b>ตัวอักษร &ge; 6 ตัว</b> และ <b>ตัวเลข &ge; 1 ตัว</b>)</li>
+            <li>เข้าสู่ระบบในขั้นตอนที่ 04.1 และกดยอมรับ <b>แบบขอความยินยอม PDPA</b> และเงื่อนไขการอบรม LMS</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step-card" style="border-left-color:#10b981;">
+        <div class="step-header">
+          <span class="step-title">ขั้นตอนที่ 04.2: ยืนยันตัวตน 3 รูปด้วย AI จริง + ป้ายระบุที่มาการอนุมัติ & ปุ่มพุ่งเข้าห้องเรียนทันที</span>
+          <span class="step-ref">อัปเกรดใหม่ล่าสุด (หน้า 16–21)</span>
+        </div>
+        <p style="margin-bottom:4px;">ผู้เข้าอบรมต้องถ่ายภาพผ่านกล้องสดให้ครบ 3 รูปตามกรอบแนะนำ แล้วกดปุ่ม <b>"ตรวจสอบข้อมูลด้วยโมเดล AI จริง"</b>:</p>
+        <div class="grid-3" style="margin-bottom:6px;">
+          <div class="card-blue" style="margin-bottom:0; padding:6px 8px;">
+            <b>รูปที่ 1.1 บัตร ปชช. เต็มใบ</b><br>
+            ถือบัตรตัวจริงให้อยู่ในกรอบสี่เหลี่ยม AI จะตรวจวัดค่าความคมชัด (<code>Laplacian Sharpness</code>) และแสงสะท้อน (<code>Glare %</code>)
+          </div>
+          <div class="card-blue" style="margin-bottom:0; padding:6px 8px;">
+            <b>รูปที่ 1.2 ใบหน้าจริง (Selfie)</b><br>
+            จัดใบหน้าให้อยู่ในกรอบวงรี AI สกัดจุดโครงหน้า 68 จุดและเวกเตอร์อัตลักษณ์ 128 มิติเก็บเป็นใบหน้าอ้างอิงของผู้เรียน
+          </div>
+          <div class="card-blue" style="margin-bottom:0; padding:6px 8px;">
+            <b>รูปที่ 1.3 เฉพาะรูปหน้าบนบัตร</b><br>
+            ซูมเฉพาะรูปใบหน้าบนบัตรประชาชนเพื่อนำมาคำนวณระยะห่างเวกเตอร์ (<code>Euclidean Distance</code>) เทียบกับใบหน้าจริง
+          </div>
+        </div>
+        <ul>
+          <li><b>การแสดงที่มาของการอนุมัติอย่างชัดเจน (Approval Source Status):</b> เมื่อผ่านการอนุมัติ ระบบจะแสดงทั้ง <b>หน้าต่าง Pop-up กลางจอ</b> และ <b>ป้ายสถานะด้านล่าง</b> โดยระบุชัดเจนว่าผ่านด้วยวิธีใด:
+            <ul>
+              <li><span class="badge-pass">🤖 ✓ ผ่านการอนุมัติอัตโนมัติด้วย AI (Automatic AI e-KYC Approval)</span> — กรณีคะแนนความเหมือนใบหน้าผ่านเกณฑ์ (&ge; 72%)</li>
+              <li><span class="badge-warn">👨‍💼 ✓ ผ่านการอนุมัติโดย Admin (Manual Administrator Override)</span> — กรณีผู้เรียนส่งคำขอให้ Admin ตรวจสอบและกดอนุมัติให้</li>
+            </ul>
+          </li>
+          <li><b>ปุ่ม Call-to-Action ขนาดใหญ่ไร้รอยต่อ:</b> ทันทีที่ได้รับการอนุมัติ ระบบจะแสดงปุ่มสีเขียวขนาดใหญ่ <b>"🚀 เริ่มต้นบทเรียนทันที (เข้าสู่ห้องเรียน Full Screen)"</b> เพื่อให้ผู้เรียนคลิกเพียงครั้งเดียวแล้วพุ่งตรงเข้าสู่ห้องเรียนวิดีโอในโหมดเต็มจอได้ทันที</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="page-footer">
+      <span>คู่มือการใช้งานระบบ Verztec E-Learning (LMS) & AI Proctoring (ฉบับอัปเดตล่าสุด)</span>
+      <span>หน้า 3 / 5 &nbsp;|&nbsp; https://azaylms.onrender.com/verztec</span>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 4: CLASSROOM (STEP 04.3) & POST-TEST EXAM (STEP 05-06) ==================== -->
+  <div class="page content-page">
+    <div>
+      <div class="page-header">
+        <div class="page-header-left">
+          <span class="page-header-badge">VERZTEC® LMS</span>
+          <span class="page-header-title">คู่มือห้องเรียนวิดีโอ Full Screen, ระบบกันแคปจอ & การสอบ Post-Test (Step 04.3 – 06)</span>
+        </div>
+        <span class="page-header-tag">ส่วนที่ 3: ห้องเรียน AI Proctoring & การสอบแบบ Fit-to-Screen</span>
+      </div>
+
+      <h2 class="sec-title"><span class="sec-num">05</span> ห้องเรียนวิดีโอ 3 บท และการป้องกันการทุจริตขั้นสูงสุด (Step 04.3 – 04.4)</h2>
+      <div class="step-card" style="border-left-color:#141414;">
+        <div class="step-header">
+          <span class="step-title">1. วิดีโอทางการของ Verztec 3 บท + หน้าจอ 16:9 ไร้ปุ่มหรือข้อความบังเนื้อหา 100%</span>
+          <span class="step-ref">YouTube Official Videos</span>
+        </div>
+        <ul>
+          <li><b>รายการบทเรียนวิดีโอจริงทั้ง 3 บท:</b>
+            <ul>
+              <li><b>บทที่ 1:</b> จรรยาบรรณและมาตรฐานวิชาชีพตัวแทน/นายหน้าประกันภัย — เวอร์ซเทค (Verztec) (YouTube ID: <code>mqcsLggV9LI</code> | ความยาวจริง <code>02:47 นาที</code>)</li>
+              <li><b>บทที่ 2:</b> กฎหมายประกันภัยและผลิตภัณฑ์ประกันสุขภาพโรคร้ายแรง — เวอร์ซเทค (Verztec) (YouTube ID: <code>lBa6fWSb_94</code> | ความยาวจริง <code>05:27 นาที</code>)</li>
+              <li><b>บทที่ 3:</b> กระบวนการเสนอขายอย่างโปร่งใสและการบริการลูกค้า — เวอร์ซเทค (Verztec) (YouTube ID: <code>xnT8CFcnEIk</code> | ความยาวจริง <code>01:16 นาที</code>)</li>
+            </ul>
+          </li>
+          <li><b>ไม่มีสิ่งบดบังเนื้อหาวิดีโอ (100% Unobstructed Video Frame):</b> กล้อง AI Proctoring, ป้ายสถานะเสียง/หน้าจอ และแถบปุ่มควบคุมการเล่นวิดีโอถูกจัดวางไว้นอกพื้นที่วิดีโอทั้งหมด ผู้เรียนเห็นสไลด์และเนื้อหาวิดีโอชัดเจนเต็มตา 100%</li>
+          <li><b>ล็อกการกดข้าม (Anti-Skip):</b> ห้ามลากแถบเวลาไปข้างหน้า ห้ามเร่งความเร็ว (ล็อก <code>1.0x</code>) และห้ามลดเสียง (ล็อก <code>100%</code>) แต่ย้อนกลับทบทวนได้</li>
+        </ul>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:6px;">
+        <div class="card-rose" style="margin-bottom:0;">
+          <h3 class="sub-title" style="margin-top:0; color:#9f1239;">🖥️ 2. บังคับเต็มจออัตโนมัติ & ล็อกเมื่อย่อหน้าจอ</h3>
+          <ul>
+            <li>เมื่อเข้าห้องเรียนหรือเริ่มสอบ ระบบจะเข้าสู่โหมด <b>Full Screen / Pro Screen</b> อัตโนมัติทันที</li>
+            <li>หากผู้เรียนกดปุ่ม <code>ESC</code> หรือย่อหน้าจอออกนอกโหมดเต็มจอ <b>วิดีโอจะหยุดเล่นทันที</b> และแสดงหน้าต่างล็อกสีแดง <b>"ระบบบังคับแสดงผลโหมดเต็มจอ"</b> จนกว่าจะกดปุ่มกลับเข้าสู่โหมดเต็มจอ</li>
+            <li><i>หมายเหตุ:</i> Admin สามารถตั้งค่าเปิด/ปิดการบังคับเต็มจอได้ในหน้าตั้งค่า หากต้องการให้ผู้เรียนเปิด/ปิดเต็มจอได้อย่างอิสระ</li>
+          </ul>
+        </div>
+        <div class="card-amber" style="margin-bottom:0;">
+          <h3 class="sub-title" style="margin-top:0; color:#92400e;">🚫 3. ป้องกันการแคปหน้าจอ & สุ่มตรวจใบหน้า</h3>
+          <ul>
+            <li><b>Anti-Capture Keyboard Guard:</b> ดักจับปุ่ม <code>PrintScreen</code>, <code>Win+Shift+S</code>, <code>Cmd+Shift+3/4/5</code>, <code>Ctrl+P</code> และ <code>F12</code> แสดงฉากดำปิดทับเนื้อหาทันที (Blackout Shield) พร้อมล้าง Clipboard</li>
+            <li><b>สุ่มตรวจจับใบหน้า (Random Checkpoint):</b> เด้งหน้าต่างสุ่มตรวจพร้อมโจทย์ขยับศีรษะ <b>Active Liveness</b> (ต้องยืนยันภายใน 2 นาทีในโหมดปกติ หรือ 20 วินาทีในโหมด <code>verztec-torean</code> มิฉะนั้นจะถูกเตะออกและย้อนเวลาวิดีโอ)</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2 class="sec-title"><span class="sec-num">06</span> การทำแบบทดสอบหลังเรียน (Post-Test) ในหน้าเดียว & การรับใบรับรอง (Step 05 – 06)</h2>
+      <div class="step-card" style="border-left-color:#4f46e5; margin-bottom:0;">
+        <div class="step-header">
+          <span class="step-title">การคุมสอบด้วย AI เต็มรูปแบบ + หน้าผลสอบ Fit-to-Screen (ไม่ต้องเลื่อนเมาส์หา)</span>
+          <span class="step-ref">อัปเกรด UX ล่าสุด (หน้า 28–30)</span>
+        </div>
+        <ul>
+          <li><b>ระบบตรวจจับ AI Proctoring ระหว่างสอบ (เหมือนในห้องเรียนทุกประการ):</b> หน้าทำข้อสอบมีกล้อง AI สดพร้อมปุ่มซ่อน/แสดงกล้อง, ตรวจจับใบหน้าไม่ตรง/คนอื่นเข้าเฟรม/หันหน้าหนีจอ, ตรวจจับเสียงพูดคุย (VAD), ตรวจจับ 2 หน้าจอ, ล็อกข้อสอบเมื่อสลับแท็บ, และมีแถบจำลองเหตุการณ์ทุจริตให้ทดสอบครบถ้วน</li>
+          <li><b>แสดงผลสอบทันทีในหน้าจอเดียว (Fit-to-Screen / Zero Scrolling):</b>
+            <ul>
+              <li>เมื่อทำข้อสอบครบและกดปุ่ม <b>"ส่งกระดาษคำตอบ (Finish)"</b> ระบบจะเด้ง <b>หน้าต่าง Pop-up แจ้งผลสอบ (🎉 สอบผ่านเกณฑ์ / ⚠️ ไม่ผ่านเกณฑ์)</b> ขึ้นมากลางจอทันที</li>
+              <li>พร้อมกันนั้น ระบบจะซ่อนฟอร์มตัวข้อสอบและสลับ <b>การ์ดสรุปผลสอบและปุ่มขอใบรับรอง</b> ขึ้นมาแสดงแทนที่ในตำแหน่งสายตาเดียวกันทันที ผู้เรียนจึงไม่ต้องเลื่อนเมาส์ลงไปหาด้านล่างอีกต่อไป</li>
+            </ul>
+          </li>
+          <li><b>การส่งผลการเรียนและออกใบรับรอง (Step 06):</b> เมื่อสอบผ่านเกณฑ์ (&ge; 60% ภายในโควตา 5 ครั้ง) และกดยืนยันส่งผลการเรียน ระบบจะล็อกคอร์สถาวรตามกฎข้อ 8 และออกใบรับรอง <code>VERZTEC-CERT-2026-XXXXXX</code> สำหรับพิมพ์ PDF ไปยื่นในระบบ e-Licensing ของ คปภ.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="page-footer">
+      <span>คู่มือการใช้งานระบบ Verztec E-Learning (LMS) & AI Proctoring (ฉบับอัปเดตล่าสุด)</span>
+      <span>หน้า 4 / 5 &nbsp;|&nbsp; https://azaylms.onrender.com/verztec</span>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 5: ADMIN HUB & 5-MINUTE DEMO PLAYBOOK ==================== -->
+  <div class="page content-page">
+    <div>
+      <div class="page-header">
+        <div class="page-header-left">
+          <span class="page-header-badge">VERZTEC® LMS</span>
+          <span class="page-header-title">คู่มือผู้ดูแลระบบ (Admin Hub) & สคริปต์พรีเซนต์เดโมลูกค้าใน 5 นาที</span>
+        </div>
+        <span class="page-header-tag">ส่วนที่ 4: คู่มือ Admin & แนวทางการสาธิตระบบ (Executive Demo Playbook)</span>
+      </div>
+
+      <h2 class="sec-title"><span class="sec-num">07</span> คู่มือระบบผู้ดูแลควบคุมการสอบ (Admin & Proctoring Control Hub)</h2>
+      <p>
+        เข้าสู่ระบบด้วยบัญชี <b>Admin (<code>Admin</code> / <code>Admin@2026</code>)</b> หรือคลิกปุ่ม <b>"สลับบัญชี / ออก"</b> เพื่อเข้าสู่ศูนย์ควบคุมการสอบสำหรับผู้ดูแลระบบ ซึ่งประกอบด้วย 4 เมนูหลัก:
+      </p>
+
+      <div class="grid-3">
+        <div class="card-blue" style="margin-bottom:0;">
+          <h3 class="sub-title" style="margin-top:0;">1. อนุมัติ e-KYC & ความโปร่งใส</h3>
+          <ul style="font-size:10.5px;">
+            <li>ตรวจสอบภาพ e-KYC 3 รูป และกดปุ่ม <b>อนุมัติยืนยันตัวตน</b> (ระบบจะประทับตราว่า <i>"ผ่านการอนุมัติโดย Admin"</i> ให้ผู้เรียนเห็นทันที)</li>
+            <li>ดู <b>Candidate Integrity Score (100%)</b> หักคะแนนอัตโนมัติเมื่อเกิด Warning (-3%) หรือ Critical (-12%)</li>
+          </ul>
+        </div>
+        <div class="card-blue" style="margin-bottom:0;">
+          <h3 class="sub-title" style="margin-top:0;">2. User Activity Log & CSV</h3>
+          <ul style="font-size:10.5px;">
+            <li>บันทึกทุกเหตุการณ์พร้อมวัน-เวลา, เลขบัตรประชาชน, หมวดหมู่ (<code>ANTI_CHEAT</code>, <code>KYC</code>, <code>CLASSROOM</code>, <code>EXAM</code>)</li>
+            <li>กรองดูเฉพาะเหตุการณ์ทุจริต หรือกดปุ่ม <b>"Export Activity Log (CSV)"</b> เพื่อเปิดใน Excel</li>
+          </ul>
+        </div>
+        <div class="card-blue" style="margin-bottom:0;">
+          <h3 class="sub-title" style="margin-top:0;">3. ตั้งค่าควบคุมการสอบ & Full Screen</h3>
+          <ul style="font-size:10.5px;">
+            <li>มีปุ่มลัดสลับระหว่าง <b>โหมดเดโม 15 วินาที (verztec-torean)</b> และ <b>โหมดมาตรฐาน คปภ.</b></li>
+            <li>มีสวิตช์เปิด/ปิด <b>"บังคับแสดงผลเต็มจออัตโนมัติและล็อกหน้าจอหากกดย่อจอ"</b> พร้อมปรับเกณฑ์ความเหมือน AI (%)</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2 class="sec-title" style="margin-top:8px;"><span class="sec-num">08</span> คู่มือการพรีเซนต์เดโมให้ลูกค้าเห็นครบทุกฟีเจอร์ใน 5 นาที (ด้วยระบบ verztec-torean)</h2>
+      <p style="margin-bottom:5px;">
+        เมื่อต้องสาธิตระบบให้ผู้บริหารหรือลูกค้าพิจารณา แนะนำให้เปิดลิงก์โหมดความเร็วสูง <b><a href="https://azaylms.onrender.com/verztec/verztec-torean" style="color:#b45309;">https://azaylms.onrender.com/verztec/verztec-torean</a></b> และดำเนินตามสคริปต์ 5 นาทีดังนี้:
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 14%;">ช่วงเวลา</th>
+            <th style="width: 28%;">จุดที่สาธิต (Feature Showcase)</th>
+            <th>ขั้นตอนการกดเดโมให้ลูกค้าชมแบบกระชับและน่าประทับใจที่สุด</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>นาทีที่ 0:00–0:45</b><br><span class="badge-pass">Login & Mode</span></td>
+            <td><b>แยกสิทธิ์ผู้เรียน/Admin & โหมด verztec-torean</b></td>
+            <td>โชว์หน้า Login Portal ที่มีปุ่มเลือกบทบาทชัดเจน กดเปิดสวิตช์ <b>"verztec-torean (15 วินาที)"</b> แล้วคลิกเข้าสู่ระบบในฐานะ <b>ผู้เรียน (Learner)</b></td>
+          </tr>
+          <tr>
+            <td><b>นาทีที่ 0:45–2:00</b><br><span class="badge-pass">Real AI e-KYC</span></td>
+            <td><b>ยืนยันตัวตน 3 รูป + ระบุที่มาการอนุมัติ + ปุ่มเข้าเรียนทันที</b></td>
+            <td>คลิกปุ่มลัดด้านบน <b>"ข้ามไปทดสอบ e-KYC 3 รูป"</b> กดถ่ายภาพจำลองให้ครบ 3 ช่อง แล้วกดตรวจสอบด้วย AI โชว์ Pop-up ที่ระบุชัดเจนว่า <b>"✓ ผ่านการอนุมัติอัตโนมัติด้วย AI"</b> แล้วคลิกปุ่มใหญ่ <b>"🚀 เริ่มต้นบทเรียนทันที"</b></td>
+          </tr>
+          <tr>
+            <td><b>นาทีที่ 2:00–3:30</b><br><span class="badge-crit">Full Screen & Classroom AI</span></td>
+            <td><b>วิดีโอแท้ไร้ปุ่มบัง + บังคับเต็มจอ + สุ่มตรวจที่วินาทีที่ 7 + กันแคปจอ</b></td>
+            <td>
+              1) ชี้ให้เห็นว่าระบบขยาย <b>Full Screen อัตโนมัติ</b> และวิดีโอ Verztec 16:9 <b>ไม่มีปุ่มใดๆ บังเนื้อหาเลย</b><br>
+              2) กดเล่นวิดีโอ พอถึง <b>วินาทีที่ 7</b> หน้าต่างสุ่มตรวจใบหน้าจะเด้งขึ้นมาทันที (ไม่ต้องรอ 2 นาที) กดยืนยันใบหน้าและเล่นต่อจนครบ <b>15 วินาที</b> เพื่อจบบทเรียนทันที<br>
+              3) ลองกดปุ่ม <code>ESC</code> เพื่อโชว์หน้าต่างล็อกบังคับเต็มจอ และลองกดปุ่ม <b>"จำลองกด PrintScreen"</b> เพื่อโชว์ฉากดำป้องกันการแคปหน้าจอ
+            </td>
+          </tr>
+          <tr>
+            <td><b>นาทีที่ 3:30–4:30</b><br><span class="badge-warn">Exam AI & 1-Page Result</span></td>
+            <td><b>คุมสอบด้วย AI เต็มจอ + ผลสอบในหน้าเดียวไม่ต้องเลื่อนหา</b></td>
+            <td>คลิกปุ่มลัด <b>"จำลองเรียนครบ 100% เพื่อเข้าสอบทันที"</b> ชี้ให้เห็นกล้อง AI Proctoring ที่เฝ้าสอบอยู่ด้านขวา ตอบข้อสอบ 5 ข้อแล้วกดส่ง โชว์ <b>Pop-up ผลสอบกลางจอ</b> และการ์ดผลสอบที่แสดงแทนที่ข้อสอบในหน้าเดียวทันที กดส่งผลเพื่อรับ <b>ใบรับรอง (Step 06)</b></td>
+          </tr>
+          <tr>
+            <td><b>นาทีที่ 4:30–5:00</b><br><span class="badge-pass">Admin Control</span></td>
+            <td><b>ศูนย์ควบคุม Admin, คะแนนความโปร่งใส & ตั้งค่า Full Screen</b></td>
+            <td>คลิกปุ่ม <b>"สลับบัญชี / ออก"</b> มุมขวาบน เลือกเข้าเป็น <b>Admin</b> โชว์คะแนนความโปร่งใส (Integrity Score), ตาราง Activity Log ที่บันทึกการกด PrintScreen/ย่อจอไว้ครบถ้วน และโชว์สวิตช์เปิด/ปิดการบังคับ Full Screen ในแท็บตั้งค่า</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="page-footer">
+      <span>คู่มือการใช้งานระบบ Verztec E-Learning (LMS) & AI Proctoring (ฉบับอัปเดตล่าสุด)</span>
+      <span>หน้า 5 / 5 &nbsp;|&nbsp; https://azaylms.onrender.com/verztec &nbsp;|&nbsp; https://azaylms.onrender.com/verztec/verztec-torean</span>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: azaylms
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DEMO_SYSTEM_NAME
+        value: standard
+
+  - type: web
+    name: azay-torean
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DEMO_SYSTEM_NAME
+        value: azay-torean
+
+  - type: web
+    name: verzteclms
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: BRAND_THEME
+        value: verztec
+      - key: DEMO_SYSTEM_NAME
+        value: standard

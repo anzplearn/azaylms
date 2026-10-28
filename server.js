@@ -9,6 +9,15 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// If BRAND_THEME=verztec is configured on this instance, serve verztec.html as the root index page
+app.get('/', (req, res, next) => {
+  if (process.env.BRAND_THEME === 'verztec') {
+    return res.sendFile(path.join(__dirname, 'public', 'verztec.html'));
+  }
+  next();
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/ai-models', express.static(path.join(__dirname, 'node_modules', '@vladmandic', 'face-api', 'model')));
 app.use('/ai-lib', express.static(path.join(__dirname, 'node_modules', '@vladmandic', 'face-api', 'dist')));
@@ -949,7 +958,39 @@ app.get(['/azay-torean', '/azay-torean/*'], (req, res) => {
   };
   applyCustomLessonDurationToCourses(db);
   saveDB(db);
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', process.env.BRAND_THEME === 'verztec' ? 'verztec.html' : 'index.html'));
+});
+
+// Dedicated URL entry points for the cloned "Verztec" website (Standard & 15s Fast Demo Mode)
+app.get(['/verztec', '/verztec/*'], (req, res) => {
+  if (req.query.mode === 'standard') {
+    const db = loadDB();
+    db.proctorSettings = {
+      ...db.proctorSettings,
+      demoEdition: 'standard',
+      lessonDurationSec: 0,
+      randomPromptTimeoutSec: 120,
+      inactivityTimeoutSec: 900
+    };
+    applyCustomLessonDurationToCourses(db);
+    saveDB(db);
+  }
+  res.sendFile(path.join(__dirname, 'public', 'verztec.html'));
+});
+
+app.get(['/verztec-torean', '/verztec-torean/*'], (req, res) => {
+  const db = loadDB();
+  db.proctorSettings = {
+    ...db.proctorSettings,
+    demoEdition: 'azay-torean',
+    lessonDurationSec: 15,
+    randomPromptTimeoutSec: 20,
+    inactivityTimeoutSec: 30,
+    enforceFullscreenMode: true
+  };
+  applyCustomLessonDurationToCourses(db);
+  saveDB(db);
+  res.sendFile(path.join(__dirname, 'public', 'verztec.html'));
 });
 
 // 20. Clear Activity Logs (Admin utility)

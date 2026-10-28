@@ -1,0 +1,2118 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verztec E-Learning (LMS) & AI Proctoring Workflow System | VERZTEC® Thailand</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/ai-lib/face-api.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    :root {
+      --vt-yellow: #f5c400;
+      --vt-yellow-strong: #ffcf24;
+      --vt-ink: #090909;
+      --vt-ink-soft: #141414;
+      --vt-surface: #f5f5f1;
+      --vt-surface-2: #efeee8;
+      --vt-text: #171717;
+      --vt-muted: #666666;
+    }
+    body {
+      font-family: 'Prompt', 'Space Grotesk', 'Sarabun', sans-serif;
+      background-color: var(--vt-surface);
+      color: var(--vt-text);
+    }
+    /* Verztec Official Corporate Identity Colors (https://www.verztec.co.th) */
+    .tii-gradient {
+      background: linear-gradient(135deg, #090909 0%, #141414 60%, #261f08 100%);
+      border-bottom: 2px solid var(--vt-yellow);
+    }
+    .tii-orange {
+      background: linear-gradient(135deg, #f5c400 0%, #d97706 100%);
+    }
+    /* Active Step & Sub-tab Buttons -> Verztec Signature Gold (#f5c400) with Black Ink (#090909) */
+    .step-nav-btn.bg-blue-600,
+    [id^="subbtn-"].bg-blue-600,
+    [id^="admin-subbtn-"].bg-\[\#003781\] {
+      background-color: var(--vt-yellow) !important;
+      color: var(--vt-ink) !important;
+      font-weight: 700 !important;
+      box-shadow: 0 4px 14px rgba(245, 196, 0, 0.35);
+    }
+    .step-nav-btn.bg-blue-600 span.rounded-full {
+      background-color: var(--vt-ink) !important;
+      color: var(--vt-yellow) !important;
+    }
+    /* Primary Action Buttons -> Verztec Obsidian Black (#090909) with Gold Accent, Gold on Hover */
+    button.bg-blue-600,
+    button.bg-blue-700,
+    button.bg-blue-800,
+    button.bg-blue-900,
+    button.bg-\[\#003781\] {
+      background-color: var(--vt-ink) !important;
+      color: var(--vt-yellow) !important;
+      border: 1px solid rgba(245, 196, 0, 0.55) !important;
+      transition: all 0.2s ease !important;
+    }
+    button.bg-blue-600:hover,
+    button.bg-blue-700:hover,
+    button.bg-blue-800:hover,
+    button.bg-blue-900:hover,
+    button.bg-\[\#003781\]:hover {
+      background-color: var(--vt-yellow) !important;
+      color: var(--vt-ink) !important;
+      border-color: var(--vt-ink) !important;
+    }
+    /* Numbered Step Badges */
+    span.bg-blue-600,
+    div.bg-blue-600 {
+      background-color: var(--vt-ink) !important;
+      color: var(--vt-yellow) !important;
+    }
+    /* Text & Border Harmonization for Verztec CI */
+    .text-\[\#003781\],
+    .text-blue-950,
+    .text-blue-900,
+    .text-blue-800,
+    .text-blue-700 {
+      color: var(--vt-ink) !important;
+    }
+    .text-blue-600 {
+      color: #b45309 !important;
+    }
+    header .text-sky-300,
+    header .text-sky-400,
+    header .text-sky-100,
+    .bg-slate-900 .text-sky-300,
+    .bg-slate-900 .text-sky-400,
+    .bg-slate-950 .text-sky-300,
+    .bg-slate-950 .text-sky-400,
+    .tii-gradient .text-sky-300,
+    .tii-gradient .text-sky-100,
+    .tii-gradient .text-blue-100 {
+      color: var(--vt-yellow) !important;
+    }
+    header #headerRoleBadge {
+      background-color: var(--vt-yellow) !important;
+      color: var(--vt-ink) !important;
+    }
+    .bg-blue-50,
+    .bg-blue-50\/70 {
+      background-color: #fefce8 !important;
+    }
+    .border-blue-200,
+    .border-blue-300,
+    .border-blue-100 {
+      border-color: #fde047 !important;
+    }
+    .border-\[\#003781\] {
+      border-color: var(--vt-yellow) !important;
+    }
+    #learnerDemoToolbar {
+      background-color: #141414 !important;
+      border-color: #2e2e2e !important;
+      color: #f5f5f1 !important;
+    }
+    #learnerDemoToolbar .bg-indigo-600 {
+      background-color: var(--vt-yellow) !important;
+      color: var(--vt-ink) !important;
+    }
+    #learnerDemoToolbar .bg-indigo-800 {
+      background-color: #262626 !important;
+      border-color: var(--vt-yellow) !important;
+      color: var(--vt-yellow) !important;
+    }
+    /* Camera Guides */
+    .idcard-overlay-frame {
+      border: 3px dashed #38bdf8;
+      border-radius: 14px;
+      box-shadow: 0 0 0 9999px rgba(0, 32, 91, 0.62);
+    }
+    .face-oval-frame {
+      border: 3px dashed #22c55e;
+      border-radius: 50%;
+      box-shadow: 0 0 0 9999px rgba(0, 32, 91, 0.62);
+    }
+    @media print {
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+    }
+    /* Fullscreen Video Stage Styling */
+    #classroomFullscreenStage:fullscreen {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background-color: #000000;
+      width: 100vw;
+      height: 100vh;
+    }
+    #classroomFullscreenStage:fullscreen #classroomVideoAspectBox {
+      flex: 1 1 auto;
+      aspect-ratio: auto;
+      width: 100%;
+      height: 100%;
+    }
+    /* Pro Screen / Exam Fullscreen Stage Styling */
+    #examFullscreenStage:fullscreen {
+      overflow-y: auto;
+      background-color: #0f172a;
+      width: 100vw;
+      height: 100vh;
+      padding: 1.5rem;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- ======================================================================= -->
+  <!-- ANTI-SCREEN-CAPTURE BLACKOUT SECURITY SHIELD (Blocks Keyboard Capture)  -->
+  <!-- ======================================================================= -->
+  <div id="antiCaptureBlackoutModal" class="hidden fixed inset-0 z-[9999] bg-black text-white flex flex-col items-center justify-center p-6 text-center select-none">
+    <div class="w-20 h-20 rounded-full bg-rose-600 text-white flex items-center justify-center text-4xl shadow-2xl mb-4 animate-bounce">
+      <i class="fa-solid fa-ban"></i>
+    </div>
+    <span class="bg-rose-600/30 border border-rose-500 text-rose-300 text-xs font-extrabold px-3 py-1 rounded-full mb-2">
+      SECURITY VIOLATION • SCREEN CAPTURE BLOCKED
+    </span>
+    <h2 class="text-xl sm:text-2xl font-extrabold text-rose-400 max-w-xl">
+      🚨 ตรวจพบความพยายามบันทึกภาพหน้าจอจากคีย์บอร์ด (Screen Capture Blocked)!
+    </h2>
+    <p class="text-xs sm:text-sm text-slate-300 max-w-lg mt-2 leading-relaxed">
+      ระบบได้ปิดบังเนื้อหาหน้าจออัตโนมัติและล้างข้อมูลใน Clipboard เพื่อป้องกันการรั่วไหลของเนื้อหาหลักสูตรและข้อสอบตามระเบียบของ <b>เวอร์ซเทค (Verztec Thailand)</b> และสำนักงาน คปภ.
+    </p>
+    <div id="antiCaptureDetailText" class="mt-3 px-4 py-2 rounded-xl bg-slate-900 border border-rose-500/50 text-xs font-mono text-amber-300">
+      ตรวจพบการกดปุ่ม: PrintScreen (บันทึกประวัติลงใน User Activity Log แล้ว)
+    </div>
+    <button onclick="dismissAntiCaptureShield()" class="mt-6 px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs shadow-lg transition flex items-center gap-2">
+      <i class="fa-solid fa-shield-check"></i>
+      <span>รับทราบและกลับเข้าสู่หน้าจอการอบรม/การสอบ</span>
+    </button>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- ENFORCED FULL-SCREEN LOCK MODAL (Blocks Exiting Full Screen in Class/Exam) -->
+  <!-- ======================================================================= -->
+  <div id="fullscreenLockEnforcementModal" class="hidden fixed inset-0 z-[9990] bg-slate-950/95 backdrop-blur-md text-white flex flex-col items-center justify-center p-6 text-center select-none">
+    <div class="bg-slate-900 border-2 border-amber-500 rounded-3xl max-w-lg w-full p-7 shadow-2xl space-y-4">
+      <div class="w-16 h-16 rounded-full bg-amber-500 text-slate-950 mx-auto flex items-center justify-center text-3xl shadow-lg animate-bounce">
+        <i class="fa-solid fa-expand"></i>
+      </div>
+      <span class="inline-block bg-amber-500/20 border border-amber-400/50 text-amber-300 text-[11px] font-extrabold px-3 py-1 rounded-full">
+        PROCTORING FULL SCREEN LOCK • บังคับโหมดเต็มจออัตโนมัติ
+      </span>
+      <h3 id="fullscreenLockModalTitle" class="text-lg sm:text-xl font-extrabold text-white">
+        ⚠️ ระบบกำหนดให้แสดงผลแบบเต็มหน้าจอ (Full Screen) ตลอดการเรียนและการสอบ
+      </h3>
+      <p id="fullscreenLockModalDesc" class="text-xs text-slate-300 leading-relaxed">
+        ตรวจพบว่าคุณย่อหน้าจอหรือออกจากโหมด Full Screen ระบบได้หยุดเวลาเรียน/ล็อกหน้าข้อสอบชั่วคราวเพื่อป้องกันการเปิดดูข้อมูลอื่น กรุณาคลิกปุ่มด้านล่างเพื่อกลับเข้าสู่โหมดเต็มจอ
+      </p>
+      <button onclick="reenterEnforcedFullscreen()" class="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm shadow-xl transition flex items-center justify-center gap-2">
+        <i class="fa-solid fa-expand"></i>
+        <span>กลับเข้าสู่โหมดเต็มจอ (Full Screen) เพื่อเรียน/สอบต่อทันที</span>
+      </button>
+      <div class="pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
+        <span>*ตั้งค่าเปิด/ปิดนโยบายนี้ได้ที่หน้า Admin Settings</span>
+        <button onclick="temporarilyBypassFullscreenLockForDemo()" class="text-sky-400 hover:text-sky-300 underline font-semibold">
+          ปลดล็อกชั่วคราว (สำหรับผู้พรีเซนต์ Demo)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- e-KYC APPROVAL CELEBRATION & SEAMLESS START LESSON POP-UP MODAL         -->
+  <!-- ======================================================================= -->
+  <div id="kycApprovedCelebrationModal" class="hidden fixed inset-0 z-[9980] bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border-2 border-emerald-500 text-center">
+      <div class="bg-emerald-600 text-white px-6 py-5 space-y-2">
+        <div class="w-16 h-16 rounded-full bg-white text-emerald-600 mx-auto flex items-center justify-center text-3xl shadow-lg">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <div id="kycPopupApprovalBadge" class="inline-block bg-emerald-900/50 border border-emerald-300 text-emerald-100 text-xs font-extrabold px-3.5 py-1 rounded-full">
+          ✓ ผ่านการอนุมัติอัตโนมัติด้วย AI (AI Auto-Approved)
+        </div>
+        <h3 class="text-xl font-extrabold">ยืนยันตัวตน (e-KYC) สำเร็จเรียบร้อย!</h3>
+      </div>
+      <div class="p-6 space-y-4">
+        <div id="kycPopupDetailBox" class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-950 space-y-1">
+          <!-- Populated by JS -->
+        </div>
+        <button onclick="closeKycCelebrationAndStartLesson()" class="w-full py-4 rounded-2xl bg-gradient-to-r from-blue-700 to-emerald-600 hover:from-blue-800 hover:to-emerald-700 text-white font-extrabold text-base shadow-xl transition transform hover:scale-[1.01] flex items-center justify-center gap-2.5">
+          <span>🚀 เริ่มต้นบทเรียนทันที (เข้าสู่ห้องเรียน Full Screen)</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+        <button onclick="closeKycCelebrationModalOnly()" class="text-xs text-slate-500 hover:text-slate-700 font-semibold underline">
+          ดูรายละเอียดผลวิเคราะห์โครงหน้า AI ในหน้านี้ก่อน
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- POST-TEST INSTANT RESULT POP-UP MODAL (No Scrolling Needed!)            -->
+  <!-- ======================================================================= -->
+  <div id="examResultInstantModal" class="hidden fixed inset-0 z-[9985] bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div id="examResultModalCard" class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border-2 border-emerald-500 text-center">
+      <!-- Populated dynamically by JS on submitExamAttempt() -->
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- CENTRAL ROLE-BASED LOGIN PORTAL (Separates Learner vs Admin Screens)    -->
+  <!-- ======================================================================= -->
+  <div id="roleAuthPortalOverlay" class="fixed inset-0 z-50 tii-gradient flex items-center justify-center p-4 overflow-y-auto no-print">
+    <div class="bg-white text-slate-900 rounded-3xl shadow-2xl border border-blue-200 max-w-md w-full overflow-hidden">
+      <!-- Top Corporate Brand Header -->
+      <div class="bg-slate-900 text-white px-6 py-5 text-center space-y-2 border-b border-slate-800">
+        <div class="bg-white px-4 py-2 rounded-xl inline-flex items-center justify-center shadow">
+          <img src="/verztec-logo.png" alt="Verztec" class="h-9 w-auto object-contain" />
+        </div>
+        <h2 class="font-extrabold text-base tracking-wide text-white pt-1">VERZTEC® E-LEARNING (LMS)</h2>
+        <p class="text-xs text-sky-300">ระบบอบรมออนไลน์และควบคุมการสอบด้วย AI Face Recognition</p>
+        <div id="portalEditionBadge" class="inline-block bg-amber-500 text-slate-950 text-[11px] font-extrabold px-3 py-0.5 rounded-full">
+          🏛️ โหมดมาตรฐาน คปภ. (Standard Edition)
+        </div>
+      </div>
+
+      <!-- Login Form -->
+      <div class="p-6 space-y-4">
+        <!-- AZAY-TOREAN Fast Demo System Switcher Box -->
+        <div class="p-3 rounded-2xl bg-gradient-to-r from-indigo-950 to-slate-900 text-white border border-indigo-500/50 space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-[11px] font-extrabold text-amber-300 flex items-center gap-1">
+              <i class="fa-solid fa-bolt"></i> เลือกระบบสำหรับพรีเซนต์ลูกค้า:
+            </span>
+            <span id="loginToreanStatusPill" class="text-[10px] bg-white/15 px-2 py-0.5 rounded font-mono">Standard</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-[11px]">
+            <button type="button" id="btnPortalModeStandard" onclick="switchDemoSystemEdition('standard')" class="py-2 px-2.5 rounded-xl font-bold border border-white/20 bg-white/10 hover:bg-white/20 text-white transition">
+              🏛️ ระบบหลัก (เวลาจริง)
+            </button>
+            <button type="button" id="btnPortalModeTorean" onclick="switchDemoSystemEdition('azay-torean')" class="py-2 px-2.5 rounded-xl font-extrabold border border-amber-400 bg-amber-500 hover:bg-amber-400 text-slate-950 shadow transition">
+              ⚡ verztec-torean (15วิ/บท)
+            </button>
+          </div>
+        </div>
+
+        <div class="text-center">
+          <h3 class="font-extrabold text-base text-slate-900">เข้าสู่ระบบแยกตามสิทธิ์การใช้งาน</h3>
+          <p class="text-xs text-slate-500 mt-0.5">กรุณาระบุชื่อผู้ใช้งาน (Username) และรหัสผ่าน (Password)</p>
+        </div>
+
+        <div id="portalAuthErrorBox" class="hidden p-3 rounded-xl bg-rose-50 border border-rose-300 text-rose-700 text-xs font-bold text-center"></div>
+
+        <div class="space-y-3 text-xs">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Username (ชื่อผู้ใช้งาน)</label>
+            <div class="relative">
+              <i class="fa-solid fa-user absolute left-3.5 top-3 text-slate-400"></i>
+              <input id="portalUsernameInput" type="text" value="Learner" placeholder="Learner หรือ Admin" onkeydown="if(event.key==='Enter') submitPortalLogin()" class="w-full border border-slate-300 rounded-xl pl-9 pr-3.5 py-2.5 text-sm font-bold text-slate-900 focus:ring-2 focus:ring-blue-600 outline-none" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Password (รหัสผ่าน)</label>
+            <div class="relative">
+              <i class="fa-solid fa-lock absolute left-3.5 top-3 text-slate-400"></i>
+              <input id="portalPasswordInput" type="password" value="Learner@2026" placeholder="รหัสผ่าน" onkeydown="if(event.key==='Enter') submitPortalLogin()" class="w-full border border-slate-300 rounded-xl pl-9 pr-3.5 py-2.5 text-sm font-bold text-slate-900 focus:ring-2 focus:ring-blue-600 outline-none" />
+            </div>
+          </div>
+
+          <button onclick="submitPortalLogin()" class="w-full py-3 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-extrabold text-sm shadow-lg transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-right-to-bracket"></i>
+            <span>เข้าสู่ระบบ (Sign In)</span>
+          </button>
+        </div>
+
+        <!-- Quick Role Credential Selector for Demo Convenience -->
+        <div class="pt-3 border-t border-slate-200 space-y-2">
+          <div class="text-[11px] font-bold text-slate-500 text-center">บัญชีสำหรับทดสอบระบบ (คลิกเพื่อกรอกอัตโนมัติ):</div>
+          <div class="grid grid-cols-2 gap-2.5 text-xs">
+            <button type="button" onclick="fillPortalDemoCredentials('LEARNER')" class="p-2.5 rounded-xl border-2 border-blue-200 bg-blue-50/70 hover:bg-blue-100 text-left transition">
+              <div class="font-extrabold text-blue-900 flex items-center gap-1.5">
+                <i class="fa-solid fa-user-graduate text-blue-600"></i>
+                <span>ผู้เรียน (Learner)</span>
+              </div>
+              <div class="text-[11px] font-mono text-slate-600 mt-1">User: <b>Learner</b></div>
+              <div class="text-[11px] font-mono text-slate-600">Pass: <b>Learner@2026</b></div>
+            </button>
+
+            <button type="button" onclick="fillPortalDemoCredentials('ADMIN')" class="p-2.5 rounded-xl border-2 border-amber-200 bg-amber-50/70 hover:bg-amber-100 text-left transition">
+              <div class="font-extrabold text-amber-900 flex items-center gap-1.5">
+                <i class="fa-solid fa-user-shield text-amber-600"></i>
+                <span>ผู้ดูแลระบบ (Admin)</span>
+              </div>
+              <div class="text-[11px] font-mono text-slate-600 mt-1">User: <b>Admin</b></div>
+              <div class="text-[11px] font-mono text-slate-600">Pass: <b>Admin@2026</b></div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP HEADER BAR (Allianz Ayudhya Corporate Identity) -->
+  <header class="tii-gradient text-white shadow-lg sticky top-0 z-40 no-print">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3.5">
+        <div class="bg-white px-3 py-1.5 rounded-xl shadow-md flex items-center justify-center border border-blue-100">
+          <img src="/verztec-logo.png" alt="Verztec" class="h-9 w-auto object-contain" />
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="font-bold text-lg leading-tight tracking-wide">VERZTEC® (เวอร์ซเทค คอนซัลติ้ง)</h1>
+            <span id="headerRoleBadge" class="text-xs bg-sky-500 text-white px-2.5 py-0.5 rounded-full font-bold shadow-sm">👤 โหมดผู้เรียน (Learner)</span>
+            <span id="headerToreanBadge" class="hidden text-xs bg-amber-400 text-slate-950 px-2.5 py-0.5 rounded-full font-extrabold shadow-sm animate-pulse">⚡ VERZTEC-TOREAN DEMO (15s/บท)</span>
+          </div>
+          <p class="text-xs text-sky-100">ระบบอบรมออนไลน์ E-Learning & AI Face Recognition Proctoring (หลักสูตรขอรับ/ขอต่อใบอนุญาตฯ ครั้ง 1-3)</p>
+        </div>
+      </div>
+
+      <!-- Right Action Controls -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <!-- Quick Switcher for azay-torean 15s Demo Mode -->
+        <button id="btnHeaderToreanToggle" onclick="toggleDemoSystemEdition()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 shadow transition" title="สลับระหว่างโหมดเวลาเรียนจริง และโหมดเดโมด่วน azay-torean (15 วินาที/บท)">
+          <i class="fa-solid fa-bolt"></i>
+          <span id="textHeaderToreanToggle">สลับเป็น verztec-torean (15วิ/บท)</span>
+        </button>
+
+        <!-- Real AI Engine Status Pill -->
+        <div id="aiEngineStatusBadge" class="bg-slate-900/90 border border-sky-400/40 px-3 py-1.5 rounded-lg text-xs flex items-center gap-2">
+          <span id="aiEngineDot" class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+          <span id="aiEngineStatusText" class="font-semibold text-sky-300">กำลังโหลดโมเดล AI (ResNet-34)...</span>
+        </div>
+
+        <!-- Active User Pill -->
+        <div id="activeUserBadge" class="hidden bg-blue-950/70 border border-blue-400/30 px-3 py-1.5 rounded-lg text-xs flex items-center gap-2">
+          <i class="fa-solid fa-id-card text-sky-400"></i>
+          <span id="badgeUserName" class="font-semibold">-</span>
+          <span id="badgeKycStatus" class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px]">รอตรวจ</span>
+        </div>
+
+        <!-- Simulated Email Inbox Button -->
+        <button id="btnHeaderInbox" onclick="toggleInboxModal()" class="relative bg-white/10 hover:bg-white/20 border border-white/20 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2 transition">
+          <i class="fa-solid fa-envelope-open-text text-amber-300"></i>
+          <span>กล่องอีเมลจำลอง (Inbox)</span>
+          <span id="emailBadgeCount" class="bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
+        </button>
+
+        <!-- Download Official PDF User Manual Button -->
+        <a href="/Verztec_LMS_User_Manual.pdf" target="_blank" class="bg-sky-400 hover:bg-sky-300 text-slate-950 font-extrabold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 shadow transition">
+          <i class="fa-solid fa-file-pdf text-rose-700"></i>
+          <span>คู่มือระบบ (PDF)</span>
+        </a>
+
+        <!-- Logout / Switch User Role Button -->
+        <button onclick="logoutPortalSession()" class="bg-rose-600 hover:bg-rose-500 text-white font-extrabold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 shadow transition" title="ออกจากระบบเพื่อสลับระหว่างบัญชี Learner และ Admin">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span>สลับบัญชี / Logout</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 6-STEP TIMELINE NAVIGATION BAR (Shown ONLY for Learner Role) -->
+    <div id="learnerStepNavBar" class="bg-slate-900/90 border-t border-white/10">
+      <div class="max-w-7xl mx-auto px-4 py-2 overflow-x-auto">
+        <div class="flex items-center justify-between min-w-[780px] gap-1 text-xs">
+          <button onclick="switchMainTab('step1')" id="nav-step1" class="step-nav-btn flex-1 py-2 px-3 rounded-lg flex items-center gap-2 font-semibold bg-blue-600 text-white transition">
+            <span class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center font-bold">01</span>
+            <div class="text-left">
+              <div>สมัครอบรม & ชำระเงิน</div>
+              <div class="text-[10px] opacity-75">เลือกรอบ & QR 15 นาที</div>
+            </div>
+          </button>
+
+          <i class="fa-solid fa-chevron-right text-slate-500 text-xs"></i>
+
+          <button onclick="switchMainTab('step2')" id="nav-step2" class="step-nav-btn flex-1 py-2 px-3 rounded-lg flex items-center gap-2 font-semibold text-slate-300 hover:bg-white/5 transition">
+            <span class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center font-bold">02</span>
+            <div class="text-left">
+              <div>เตรียมตัวก่อนอบรม</div>
+              <div class="text-[10px] opacity-75">เช็คสิทธิ์ & ทดสอบกล้อง/เน็ต</div>
+            </div>
+          </button>
+
+          <i class="fa-solid fa-chevron-right text-slate-500 text-xs"></i>
+
+          <button onclick="switchMainTab('step3')" id="nav-step3" class="step-nav-btn flex-1 py-2 px-3 rounded-lg flex items-center gap-2 font-semibold text-slate-300 hover:bg-white/5 transition">
+            <span class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center font-bold">03</span>
+            <div class="text-left">
+              <div>สร้างบัญชีครั้งแรก</div>
+              <div class="text-[10px] opacity-75">ตั้งรหัสผ่าน (ตัวอักษร 6+เลข 1)</div>
+            </div>
+          </button>
+
+          <i class="fa-solid fa-chevron-right text-slate-500 text-xs"></i>
+
+          <button onclick="switchMainTab('step4')" id="nav-step4" class="step-nav-btn flex-1 py-2 px-3 rounded-lg flex items-center gap-2 font-semibold text-slate-300 hover:bg-white/5 transition">
+            <span class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center font-bold">04</span>
+            <div class="text-left">
+              <div>ยืนยันตัวตน & เข้าอบรม</div>
+              <div class="text-[10px] opacity-75">e-KYC 3 รูป + AI Proctoring</div>
+            </div>
+          </button>
+
+          <i class="fa-solid fa-chevron-right text-slate-500 text-xs"></i>
+
+          <button onclick="switchMainTab('step5')" id="nav-step5" class="step-nav-btn flex-1 py-2 px-3 rounded-lg flex items-center gap-2 font-semibold text-slate-300 hover:bg-white/5 transition">
+            <span class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center font-bold">05</span>
+            <div class="text-left">
+              <div>ทำแบบทดสอบหลังเรียน</div>
+              <div class="text-[10px] opacity-75">เกณฑ์ >=60% (สูงสุด 5 ครั้ง)</div>
+            </div>
+          </button>
+
+          <i class="fa-solid fa-chevron-right text-slate-500 text-xs"></i>
+
+          <button onclick="switchMainTab('step6')" id="nav-step6" class="step-nav-btn flex-1 py-2 px-3 rounded-lg flex items-center gap-2 font-semibold text-slate-300 hover:bg-white/5 transition">
+            <span class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center font-bold">06</span>
+            <div class="text-left">
+              <div>รับใบรับรองการอบรม</div>
+              <div class="text-[10px] opacity-75">ยื่น e-Licensing คปภ.</div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- DEMO QUICK TOOLBAR (Shown ONLY for Learner Role) -->
+  <div id="learnerDemoToolbar" class="bg-indigo-950 text-indigo-100 border-b border-indigo-800 px-4 py-2 text-xs no-print">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        <span class="bg-indigo-600 text-white px-2 py-0.5 rounded font-bold">⚡ Demo Controls</span>
+        <span>คุณสามารถกดทดลองตามลำดับ 01–06 หรือใช้ปุ่มลัดเพื่อจำลองสถานการณ์ระหว่างเรียน/สอบได้ทันที:</span>
+      </div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <button onclick="demoAutoFillRegistration()" class="bg-indigo-800 hover:bg-indigo-700 px-2.5 py-1 rounded border border-indigo-600 transition">
+          <i class="fa-solid fa-wand-magic-sparkles mr-1 text-amber-300"></i>กรอกข้อมูลผู้สมัครอัตโนมัติ
+        </button>
+        <button onclick="demoJumpToClassroom()" class="bg-emerald-700 hover:bg-emerald-600 text-white px-2.5 py-1 rounded border border-emerald-500 transition">
+          <i class="fa-solid fa-bolt mr-1"></i>ข้ามไปทดสอบ e-KYC 3 รูป & ห้องเรียนทันที
+        </button>
+        <button onclick="demoUnlockExamReady()" class="bg-purple-700 hover:bg-purple-600 text-white px-2.5 py-1 rounded border border-purple-500 transition">
+          <i class="fa-solid fa-graduation-cap mr-1"></i>จำลองเรียนครบ 100% เพื่อเข้าสอบทันที
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
+
+    <!-- ===================================================================== -->
+    <!-- STEP 01: สมัครอบรม & ชำระเงิน QR CODE (PDF Pages 2, 6, 7, 8, 9)          -->
+    <!-- ===================================================================== -->
+    <section id="section-step1" class="tab-section space-y-6">
+      <!-- Rules Banner from Page 2 -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="bg-amber-50 border-b border-amber-200 px-6 py-4 flex items-center justify-between flex-wrap gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center text-lg font-bold">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+              <h2 class="font-bold text-slate-900 text-base">เงื่อนไขแจ้งให้ทราบก่อนการสมัครอบรมออนไลน์ E-LEARNING (9 ข้อบังคับ คปภ.)</h2>
+              <p class="text-xs text-slate-600">อ้างอิงตามคู่มือการอบรมออนไลน์ E-LEARNING (LMS) หลักสูตรขอรับ/ขอต่อใบอนุญาตฯ ครั้ง 1-3</p>
+            </div>
+          </div>
+          <button onclick="document.getElementById('rules9List').classList.toggle('hidden')" class="text-xs font-semibold text-blue-700 hover:underline">
+            คลิกดู/ซ่อนรายละเอียดทั้ง 9 ข้อ
+          </button>
+        </div>
+        <div id="rules9List" class="p-5 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs bg-slate-50/60">
+          <div class="p-3 bg-white rounded-xl border border-slate-200"><b class="text-blue-800">1. วางแผนล่วงหน้า:</b> ต้องอบรมให้เสร็จสิ้นก่อนใบอนุญาตหมดอายุ</div>
+          <div class="p-3 bg-white rounded-xl border border-rose-200"><b class="text-rose-700">2. ยืนยันตัวตนด้วยตนเอง:</b> ใช้บัตรประชาชนตัวจริง <span class="text-rose-600 font-bold">ห้ามบุคคลอื่นอบรมแทนเด็ดขาด</span></div>
+          <div class="p-3 bg-white rounded-xl border border-slate-200"><b class="text-blue-800">3. ชั่วโมงเรียน:</b> อบรมให้ครบจำนวนชั่วโมงที่ คปภ. กำหนดภายในรอบ 5 วัน</div>
+          <div class="p-3 bg-white rounded-xl border border-slate-200"><b class="text-blue-800">4. ห้ามข้าม/เร่งความเร็ว:</b> ระบบล็อกการเร่งความเร็ว ลดเสียง หรือกดข้ามเนื้อหา (ย้อนดูได้)</div>
+          <div class="p-3 bg-white rounded-xl border border-rose-200"><b class="text-rose-700">5. สุ่มถ่ายรูประหว่างเรียน:</b> ต้องถ่ายจากใบหน้าจริงภายใน 2 นาที <span class="text-rose-600 font-bold">ห้ามใช้รูปถ่าย</span></div>
+          <div class="p-3 bg-white rounded-xl border border-amber-200"><b class="text-amber-700">6. ห้ามนิ่งเกิน 15 นาที:</b> หากไม่ตอบสนองเกิน 15 นาที จะถูกนำออกและต้องเรียนซ้ำจุดเดิม</div>
+          <div class="p-3 bg-white rounded-xl border border-rose-200"><b class="text-rose-700">7. เกณฑ์สอบหลังเรียน:</b> คะแนนรวมไม่น้อยกว่า <b>ร้อยละ 60</b> สอบได้ <b>5 ครั้ง</b> (ไม่ผ่านต้องสมัครใหม่)</div>
+          <div class="p-3 bg-white rounded-xl border border-slate-200"><b class="text-blue-800">8. การส่งผล:</b> เมื่อกดส่งผลการอบรมแล้ว จะไม่สามารถกลับเข้ามายังหลักสูตรได้อีก</div>
+          <div class="p-3 bg-white rounded-xl border border-slate-200"><b class="text-blue-800">9. บทลงโทษ:</b> หากฝ่าฝืนเงื่อนไข จะไม่ได้รับใบรับรองและต้องสมัครเข้าอบรมใหม่</div>
+        </div>
+      </div>
+
+      <!-- Course & Registration Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Left 7 Cols: Step 1.2 Select Course & Step 1.4 Fill Profile -->
+        <div class="lg:col-span-7 space-y-6">
+          <!-- Course Selection Card (Page 6) -->
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">
+                <span class="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center text-xs font-bold">1</span>
+                เลือกหลักสูตรและรอบอบรม (Step 01: สมัครอบรม)
+              </h3>
+              <span class="text-xs text-rose-600 font-semibold">*กรุณาตรวจสอบหลักสูตรให้ตรงกับเงื่อนไข คปภ.</span>
+            </div>
+
+            <!-- Filter Tabs: ประกันชีวิต / ประกันวินาศภัย & นายหน้า / ตัวแทน -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">ประเภทใบอนุญาต</label>
+                <select id="regCourseSelect" onchange="onCourseChange()" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                  <option value="LB0">[LB0] ขอรับใบอนุญาตเป็นนายหน้าประกันชีวิต (10 ชม. - 1,594.30 บาท)</option>
+                  <option value="LB1">[LB1] ขอต่ออายุใบอนุญาตเป็นนายหน้าประกันชีวิต ครั้งที่ 1 (10 ชม. - 1,594.30 บาท)</option>
+                  <option value="LB2">[LB2] ขอต่ออายุใบอนุญาตเป็นนายหน้าประกันชีวิต ครั้งที่ 2 (10 ชม. - 1,594.30 บาท)</option>
+                  <option value="LB3">[LB3] ขอต่ออายุใบอนุญาตเป็นนายหน้าประกันชีวิต ครั้งที่ 3 (10 ชม. - 1,594.30 บาท)</option>
+                  <option value="LA0">[LA0] ขอรับใบอนุญาตเป็นตัวแทนประกันชีวิต (10 ชม. - 1,284.00 บาท)</option>
+                  <option value="NB0">[NB0] ขอรับใบอนุญาตเป็นนายหน้าประกันวินาศภัย (10 ชม. - 1,594.30 บาท)</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">เลือกรอบอบรม (แถบสีแดง 5 วัน)</label>
+                <select id="regBatchSelect" onchange="validateLicenseExpiryRule()" class="w-full border border-red-300 bg-red-50/40 rounded-xl px-3 py-2.5 text-sm font-medium text-red-900 focus:ring-2 focus:ring-red-500 outline-none">
+                  <option value="B-2026-11A" data-end="2026-11-05">รอบ 1 - 5 พ.ย. 2569 (จบ 5 พ.ย. 2569)</option>
+                  <option value="B-2026-11B" data-end="2026-11-12">รอบ 8 - 12 พ.ย. 2569 (จบ 12 พ.ย. 2569)</option>
+                  <option value="B-2026-11C" data-end="2026-11-19">รอบ 15 - 19 พ.ย. 2569 (จบ 19 พ.ย. 2569)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Renewal Expiry Date Check (Page 8 Rule: Must finish >= 2 business days before license expiry) -->
+            <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div class="text-xs">
+                <div class="font-bold text-amber-900"><i class="fa-solid fa-calendar-check mr-1"></i>ตรวจสอบวันหมดอายุบัตรเดิม (กรณีต่ออายุบัตรฯ หน้า 8)</div>
+                <div class="text-amber-800">รอบอบรมต้องจบก่อนวันที่บัตรเดิมหมดอายุ <b>อย่างน้อย 2 วันทำการ</b></div>
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="date" id="regExpiryDate" value="2026-11-15" onchange="validateLicenseExpiryRule()" class="border border-amber-300 rounded-lg px-2.5 py-1.5 text-xs bg-white" />
+              </div>
+            </div>
+            <div id="expiryValidationMsg" class="mt-2 text-xs font-semibold text-emerald-700">
+              <i class="fa-solid fa-circle-check mr-1"></i>รอบอบรมนี้จบก่อนวันหมดอายุบัตรอย่างน้อย 2 วันทำการ (ผ่านเกณฑ์)
+            </div>
+          </div>
+
+          <!-- Candidate Profile Form (Page 7) -->
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">
+                <span class="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center text-xs font-bold">2</span>
+                กรอกเลขบัตรประชาชนและข้อมูลผู้สมัครอบรม (หน้า 7)
+              </h3>
+              <button type="button" onclick="demoAutoFillRegistration()" class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold px-3 py-1 rounded-lg border border-blue-200">
+                <i class="fa-solid fa-magic mr-1"></i>กรอกตัวอย่างอัตโนมัติ
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+              <div class="sm:col-span-3">
+                <label class="block font-bold text-slate-700 mb-1">เลขบัตรประจำตัวประชาชน 13 หลัก (ใช้เป็น Username เข้าสู่ระบบ) *</label>
+                <input id="regIdCard" type="text" maxlength="13" value="1100801279957" placeholder="กรอกเลขบัตรประชาชน 13 หลัก" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-mono font-bold text-blue-950 focus:ring-2 focus:ring-blue-500 outline-none" />
+              </div>
+
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">คำนำหน้าชื่อ</label>
+                <select id="regTitleTh" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm">
+                  <option value="นาย">นาย</option>
+                  <option value="นาง">นาง</option>
+                  <option value="นางสาว">นางสาว</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">ชื่อ (ภาษาไทย) *</label>
+                <input id="regFirstTh" type="text" value="ธนภัทร" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">นามสกุล (ภาษาไทย) *</label>
+                <input id="regLastTh" type="text" value="พิทักษ์ประกัน" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm" />
+              </div>
+
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">Title Name</label>
+                <select id="regTitleEn" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm">
+                  <option value="Mr.">Mr.</option>
+                  <option value="Mrs.">Mrs.</option>
+                  <option value="Ms.">Ms.</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">First name *</label>
+                <input id="regFirstEn" type="text" value="Thanaphat" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">Last name *</label>
+                <input id="regLastEn" type="text" value="Pitakprakan" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm" />
+              </div>
+
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">วันเดือนปีเกิด (พ.ศ.)</label>
+                <input id="regBirthDate" type="text" value="30/11/2538" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">เบอร์มือถือ *</label>
+                <input id="regPhone" type="text" value="089-123-4567" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">อีเมล (สำหรับรับลิงก์ & ใบรับรอง) *</label>
+                <input id="regEmail" type="email" value="thanaphat.demo@verztec.co.th" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm" />
+              </div>
+
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">วุฒิการศึกษา</label>
+                <select id="regEducation" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm">
+                  <option value="ปริญญาตรี">ปริญญาตรี</option>
+                  <option value="ปริญญาโท">ปริญญาโท</option>
+                  <option value="มัธยมศึกษาปีที่ 6 / ปวช.">มัธยมศึกษาปีที่ 6 / ปวช.</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">ชื่อบริษัท / สังกัด</label>
+                <input id="regCompany" type="text" value="บริษัท เวอร์ซเทค คอนซัลติ้ง (ประเทศไทย) จำกัด" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">ตำแหน่งงาน</label>
+                <input id="regPosition" type="text" value="นายหน้าประกันชีวิต" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right 5 Cols: Order Summary & 15-Minute QR Payment (Page 8-9) -->
+        <div class="lg:col-span-5 space-y-6">
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <h3 class="font-bold text-base text-slate-900 mb-4 flex items-center gap-2">
+              <span class="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center text-xs font-bold">3</span>
+              ตรวจสอบรายการสมัครและชำระเงิน (หน้า 8–9)
+            </h3>
+
+            <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-2 text-xs mb-4">
+              <div class="flex justify-between">
+                <span class="text-slate-500">รายการหลักสูตร:</span>
+                <span id="summaryCourseTitle" class="font-bold text-slate-800 text-right">LB0 | ขอรับใบอนุญาตเป็นนายหน้าประกันชีวิต</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">รูปแบบการอบรม:</span>
+                <span class="font-semibold text-blue-700">ระบบอบรมออนไลน์ E-Learning (10 ชั่วโมง)</span>
+              </div>
+              <div class="flex justify-between border-t border-slate-200 pt-2 items-baseline">
+                <span class="text-slate-700 font-bold">สรุปยอดชำระค่าอบรม:</span>
+                <span id="summaryPrice" class="text-xl font-extrabold text-orange-600">1,594.30 บาท</span>
+              </div>
+            </div>
+
+            <div class="space-y-2.5 text-xs mb-4">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="chkWithholdTax" class="rounded text-blue-600" />
+                <span>หัก ณ ที่จ่าย 3%</span>
+              </label>
+              <label class="flex items-start gap-2 cursor-pointer p-2.5 rounded-lg bg-blue-50/70 border border-blue-200">
+                <input type="checkbox" id="chkAcceptRefundPolicy" checked class="mt-0.5 rounded text-blue-600" />
+                <span class="font-semibold text-blue-900">ยอมรับนโยบายการเปลี่ยนแปลงการอบรม/การคืนเงิน (จำเป็นต้องติ๊กตามหน้า 8)</span>
+              </label>
+            </div>
+
+            <button onclick="submitRegistration()" class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md transition flex items-center justify-center gap-2">
+              <i class="fa-solid fa-qrcode"></i>
+              <span>ชำระเงินลงทะเบียน (สร้าง QR Code 15 นาที)</span>
+            </button>
+
+            <!-- Dynamic QR Payment Box (Page 9) -->
+            <div id="qrPaymentPanel" class="hidden mt-6 border-2 border-blue-500 rounded-2xl overflow-hidden shadow-lg">
+              <div class="bg-blue-600 text-white p-4 text-center">
+                <div class="text-xs opacity-90">กรุณาชำระผ่าน QR Code เท่านั้นภายใน 15 นาที เพื่อยืนยันสิทธิ์อบรม</div>
+                <div id="qrCountdownDisplay" class="text-3xl font-mono font-extrabold my-1">14:59</div>
+                <div class="inline-block bg-rose-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  ห้ามโอนเงินเข้าบัญชีโดยตรง
+                </div>
+              </div>
+              <div class="p-5 bg-white text-center space-y-3">
+                <div class="flex justify-between text-xs text-slate-600 px-2">
+                  <span>เลขที่การชำระเงิน <b id="qrPaymentRef" class="text-slate-900">#23640</b></span>
+                  <span>ยอดชำระ <b id="qrAmountText" class="text-orange-600">1,594.30 บาท</b></span>
+                </div>
+
+                <!-- Simulated PromptPay QR SVG -->
+                <div class="w-44 h-44 mx-auto border-2 border-slate-200 rounded-xl p-3 flex flex-col items-center justify-center bg-slate-50 relative">
+                  <i class="fa-solid fa-qrcode text-8xl text-slate-800"></i>
+                  <span class="mt-1 text-[10px] font-bold text-blue-800 bg-blue-100 px-2 py-0.5 rounded">Verztec PromptPay QR</span>
+                </div>
+
+                <button onclick="confirmQrPayment()" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow transition flex items-center justify-center gap-2">
+                  <i class="fa-solid fa-circle-check"></i>
+                  <span>จำลองการสแกนชำระเงินสำเร็จทันที</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Payment Success Box (Page 9 Bottom) -->
+            <div id="paymentSuccessPanel" class="hidden mt-6 bg-emerald-50 border-2 border-emerald-500 rounded-2xl p-5 text-center space-y-3">
+              <div class="w-12 h-12 rounded-full bg-emerald-600 text-white mx-auto flex items-center justify-center text-2xl">
+                <i class="fa-solid fa-check"></i>
+              </div>
+              <h4 class="font-bold text-emerald-950 text-base">การสมัครอบรมสำเร็จ!</h4>
+              <p class="text-xs text-emerald-800">ระบบได้ส่งอีเมลสรุปรายละเอียดการเข้าอบรม และลิงก์ตั้งรหัสผ่านครั้งแรกไปที่กล่องอีเมลจำลองแล้ว</p>
+              <div class="flex gap-2 justify-center pt-1">
+                <button onclick="switchMainTab('step2')" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold">
+                  ไปขั้นตอนที่ 02: เตรียมตัวก่อนอบรม <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- STEP 02: เตรียมตัวก่อนอบรม & ตรวจสอบอุปกรณ์/อินเทอร์เน็ต (PDF Pages 3, 10)   -->
+    <!-- ===================================================================== -->
+    <section id="section-step2" class="tab-section hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Left 6 Cols: Check Announcement List (Page 10) -->
+        <div class="lg:col-span-6 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">
+              <span class="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center text-xs font-bold">02</span>
+              ตรวจสอบรายชื่อผู้มีสิทธิ์อบรม (ก่อนวันอบรม 1–2 วัน)
+            </h3>
+            <span class="text-xs bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full font-semibold">tiins.com/el-namelistannouncement</span>
+          </div>
+
+          <p class="text-xs text-slate-600">
+            ตามคู่มือหน้า 10 ผู้สมัครสามารถตรวจสอบรายชื่อผู้มีสิทธิ์อบรมล่วงหน้า 1–2 วัน หากไม่พบรายชื่อให้ติดต่อ <code class="bg-slate-100 px-1.5 py-0.5 rounded">e-learning@tiins.com</code>
+          </p>
+
+          <div class="border border-slate-200 rounded-xl overflow-hidden">
+            <div class="bg-slate-800 text-white px-4 py-2.5 text-xs font-bold flex justify-between">
+              <span>รายชื่อผู้มีสิทธิ์อบรม E-Learning (ขอรับ/ขอต่อใบอนุญาต ครั้งที่ 1-3)</span>
+              <span>สถานะสิทธิ์</span>
+            </div>
+            <div id="eligibleRosterList" class="divide-y divide-slate-200 text-xs max-h-64 overflow-y-auto">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+
+          <div class="p-4 rounded-xl bg-blue-50 border border-blue-200 text-xs space-y-1.5">
+            <div class="font-bold text-blue-900"><i class="fa-solid fa-id-card-clip mr-1"></i>สิ่งที่ต้องเตรียมให้พร้อมก่อนเข้าห้องเรียน:</div>
+            <ul class="list-disc list-inside text-blue-800 space-y-1">
+              <li><b>บัตรประจำตัวประชาชนตัวจริง</b> (ไม่หัก ไม่เบลอ ไม่หมดอายุ) เพื่อถ่ายรูปยืนยันตัวตน 3 รูปในครั้งแรก</li>
+              <li><b>คอมพิวเตอร์ PC/โน้ตบุ๊กที่มีกล้อง</b> หรือ Tablet/Smartphone ตามเกณฑ์ขั้นต่ำ ผ่านเบราว์เซอร์ Google Chrome ล่าสุด</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Right 6 Cols: Hardware, Camera >= 720p & Network Ping <= 500ms Tester (Page 3 & 10) -->
+        <div class="lg:col-span-6 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-microchip text-blue-600"></i>
+              ระบบตรวจสอบอุปกรณ์และเทคโนโลยีขั้นต่ำ (ตามเกณฑ์หน้า 3)
+            </h3>
+            <button onclick="runDeviceDiagnostics()" class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow transition">
+              <i class="fa-solid fa-rotate mr-1"></i>เริ่มตรวจสอบอุปกรณ์จริง
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between">
+              <div>
+                <div class="text-slate-500">ระบบปฏิบัติการ & เบราว์เซอร์</div>
+                <div id="diagOsBrowser" class="font-bold text-slate-900 mt-0.5">กำลังรอตรวจสอบ...</div>
+              </div>
+              <span id="badgeDiagOs" class="px-2 py-0.5 rounded bg-slate-200 text-slate-700 font-bold">รอเช็ค</span>
+            </div>
+
+            <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between">
+              <div>
+                <div class="text-slate-500">ความเสถียรอินเทอร์เน็ต (เกณฑ์ &le; 500 ms)</div>
+                <div id="diagPingText" class="font-bold text-slate-900 mt-0.5">กำลังรอวัดค่า Ping...</div>
+              </div>
+              <span id="badgeDiagPing" class="px-2 py-0.5 rounded bg-slate-200 text-slate-700 font-bold">รอเช็ค</span>
+            </div>
+
+            <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col gap-2 sm:col-span-2">
+              <div class="flex items-center justify-between gap-2">
+                <div>
+                  <div class="text-slate-500">กล้องเว็บแคม (เกณฑ์ขั้นต่ำ Resolution &ge; 720p / WebRTC)</div>
+                  <div id="diagCameraText" class="font-bold text-slate-900 mt-0.5">กดปุ่ม "เริ่มตรวจสอบอุปกรณ์จริง" เพื่อทดสอบกล้อง</div>
+                </div>
+                <span id="badgeDiagCam" class="px-2 py-0.5 rounded bg-slate-200 text-slate-700 font-bold shrink-0">รอเช็ค</span>
+              </div>
+              <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-200/80">
+                <label class="text-[11px] font-bold text-blue-900"><i class="fa-solid fa-video mr-1"></i>เลือกอุปกรณ์กล้อง:</label>
+                <select id="diagCameraDeviceSelect" onchange="onCameraDeviceChange(this.value)" class="flex-1 min-w-[200px] border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs bg-white font-semibold text-slate-800">
+                  <option value="">ระบบเลือกกล้องจริงอัตโนมัติ (แนะนำ Logitech HD Webcam)</option>
+                </select>
+                <button onclick="reconnectSharedCamera()" class="px-2.5 py-1.5 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold text-xs transition">
+                  <i class="fa-solid fa-rotate mr-1"></i>สลับ/รีเซ็ตกล้อง
+                </button>
+              </div>
+              <div id="diagCameraErrorHint" class="hidden text-[11px] text-rose-600 font-semibold bg-rose-50 border border-rose-200 rounded-lg px-3 py-1.5"></div>
+            </div>
+          </div>
+
+          <!-- Live Camera Preview for Diagnostics -->
+          <div class="relative bg-slate-950 rounded-xl overflow-hidden h-64 flex items-center justify-center border-2 border-slate-800">
+            <video id="diagVideoPreview" autoplay playsinline muted class="w-full h-full object-cover transform scale-x-[-1] hidden"></video>
+            <canvas id="diagFallbackCanvas" width="480" height="320" class="w-full h-full object-cover hidden"></canvas>
+            <div id="diagVideoPlaceholder" class="text-center text-slate-400 text-xs p-4">
+              <i class="fa-solid fa-camera text-3xl mb-2 text-slate-500"></i>
+              <div>คลิกปุ่ม "เริ่มตรวจสอบอุปกรณ์จริง" เพื่อเปิดกล้องทดสอบความละเอียด</div>
+            </div>
+          </div>
+
+          <div class="flex justify-end pt-2">
+            <button onclick="switchMainTab('step3')" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow transition">
+              ไปขั้นตอนที่ 03: สร้างบัญชีผู้ใช้งานและตั้งรหัสผ่านครั้งแรก <i class="fa-solid fa-arrow-right ml-1"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- STEP 03: สร้างบัญชีผู้ใช้งานและตั้งรหัสผ่านครั้งแรก (PDF Pages 11-12)         -->
+    <!-- ===================================================================== -->
+    <section id="section-step3" class="tab-section hidden">
+      <div class="max-w-lg mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="tii-gradient p-6 text-white text-center">
+          <div class="bg-white px-4 py-2 rounded-xl mx-auto inline-flex items-center justify-center mb-3 shadow">
+            <img src="/verztec-logo.png" alt="Verztec" class="h-9 w-auto object-contain" />
+          </div>
+          <h3 class="font-bold text-lg">กำหนดรหัสผ่าน (เข้าใช้งานครั้งแรก)</h3>
+          <p class="text-xs text-blue-100 mt-1">ระบบอบรมออนไลน์ VERZTEC® LMS (ลิงก์จากอีเมลล่วงหน้า 1–2 วันก่อนอบรม)</p>
+        </div>
+
+        <div class="p-6 space-y-4 text-xs">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">
+              <i class="fa-regular fa-id-card mr-1 text-blue-600"></i>เลขบัตรประจำตัวประชาชน (ที่ใช้สมัครสมาชิก)
+            </label>
+            <input id="pwdIdCard" type="text" maxlength="13" value="1100801279957" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-mono font-bold" />
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">
+              <i class="fa-solid fa-lock mr-1 text-blue-600"></i>รหัสผ่านใหม่
+            </label>
+            <input id="pwdInput1" type="password" value="TiiLms2026" oninput="validatePasswordRuleUI()" placeholder="กรอกรหัสผ่านใหม่" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm" />
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">
+              <i class="fa-solid fa-lock mr-1 text-blue-600"></i>ยืนยันรหัสผ่านอีกครั้ง
+            </label>
+            <input id="pwdInput2" type="password" value="TiiLms2026" oninput="validatePasswordRuleUI()" placeholder="กรอกรหัสผ่านใหม่อีกครั้ง" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm" />
+          </div>
+
+          <!-- Password Policy Box (Page 12) -->
+          <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+            <div class="font-bold text-slate-700">รหัสผ่านจะต้องประกอบด้วย (ตามคู่มือหน้า 12):</div>
+            <div id="ruleLetters" class="flex items-center gap-2 text-emerald-600 font-semibold">
+              <i class="fa-solid fa-circle-check"></i> ตัวอักษรอย่างน้อย 6 ตัว
+            </div>
+            <div id="ruleNumbers" class="flex items-center gap-2 text-emerald-600 font-semibold">
+              <i class="fa-solid fa-circle-check"></i> ตัวเลขอย่างน้อย 1 ตัวเลข
+            </div>
+          </div>
+
+          <button onclick="submitSetPassword()" class="w-full py-3 rounded-xl bg-blue-900 hover:bg-blue-800 text-white font-bold text-sm shadow transition">
+            ยืนยันการแก้ไขรหัสผ่าน
+          </button>
+
+          <div id="pwdSuccessModal" class="hidden p-4 rounded-xl bg-emerald-50 border border-emerald-300 text-center space-y-2">
+            <div class="w-10 h-10 rounded-full bg-emerald-500 text-white mx-auto flex items-center justify-center text-lg">
+              <i class="fa-solid fa-check"></i>
+            </div>
+            <div class="font-bold text-emerald-950 text-sm">กำหนดรหัสผ่านสำเร็จ</div>
+            <button onclick="switchMainTab('step4')" class="px-5 py-2 rounded-lg bg-blue-600 text-white font-bold text-xs">
+              ไปขั้นตอนที่ 04: เข้าสู่ระบบและยืนยันตัวตน (e-KYC)
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- STEP 04: ยืนยันตัวตน 3 รูป (e-KYC) & ห้องเรียน AI PROCTORING (Pages 13-27) -->
+    <!-- ===================================================================== -->
+    <section id="section-step4" class="tab-section hidden space-y-6">
+
+      <!-- Sub-navigation inside Step 04 -->
+      <div class="bg-white rounded-xl p-2 shadow-sm border border-slate-200 flex flex-wrap gap-2 text-xs">
+        <button onclick="switchStep4View('login_consent')" id="subbtn-login_consent" class="px-3 py-2 rounded-lg font-bold bg-blue-600 text-white">
+          4.1 เข้าสู่ระบบ & ยอมรับเงื่อนไข (หน้า 13–15)
+        </button>
+        <button onclick="switchStep4View('kyc3photos')" id="subbtn-kyc3photos" class="px-3 py-2 rounded-lg font-bold text-slate-600 hover:bg-slate-100">
+          4.2 ถ่ายรูปยืนยันตัวตน 3 รูป e-KYC (หน้า 16–21)
+        </button>
+        <button onclick="switchStep4View('classroom')" id="subbtn-classroom" class="px-3 py-2 rounded-lg font-bold text-slate-600 hover:bg-slate-100">
+          4.3 ห้องเรียนวิดีโอ + AI สุ่มตรวจใบหน้า 2 นาที (หน้า 22–26)
+        </button>
+        <button onclick="switchStep4View('evaluation')" id="subbtn-evaluation" class="px-3 py-2 rounded-lg font-bold text-slate-600 hover:bg-slate-100">
+          4.4 ทำแบบประเมินหลังเรียน (หน้า 27)
+        </button>
+      </div>
+
+      <!-- 4.1 LOGIN & PDPA / LMS CONSENT (Pages 13-15) -->
+      <div id="step4-view-login_consent" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Login Card (Page 13) -->
+        <div class="lg:col-span-5 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+          <div class="flex items-center gap-3 pb-2 border-b border-slate-100">
+            <img src="/verztec-logo.png" alt="Verztec" class="h-8 w-auto object-contain" />
+            <h3 class="font-bold text-base text-slate-900">
+              LOGIN เข้าสู่ระบบ VERZTEC® LMS
+            </h3>
+          </div>
+          <div class="space-y-3 text-xs">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Username (ชื่อผู้ใช้ หรือ เลขบัตรประชาชน 13 หลัก)</label>
+              <input id="loginIdCard" type="text" value="Learner" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-mono font-bold" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Password</label>
+              <input id="loginPassword" type="password" value="Learner@2026" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm" />
+            </div>
+            <button onclick="handleLmsLogin()" class="w-full py-2.5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-bold text-sm shadow transition">
+              เข้าสู่ระบบ
+            </button>
+          </div>
+        </div>
+
+        <!-- PDPA & LMS Self-Study Consent (Pages 14-15) -->
+        <div class="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+          <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-file-shield text-blue-600"></i>
+            การแสดงความยินยอม PDPA และเงื่อนไขการอบรมผ่านระบบ LMS (หน้า 14–15)
+          </h3>
+
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-2 max-h-52 overflow-y-auto leading-relaxed">
+            <p class="font-bold text-slate-900">เงื่อนไขการอบรมผ่านระบบการศึกษาด้วยตนเอง (LMS):</p>
+            <p>1. ผู้อบรมตกลงให้ข้อมูลของตนเองที่เป็นจริง ถูกต้อง และใช้เอกสารยืนยันตัวตนตัวจริงที่มีผลบังคับใช้ตามกฎหมาย (บัตรประชาชนตัวจริง) ห้ามใช้สำเนาหรือรูปถ่าย</p>
+            <p>2. ผู้อบรมต้องทำการเข้าสู่ระบบและทำการอบรมด้วยตนเองตลอดระยะเวลาการอบรม หากตรวจพบว่าไม่ได้อบรมด้วยตนเอง หรือมีบุคคลอื่นมีส่วนร่วม บริษัทขอสงวนสิทธิ์ในการรับรองผลการอบรม</p>
+            <p>3. งดใช้อุปกรณ์สื่อสารหรือทำกิจการอื่นระหว่างอบรม และห้ามอบรมระหว่างเดินทาง</p>
+            <p>4. ผู้อบรมต้องผ่านการตรวจสอบความสนใจระหว่างอบรมโดยการยืนยันตัวตนทางอิเล็กทรอนิกส์ (Face Recognition) หากไม่ผ่านหรือไม่มีการตอบสนอง ต้องทำการอบรมใหม่ในเนื้อหานั้นๆ</p>
+          </div>
+
+          <div class="space-y-2 text-xs">
+            <label class="flex items-center gap-2 cursor-pointer font-semibold text-slate-800">
+              <input type="checkbox" id="chkConsentPdpa" checked class="rounded text-blue-600 w-4 h-4" />
+              <span>ยินยอม "แบบขอความยินยอมในการเก็บรวบรวมข้อมูลส่วนบุคคล (PDPA)" (หน้า 14)</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer font-semibold text-slate-800">
+              <input type="checkbox" id="chkConsentLms" checked class="rounded text-blue-600 w-4 h-4" />
+              <span>ยอมรับ "เงื่อนไขการอบรมผ่านระบบการศึกษาด้วยตนเอง (LMS)" (หน้า 15)</span>
+            </label>
+          </div>
+
+          <div class="flex justify-end">
+            <button onclick="submitConsentAndGoKyc()" class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow transition">
+              ยอมรับเงื่อนไข และคลิก "ยืนยันตัวตน" (3 รูป) <i class="fa-solid fa-arrow-right ml-1"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4.2 3-PHOTO e-KYC VERIFICATION WORKFLOW (Pages 16-21) -->
+      <div id="step4-view-kyc3photos" class="hidden space-y-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+            <div>
+              <h3 class="font-bold text-lg text-slate-900">การยืนยันเอกสารก่อนเริ่มอบรม (ถ่ายรูปยืนยันตัวตน 3 รูป - หน้า 16–21)</h3>
+              <p class="text-xs text-slate-600">ต้องใช้บัตรประชาชนตัวจริงและถ่ายจากกล้องสดเท่านั้น ระบบ AI จะตรวจสอบความคมชัด แสงสะท้อน และเปรียบเทียบใบหน้า</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="simulateAll3KycPhotos()" class="px-3.5 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold transition">
+                <i class="fa-solid fa-wand-magic-sparkles mr-1"></i>จำลองภาพถ่ายทั้ง 3 รูปอัตโนมัติ (กรณีไม่มีกล้อง/ทดสอบไว)
+              </button>
+            </div>
+          </div>
+
+          <!-- 3 Photo Slots Grid (Matches Page 16 Layout) -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+            <!-- Slot 1: รูปบัตรประจำตัวประชาชนเต็มใบ -->
+            <div class="border-2 border-slate-200 rounded-2xl p-4 flex flex-col justify-between bg-slate-50/50">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="font-bold text-xs text-slate-800">1.1 รูปบัตรประจำตัวประชาชน</span>
+                  <span id="kycBadge1" class="text-[10px] px-2 py-0.5 rounded bg-slate-200 text-slate-700 font-bold">ยังไม่ได้ถ่าย</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mb-3">ถือหน้าบัตรให้ตรงกรอบ สว่างเพียงพอ ไม่ติดแสงสะท้อน และไม่ติดใบหน้าผู้ถือบัตร (หน้า 16–17)</p>
+                <div class="aspect-video bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center relative border border-slate-300">
+                  <img id="kycPreview1" class="w-full h-full object-cover hidden" alt="ID Card Full" />
+                  <div id="kycPlaceholder1" class="text-center text-slate-400 text-xs p-3">
+                    <i class="fa-solid fa-id-card text-3xl mb-1"></i>
+                    <div>คลิกเพื่อถ่ายรูปบัตรประชาชน</div>
+                  </div>
+                </div>
+              </div>
+              <button onclick="openKycCameraModal(1)" class="mt-3 w-full py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition">
+                <i class="fa-solid fa-camera mr-1"></i>ถ่ายรูปบัตรประจำตัวประชาชน
+              </button>
+            </div>
+
+            <!-- Slot 2: รูปใบหน้าจริง -->
+            <div class="border-2 border-slate-200 rounded-2xl p-4 flex flex-col justify-between bg-slate-50/50">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="font-bold text-xs text-slate-800">1.2 รูปใบหน้าจริง (Selfie)</span>
+                  <span id="kycBadge2" class="text-[10px] px-2 py-0.5 rounded bg-slate-200 text-slate-700 font-bold">ยังไม่ได้ถ่าย</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mb-3">วางหน้าตรงในกรอบวงรี ไม่มีสิ่งปิดบังใบหน้า แสงสว่างเพียงพอ ไม่ติดใบหน้าผู้อื่น (หน้า 18–19)</p>
+                <div class="aspect-video bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center relative border border-slate-300">
+                  <img id="kycPreview2" class="w-full h-full object-cover hidden" alt="Selfie" />
+                  <div id="kycPlaceholder2" class="text-center text-slate-400 text-xs p-3">
+                    <i class="fa-solid fa-user-check text-3xl mb-1"></i>
+                    <div>คลิกเพื่อถ่ายรูปใบหน้าจริง</div>
+                  </div>
+                </div>
+              </div>
+              <button onclick="openKycCameraModal(2)" class="mt-3 w-full py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition">
+                <i class="fa-solid fa-camera mr-1"></i>ถ่ายรูปใบหน้าจริง
+              </button>
+            </div>
+
+            <!-- Slot 3: รูปเฉพาะใบหน้าในบัตรประจำตัวประชาชน -->
+            <div class="border-2 border-slate-200 rounded-2xl p-4 flex flex-col justify-between bg-slate-50/50">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="font-bold text-xs text-slate-800">1.3 รูปเฉพาะใบหน้าในบัตร ปชช.</span>
+                  <span id="kycBadge3" class="text-[10px] px-2 py-0.5 rounded bg-slate-200 text-slate-700 font-bold">ยังไม่ได้ถ่าย</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mb-3">ซูมเฉพาะรูปใบหน้าที่อยู่ในบัตรประจำตัวประชาชนให้ตรงกรอบเพื่อเปรียบเทียบใบหน้า (หน้า 19–20)</p>
+                <div class="aspect-video bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center relative border border-slate-300">
+                  <img id="kycPreview3" class="w-full h-full object-cover hidden" alt="ID Portrait" />
+                  <div id="kycPlaceholder3" class="text-center text-slate-400 text-xs p-3">
+                    <i class="fa-solid fa-crop-simple text-3xl mb-1"></i>
+                    <div>คลิกเพื่อถ่ายเฉพาะใบหน้าในบัตร</div>
+                  </div>
+                </div>
+              </div>
+              <button onclick="openKycCameraModal(3)" class="mt-3 w-full py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition">
+                <i class="fa-solid fa-camera mr-1"></i>ถ่ายรูปเฉพาะใบหน้าในบัตร
+              </button>
+            </div>
+          </div>
+
+          <!-- Submit 3 Photos for AI Check (Page 20-21) -->
+          <div class="border-t border-slate-200 pt-5 flex flex-wrap items-center justify-between gap-4">
+            <div class="text-xs text-slate-600">
+              เมื่อถ่ายรูปครบทั้ง 3 รูปแล้ว คลิกปุ่ม <b>"วิเคราะห์ใบหน้าด้วย AI จริง (Real Neural Network)"</b> ระบบจะสกัดจุดโครงหน้า 68 จุด และคำนวณเวกเตอร์ 128 มิติเทียบกันจริง
+            </div>
+            <div class="flex items-center gap-3 flex-wrap">
+              <button onclick="submitKycVerification(true)" class="px-4 py-2.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-xs border border-amber-300 transition">
+                ส่งให้ผู้ดูแลระบบตรวจสอบ (Manual Review - หน้า 21)
+              </button>
+              <button id="btnRunRealAiKyc" onclick="submitKycVerification(false)" class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-lg transition flex items-center gap-2">
+                <i class="fa-solid fa-microchip"></i>
+                <span>ตรวจสอบข้อมูลด้วยโมเดล AI จริง (Real 1:1 Face Verification)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Real AI Diagnostic & Visual Face Mesh Comparison Panel -->
+          <div id="realAiTelemetryPanel" class="hidden mt-5 bg-slate-900 text-white rounded-2xl p-5 border border-slate-700 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700 pb-3">
+              <div class="flex items-center gap-2">
+                <span class="bg-sky-500 text-slate-950 font-extrabold text-[11px] px-2.5 py-0.5 rounded-full">REAL AI TELEMETRY</span>
+                <h4 class="font-bold text-sm text-sky-300">ผลวิเคราะห์โครงหน้า 68 จุด (68-Point Landmarks) & เวกเตอร์อัตลักษณ์ 128 มิติ (ResNet-34)</h4>
+              </div>
+              <span id="aiInferenceTimeBadge" class="text-xs font-mono text-emerald-400">Inference Time: -- ms</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+              <!-- Annotated Selfie Canvas -->
+              <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-center space-y-1.5">
+                <div class="text-xs font-bold text-emerald-400">1.2 ใบหน้าจริง (Selfie + 68 Landmarks)</div>
+                <canvas id="aiAnnotatedSelfieCanvas" width="320" height="220" class="w-full h-44 object-contain mx-auto rounded bg-black"></canvas>
+                <div id="aiSelfieMetricsText" class="text-[11px] text-slate-300 font-mono">-</div>
+              </div>
+
+              <!-- Center Comparison Score & Vector Distance -->
+              <div class="bg-slate-800/90 p-4 rounded-xl border border-slate-700 text-center space-y-2">
+                <div class="text-xs text-slate-300">ค่าความเหมือนใบหน้าจริง vs รูปบนบัตร</div>
+                <div id="aiBigSimilarityScore" class="text-4xl font-extrabold text-emerald-400">--%</div>
+                <div id="aiEuclideanDistanceText" class="text-xs font-mono text-sky-300">Euclidean Distance: --</div>
+                <div class="text-[11px] text-slate-400 border-t border-slate-700 pt-2 text-left space-y-1">
+                  <div id="aiMetricIdFull">• บัตร ปชช. เต็มใบ: รอตรวจ</div>
+                  <div id="aiMetricSharpness">• ความคมชัด (Sharpness): รอตรวจ</div>
+                  <div id="aiMetricGlare">• แสงสะท้อน (Glare): รอตรวจ</div>
+                </div>
+              </div>
+
+              <!-- Annotated ID Card Face Canvas -->
+              <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-center space-y-1.5">
+                <div class="text-xs font-bold text-sky-400">1.3 รูปหน้าบนบัตร (+ 68 Landmarks)</div>
+                <canvas id="aiAnnotatedIdFaceCanvas" width="320" height="220" class="w-full h-44 object-contain mx-auto rounded bg-black"></canvas>
+                <div id="aiIdFaceMetricsText" class="text-[11px] text-slate-300 font-mono">-</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Verification Result / Manual Review Fallback Banner (Page 21) -->
+          <div id="kycResultBox" class="hidden mt-5 p-5 rounded-2xl border"></div>
+        </div>
+      </div>
+
+      <!-- 4.3 CLASSROOM VIDEO PLAYER + AI RANDOM PROCTORING (Pages 22-26) -->
+      <div id="step4-view-classroom" class="hidden space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- Left 8 Cols: Strict Video Player + AI Proctoring Guard -->
+          <div class="lg:col-span-8 space-y-4">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+              <!-- Course Header Bar -->
+              <div class="bg-slate-900 text-white px-5 py-3.5 flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <span class="text-[11px] bg-blue-600 px-2 py-0.5 rounded font-bold">ห้องเรียน E-Learning (LMS)</span>
+                  <h3 id="activeLessonTitle" class="font-bold text-sm mt-1">1. ความหมายของการประกันชีวิตและบุคคลที่เกี่ยวข้องกับการประกันชีวิต</h3>
+                </div>
+                <div class="flex items-center gap-2 text-xs flex-wrap">
+                  <!-- Toggle Show/Hide Face Detection PIP Window -->
+                  <button onclick="toggleClassroomPipVisibility()" id="btnTogglePipWindow" class="bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1 rounded-lg border border-emerald-500 font-bold flex items-center gap-1.5 transition" title="เปิด/ปิด (ซ่อน) หน้าต่างแสดงภาพกล้องตรวจจับใบหน้า (AI ยังคงทำงานเบื้องหลัง)">
+                    <i class="fa-solid fa-eye-slash" id="iconTogglePip"></i>
+                    <span id="textTogglePip">ซ่อนหน้าต่างกล้อง AI</span>
+                  </button>
+                  <div class="bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700" title="ระดับเสียงพูดคุยในสภาพแวดล้อม (Web Audio VAD)">
+                    <i class="fa-solid fa-microphone text-sky-400 mr-1"></i>
+                    <span id="voiceNoiseLevelBadge" class="font-mono font-bold text-emerald-400">ปกติ (12 dB)</span>
+                  </div>
+                  <div class="bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700" title="สถานะการตรวจจับหน้าจอที่สอง (Multi-Monitor)">
+                    <i class="fa-solid fa-desktop text-sky-400 mr-1"></i>
+                    <span id="multiMonitorBadge" class="font-mono font-bold text-emerald-400">1 จอปกติ</span>
+                  </div>
+                  <div class="bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700">
+                    <span class="text-slate-400">สลับแท็บ:</span>
+                    <span id="tabSwitchCountBadge" class="font-mono font-bold text-amber-400 ml-1">0 ครั้ง</span>
+                  </div>
+                  <div class="bg-slate-800 px-3 py-1 rounded-lg border border-slate-700">
+                    <span class="text-slate-400">เวลาไม่ตอบสนอง:</span>
+                    <span id="inactivityTimerDisplay" class="font-mono font-bold text-emerald-400 ml-1">15:00</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Dedicated AI Proctoring & Camera Control Bar (OUTSIDE video frame so nothing blocks the video!) -->
+              <div class="bg-slate-950 border-t border-slate-800 px-5 py-3 flex flex-wrap items-center justify-between gap-3">
+                <div class="space-y-1.5">
+                  <div class="flex items-center gap-2.5 text-xs">
+                    <span class="bg-red-600 text-white text-[10px] px-2 py-0.5 rounded font-extrabold flex items-center gap-1">
+                      <i class="fa-brands fa-youtube"></i> OFFICIAL VIDEO
+                    </span>
+                    <span id="slideSubHeader" class="text-xs font-semibold text-sky-300">ก. ภาพรวมองค์กรและพันธกิจ เวอร์ซเทค (Verztec Thailand)</span>
+                  </div>
+                  <!-- Camera Device Selector & Status Pill -->
+                  <div class="flex items-center gap-1.5 bg-slate-900 border border-slate-700 px-2.5 py-1 rounded-lg text-[11px] w-fit text-white">
+                    <span id="camStatusDot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                    <select id="cameraDeviceSelect" onchange="onCameraDeviceChange(this.value)" class="bg-transparent text-slate-200 outline-none max-w-[200px] truncate cursor-pointer">
+                      <option value="">กำลังค้นหากล้อง Webcam...</option>
+                    </select>
+                    <button onclick="reconnectSharedCamera()" class="text-sky-400 hover:text-sky-300 ml-1" title="รีเซ็ต/เชื่อมต่อกล้องใหม่">
+                      <i class="fa-solid fa-rotate"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Minimized Pill when PIP Window is Hidden -->
+                <div id="classroomPipMinimizedPill" onclick="toggleClassroomPipVisibility()" class="hidden cursor-pointer bg-slate-900 hover:bg-slate-800 border border-emerald-500/80 px-3 py-1.5 rounded-full text-[11px] font-bold text-emerald-300 flex items-center gap-2 shadow transition">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                  <span>AI Proctoring ทำงานอยู่เบื้องหลัง</span>
+                  <span id="liveFaceScoreBadgeMini" class="bg-emerald-600 text-white px-1.5 py-0.2 rounded text-[10px]">94%</span>
+                  <i class="fa-solid fa-expand text-slate-400 ml-1" title="คลิกเพื่อแสดงหน้าต่างกล้อง"></i>
+                </div>
+
+                <!-- Live Proctoring Mini Webcam Box (Placed cleanly in top panel outside the video) -->
+                <div id="classroomPipBoxContainer" class="w-44 bg-slate-900 rounded-xl overflow-hidden border-2 border-emerald-500 shadow shrink-0 transition-all text-white">
+                  <div class="bg-emerald-600 text-[10px] font-bold px-2.5 py-1 flex items-center justify-between">
+                    <span><i class="fa-solid fa-video mr-1"></i>AI Proctoring</span>
+                    <div class="flex items-center gap-1.5">
+                      <span id="liveFaceScoreBadge">94%</span>
+                      <button onclick="toggleClassroomPipVisibility()" class="text-white/80 hover:text-white ml-1" title="ซ่อนหน้าต่างกล้อง">
+                        <i class="fa-solid fa-minus"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="h-24 bg-slate-950 relative flex items-center justify-center">
+                    <video id="classroomPipVideo" autoplay playsinline muted class="w-full h-full object-cover transform scale-x-[-1]"></video>
+                    <canvas id="classroomPipFallbackCanvas" width="240" height="160" class="w-full h-full object-cover hidden"></canvas>
+                    <div class="absolute inset-2 border-2 border-dashed border-emerald-400/80 rounded-full pointer-events-none"></div>
+                    <div id="pipCameraStatusText" class="absolute bottom-1 inset-x-1 bg-black/65 text-[9px] text-center text-emerald-300 py-0.5 rounded">
+                      กำลังเปิดกล้อง...
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Fullscreen Wrapper containing 16:9 Video + Bottom Control Bar -->
+              <div id="classroomFullscreenStage" class="bg-black flex flex-col">
+                <!-- 100% UNOBSTRUCTED 16:9 VIDEO SCREEN (No buttons or text boxes covering the video!) -->
+                <div id="classroomVideoAspectBox" class="relative bg-black aspect-video select-none overflow-hidden">
+                  <!-- REAL YOUTUBE IFRAME CONTAINER -->
+                  <div class="absolute inset-0 z-0 bg-black overflow-hidden">
+                    <div id="ytVideoPlayer" class="w-full h-full"></div>
+                  </div>
+                  <!-- ANTI-SEEK / ANTI-RIGHT-CLICK SHIELD OVER YOUTUBE IFRAME -->
+                  <div id="ytClickShield" onclick="togglePlayLesson()" ondblclick="toggleVideoFullscreen()" class="absolute inset-0 z-[5] cursor-pointer" title="คลิกเพื่อเล่น/หยุดชั่วคราว (ดับเบิลคลิกเพื่อขยายเต็มจอ)"></div>
+
+                  <!-- Hidden elements kept for JS compatibility without covering the video -->
+                  <div id="classroomDynamicWatermark" class="hidden"></div>
+                  <div id="slideCenterContent" class="hidden">
+                    <h4 id="slideHeadline"></h4>
+                  </div>
+
+                  <!-- TAB SWITCH / FOCUS LOSS PAUSE OVERLAY BANNER (Only appears when video is paused due to leaving tab) -->
+                  <div id="tabSwitchPauseOverlay" class="hidden absolute inset-0 bg-slate-950/90 backdrop-blur-md z-30 flex flex-col items-center justify-center p-6 text-center space-y-4 text-white">
+                    <div class="w-16 h-16 rounded-full bg-rose-600 text-white flex items-center justify-center text-3xl shadow-lg animate-bounce">
+                      <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div class="max-w-md space-y-1.5">
+                      <h4 class="text-lg font-extrabold text-rose-400">⚠️ วิดีโอถูกหยุดชั่วคราวอัตโนมัติ (ตรวจพบการสลับแท็บ / ออกจากหน้าต่างเรียน)</h4>
+                      <p class="text-xs text-slate-300 leading-relaxed">
+                        ระบบตรวจพบว่าคุณเปิดแท็บอื่นหรือย่อหน้าต่างระหว่างการอบรม ตามระเบียบควบคุมการสอบ ระบบได้หยุดเวลาเรียนไว้ชั่วคราวและบันทึกประวัติลงใน User Activity Log แล้ว
+                      </p>
+                      <div id="tabSwitchOverlayStat" class="text-xs font-mono font-bold text-amber-300 pt-1">จำนวนครั้งที่สลับหน้าจอสะสม: 1 ครั้ง</div>
+                    </div>
+                    <button onclick="resumeFromTabSwitchOverlay()" class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg transition flex items-center gap-2">
+                      <i class="fa-solid fa-play"></i> กลับมาดูเนื้อหาและเล่นบทเรียนต่อ
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Dedicated Player Timeline & Anti-Cheat Control Bar (BELOW the video frame so nothing blocks the video!) -->
+                <div class="bg-slate-900 text-white px-5 py-3.5 space-y-2.5 border-t border-slate-800">
+                  <div id="playerAlertBanner" class="hidden bg-rose-600/95 text-white text-xs font-bold px-3 py-1.5 rounded-lg text-center animate-pulse"></div>
+
+                  <!-- Custom Progress Bar with Checkpoint Pins -->
+                  <div class="relative w-full h-3 bg-slate-800 rounded-full overflow-hidden cursor-pointer border border-slate-700" onclick="handleTimelineClick(event)">
+                    <div id="videoWatchedBar" class="h-full bg-blue-500/50 absolute left-0 top-0" style="width: 0%"></div>
+                    <div id="videoCurrentBar" class="h-full bg-orange-500 absolute left-0 top-0 transition-all" style="width: 0%"></div>
+                  </div>
+
+                  <!-- Custom Controls (Page 2 Rule 4 & Page 24: No speed change, no mute, backward seek only, + Full Screen) -->
+                  <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <button onclick="togglePlayLesson()" id="btnPlayPause" class="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 font-bold text-white flex items-center gap-1.5">
+                        <i class="fa-solid fa-play"></i> <span>เล่นบทเรียน</span>
+                      </button>
+                      <button onclick="rewindLesson5Sec()" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700" title="ย้อนกลับดูเนื้อหาก่อนหน้าได้ตามคู่มือหน้า 24">
+                        <i class="fa-solid fa-rotate-left mr-1"></i>ย้อน 5 วินาที
+                      </button>
+                      <button onclick="toggleVideoFullscreen()" id="btnFullscreenVideo" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 font-bold text-white flex items-center gap-1.5 shadow" title="ขยายดูวิดีโอแบบเต็มหน้าจอ (Full Screen)">
+                        <i class="fa-solid fa-expand" id="iconFullscreenVideo"></i>
+                        <span id="textFullscreenVideo">ขยายเต็มจอ (Full Screen)</span>
+                      </button>
+                      <span class="font-mono text-xs text-slate-300 ml-1">
+                        <span id="currentTimeLabel">00:00</span> / <span id="durationTimeLabel">02:47</span>
+                      </span>
+                    </div>
+
+                    <!-- Locked Controls Demonstration -->
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <button onclick="triggerAntiCaptureSecurityShield('PrintScreen (ทดสอบป้องกันแคปจอ)')" class="px-2.5 py-1 rounded bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-400/40 text-[11px] font-bold flex items-center gap-1" title="ทดสอบระบบป้องกันการกดปุ่ม PrintScreen / Capture หน้าจอ">
+                        <i class="fa-solid fa-camera-slash"></i> ทดสอบแคปจอ
+                      </button>
+                      <button onclick="simulateTabSwitchEvent()" class="px-2.5 py-1 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400/40 text-[11px] font-bold flex items-center gap-1" title="จำลองการสลับไปเปิดแท็บอื่น">
+                        <i class="fa-solid fa-window-restore"></i> ทดสอบสลับแท็บ
+                      </button>
+                      <button onclick="attemptChangeSpeed()" class="px-2.5 py-1 rounded bg-slate-800 text-slate-400 border border-slate-700 text-[11px] flex items-center gap-1">
+                        <i class="fa-solid fa-lock text-amber-400"></i> ความเร็ว 1.0x (ห้ามเร่ง)
+                      </button>
+                      <button onclick="attemptMuteAudio()" class="px-2.5 py-1 rounded bg-slate-800 text-slate-400 border border-slate-700 text-[11px] flex items-center gap-1">
+                        <i class="fa-solid fa-volume-high text-emerald-400"></i> เสียง 100% (ห้ามลดเสียง)
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Simulator Buttons for Page 25 Proctoring Rules -->
+              <div class="p-4 bg-amber-50/70 border-t border-amber-200 flex flex-wrap items-center justify-between gap-2 text-xs">
+                <div class="font-bold text-amber-950">
+                  <i class="fa-solid fa-robot mr-1 text-amber-600"></i>ทดสอบระบบควบคุมการสอบ (Page 25 Proctoring Simulator):
+                </div>
+                <div class="flex flex-wrap gap-2">
+                  <button onclick="triggerRandomFaceCheckModal()" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-sm">
+                    <i class="fa-solid fa-camera-rotate mr-1"></i>จำลองสุ่มตรวจใบหน้าทันที (เวลา 2 นาที)
+                  </button>
+                  <button onclick="simulateTimeoutKick('TIMEOUT_2MIN_KICK')" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold shadow-sm">
+                    <i class="fa-solid fa-clock mr-1"></i>จำลองไม่ตอบสนอง 2 นาที (เตะออก + ย้อนกลับ Checkpoint)
+                  </button>
+                  <button onclick="simulateTimeoutKick('INACTIVE_15MIN_KICK')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-900 text-white font-bold shadow-sm">
+                    <i class="fa-solid fa-user-slash mr-1"></i>จำลองนิ่งเกิน 15 นาที
+                  </button>
+                  <button onclick="demoFastCompleteCurrentLesson()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-sm" title="ปุ่มลัดสำหรับผู้ทดสอบ: ข้ามจบบทเรียนปัจจุบันทันที">
+                    <i class="fa-solid fa-forward-fast mr-1"></i>ลัดจบบทนี้ทันที (สำหรับผู้ทดสอบ)
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right 4 Cols: Course Curriculum, Checkpoints & Evaluation Unlock (Pages 22, 24, 27) -->
+          <div class="lg:col-span-4 space-y-4">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-4">
+              <div class="flex items-center justify-between">
+                <h4 class="font-bold text-sm text-slate-900">เนื้อหาบทเรียน & จุด Checkpoint</h4>
+                <span id="overallCoursePercent" class="text-xs font-extrabold bg-blue-100 text-blue-800 px-2.5 py-0.5 rounded-full">0%</span>
+              </div>
+
+              <!-- Progress Bar -->
+              <div class="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
+                <div id="overallCourseBar" class="h-full bg-emerald-500 transition-all" style="width: 0%"></div>
+              </div>
+
+              <!-- Lesson List -->
+              <div id="curriculumList" class="space-y-2.5 text-xs">
+                <!-- Populated by JS -->
+              </div>
+
+              <!-- Download Handout Button (Page 24) -->
+              <div class="pt-2 border-t border-slate-200">
+                <a href="/คู่มือการอบรมออนไลน์-E-LEARNING-LMS_0-3_UPDATE-032025.pdf" target="_blank" class="w-full py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs flex items-center justify-center gap-2 transition">
+                  <i class="fa-solid fa-file-pdf text-rose-600"></i>
+                  <span>ดาวน์โหลดเอกสารประกอบการเรียน (PDF)</span>
+                </a>
+              </div>
+
+              <!-- Unlock Evaluation & Post-Test Buttons (Page 27-28) -->
+              <div class="pt-2 border-t border-slate-200 space-y-2">
+                <button id="btnGoEvaluation" onclick="switchStep4View('evaluation')" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs shadow transition flex items-center justify-center gap-2">
+                  <i class="fa-solid fa-clipboard-check"></i>
+                  <span>คลิก "แบบประเมิน" (เมื่อเรียนครบ 100% - หน้า 27)</span>
+                </button>
+                <button id="btnGoPostTest" onclick="switchMainTab('step5')" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow transition flex items-center justify-center gap-2">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                  <span>คลิก "แบบทดสอบหลังเรียน" (หน้า 28)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4.4 COURSE EVALUATION SURVEY (Page 27) -->
+      <div id="step4-view-evaluation" class="hidden">
+        <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-5">
+          <div class="border-b border-slate-200 pb-4">
+            <span class="text-xs font-bold text-blue-600">ขั้นตอนที่ 04 (หน้า 27)</span>
+            <h3 class="font-bold text-lg text-slate-900">การทำแบบประเมินความพึงพอใจต่อการอบรม</h3>
+            <p class="text-xs text-slate-600">ผู้เข้าอบรมต้องทำแบบประเมินจนครบแล้วคลิก "ส่งข้อมูล" จึงจะสามารถเข้าทำแบบทดสอบหลังเรียนได้</p>
+          </div>
+
+          <div class="space-y-4 text-xs">
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-4">
+              <span class="font-semibold text-slate-800">1) ความสามารถในการถ่ายทอดความรู้ของวิทยากร</span>
+              <select class="border border-slate-300 rounded-lg px-3 py-1.5 bg-white font-bold text-blue-900">
+                <option value="5">มากที่สุด (5)</option>
+                <option value="4">มาก (4)</option>
+                <option value="3">ปานกลาง (3)</option>
+              </select>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-4">
+              <span class="font-semibold text-slate-800">2) เอกสารประกอบการบรรยายและเนื้อหาหลักสูตร</span>
+              <select class="border border-slate-300 rounded-lg px-3 py-1.5 bg-white font-bold text-blue-900">
+                <option value="5">มากที่สุด (5)</option>
+                <option value="4">มาก (4)</option>
+                <option value="3">ปานกลาง (3)</option>
+              </select>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-4">
+              <span class="font-semibold text-slate-800">3) ความสะดวกและเสถียรภาพของระบบ E-Learning (LMS)</span>
+              <select class="border border-slate-300 rounded-lg px-3 py-1.5 bg-white font-bold text-blue-900">
+                <option value="5">มากที่สุด (5)</option>
+                <option value="4">มาก (4)</option>
+                <option value="3">ปานกลาง (3)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-3 pt-2">
+            <button onclick="submitCourseEvaluation()" class="px-6 py-2.5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-bold text-xs shadow transition">
+              คลิก "ส่งข้อมูล" และไปทำแบบทดสอบหลังเรียน <i class="fa-solid fa-arrow-right ml-1"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- STEP 05: ทำแบบทดสอบหลังเรียน & ส่งผลการเรียน (PDF Pages 28-29)          -->
+    <!-- ===================================================================== -->
+    <section id="section-step5" class="tab-section hidden space-y-6">
+      <div id="examFullscreenStage" class="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <!-- Exam Top Header + Live Proctoring Telemetry Badges -->
+        <div class="bg-slate-900 text-white px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-xs bg-orange-500 text-white px-2.5 py-0.5 rounded-full font-bold">ขั้นตอนที่ 05 (หน้า 28–29)</span>
+              <span class="text-[11px] bg-emerald-600/30 border border-emerald-400/40 text-emerald-300 px-2 py-0.5 rounded-full font-bold">
+                <i class="fa-solid fa-shield-halved mr-1"></i>AI Exam Proctoring Active
+              </span>
+              <span id="examFullscreenPolicyBadge" class="text-[11px] bg-amber-500/20 border border-amber-400/40 text-amber-300 px-2 py-0.5 rounded-full font-bold">
+                <i class="fa-solid fa-expand mr-1"></i>บังคับโหมดเต็มจออัตโนมัติ
+              </span>
+            </div>
+            <h3 class="font-bold text-lg mt-1">แบบทดสอบประเมินความรู้หลังการอบรม (Post-Test)</h3>
+            <p class="text-xs text-slate-300">เกณฑ์ผ่านไม่น้อยกว่าร้อยละ 60 (3/5 ข้อ) สามารถสอบได้สูงสุด 5 ครั้ง • ระบบเปิดกล้อง AI ตรวจจับใบหน้าและป้องกันการแคปหน้าจอตลอดการสอบ</p>
+          </div>
+          <div class="flex items-center gap-2.5 shrink-0">
+            <button onclick="toggleExamFullscreen()" id="btnFullscreenExam" class="px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs shadow flex items-center gap-1.5 transition">
+              <i class="fa-solid fa-expand" id="iconFullscreenExam"></i>
+              <span id="textFullscreenExam">เต็มจอ (Full Screen)</span>
+            </button>
+            <div class="bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-center">
+              <div class="text-[11px] text-slate-400">ครั้งที่ทำแบบทดสอบ</div>
+              <div id="examAttemptCounter" class="text-lg font-extrabold text-amber-400">ครั้งที่ 1 / 5</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LIVE AI EXAM PROCTORING & CAMERA CONTROL BAR (Same as Classroom) -->
+        <div class="bg-slate-950 text-white border-t border-slate-800 px-6 py-3.5 flex flex-wrap items-center justify-between gap-3">
+          <div class="space-y-2">
+            <!-- Telemetry Badges Row -->
+            <div class="flex items-center gap-2 text-xs flex-wrap">
+              <button onclick="toggleExamPipVisibility()" id="btnToggleExamPipWindow" class="bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1 rounded-lg border border-emerald-500 font-bold flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-eye-slash" id="iconToggleExamPip"></i>
+                <span id="textToggleExamPip">ซ่อนหน้าต่างกล้อง AI</span>
+              </button>
+              <div class="bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-700" title="ระดับเสียงพูดคุยระหว่างสอบ (Web Audio VAD)">
+                <i class="fa-solid fa-microphone text-sky-400 mr-1"></i>
+                <span id="examVoiceNoiseBadge" class="font-mono font-bold text-emerald-400">ปกติ (12 dB)</span>
+              </div>
+              <div class="bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-700" title="สถานะการตรวจจับหน้าจอที่สอง">
+                <i class="fa-solid fa-desktop text-sky-400 mr-1"></i>
+                <span id="examMultiMonitorBadge" class="font-mono font-bold text-emerald-400">1 จอปกติ</span>
+              </div>
+              <div class="bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-700">
+                <span class="text-slate-400">สลับแท็บ:</span>
+                <span id="examTabSwitchBadge" class="font-mono font-bold text-amber-400 ml-1">0 ครั้ง</span>
+              </div>
+              <div class="bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-700">
+                <span class="text-slate-400">ป้องกันแคปจอ:</span>
+                <span class="font-mono font-bold text-emerald-400 ml-1">ทำงานอยู่</span>
+              </div>
+            </div>
+
+            <!-- Camera Selector Row -->
+            <div class="flex items-center gap-1.5 bg-slate-900 border border-slate-700 px-2.5 py-1 rounded-lg text-[11px] w-fit">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <select id="examCameraDeviceSelect" onchange="onCameraDeviceChange(this.value)" class="bg-transparent text-slate-200 outline-none max-w-[220px] truncate cursor-pointer">
+                <option value="">กำลังค้นหากล้อง Webcam...</option>
+              </select>
+              <button onclick="reconnectSharedCamera()" class="text-sky-400 hover:text-sky-300 ml-1" title="รีเซ็ต/เชื่อมต่อกล้องใหม่">
+                <i class="fa-solid fa-rotate"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Minimized Pill when Exam PIP Window is Hidden -->
+          <div id="examPipMinimizedPill" onclick="toggleExamPipVisibility()" class="hidden cursor-pointer bg-slate-900 hover:bg-slate-800 border border-emerald-500/80 px-3 py-1.5 rounded-full text-[11px] font-bold text-emerald-300 flex items-center gap-2 shadow transition">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <span>AI Exam Proctoring ทำงานอยู่</span>
+            <span id="examFaceScoreBadgeMini" class="bg-emerald-600 text-white px-1.5 py-0.2 rounded text-[10px]">94%</span>
+            <i class="fa-solid fa-expand text-slate-400 ml-1" title="คลิกเพื่อแสดงหน้าต่างกล้อง"></i>
+          </div>
+
+          <!-- Live Exam Proctoring Mini Webcam Box -->
+          <div id="examPipBoxContainer" class="w-44 bg-slate-900 rounded-xl overflow-hidden border-2 border-emerald-500 shadow shrink-0 transition-all text-white">
+            <div class="bg-emerald-600 text-[10px] font-bold px-2.5 py-1 flex items-center justify-between">
+              <span><i class="fa-solid fa-video mr-1"></i>AI Exam Proctor</span>
+              <div class="flex items-center gap-1.5">
+                <span id="examFaceScoreBadge">94%</span>
+                <button onclick="toggleExamPipVisibility()" class="text-white/80 hover:text-white ml-1" title="ซ่อนหน้าต่างกล้อง">
+                  <i class="fa-solid fa-minus"></i>
+                </button>
+              </div>
+            </div>
+            <div class="h-24 bg-slate-950 relative flex items-center justify-center">
+              <video id="examPipVideo" autoplay playsinline muted class="w-full h-full object-cover transform scale-x-[-1]"></video>
+              <canvas id="examPipFallbackCanvas" width="240" height="160" class="w-full h-full object-cover hidden"></canvas>
+              <div class="absolute inset-2 border-2 border-dashed border-emerald-400/80 rounded-full pointer-events-none"></div>
+              <div id="examPipStatusText" class="absolute bottom-1 inset-x-1 bg-black/65 text-[9px] text-center text-emerald-300 py-0.5 rounded">
+                กำลังตรวจจับใบหน้า...
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Locked Banner if Course Already Finalized (Rule 8 Page 2 & Page 29) -->
+        <div id="examLockedFinalizedBanner" class="hidden p-8 text-center space-y-3 bg-emerald-50">
+          <div class="w-14 h-14 rounded-full bg-emerald-600 text-white mx-auto flex items-center justify-center text-2xl">
+            <i class="fa-solid fa-lock"></i>
+          </div>
+          <h4 class="font-bold text-emerald-950 text-base">คุณได้กดส่งผลการอบรมเรียบร้อยแล้ว</h4>
+          <p class="text-xs text-emerald-800">ตามระเบียบข้อที่ 8 เมื่อผู้เข้าอบรมกดส่งผลการอบรมเรียบร้อยแล้ว จะไม่สามารถกลับเข้ามายังหลักสูตรหรือทำข้อสอบซ้ำได้อีก</p>
+          <button onclick="switchMainTab('step6')" class="px-5 py-2.5 rounded-xl bg-blue-600 text-white font-bold text-xs">
+            ไปขั้นตอนที่ 06: รับใบรับรองการอบรม <i class="fa-solid fa-award ml-1"></i>
+          </button>
+        </div>
+
+        <!-- Exam Question Interactive Container (Fit-to-Screen Single-Page Layout) -->
+        <div id="examInteractiveContainer" class="p-6 space-y-5 relative overflow-hidden">
+          <!-- EXAM TAB SWITCH / FOCUS LOSS PAUSE OVERLAY BANNER -->
+          <div id="examTabSwitchOverlay" class="hidden absolute inset-0 bg-slate-950/95 backdrop-blur-md z-30 flex flex-col items-center justify-center p-6 text-center space-y-4 text-white">
+            <div class="w-16 h-16 rounded-full bg-rose-600 text-white flex items-center justify-center text-3xl shadow-lg animate-bounce">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div class="max-w-md space-y-1.5">
+              <h4 class="text-lg font-extrabold text-rose-400">⚠️ แจ้งเตือนการสลับหน้าจอระหว่างทำข้อสอบ (Exam Anti-Cheat Alert)</h4>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                ระบบตรวจพบว่าคุณสลับแท็บหรือคลิกออกจากหน้าต่างข้อสอบ พฤติกรรมนี้ถูกบันทึกพร้อมหักคะแนนความโปร่งใส (Integrity Score) ในระบบผู้ดูแลแล้ว
+              </p>
+              <div id="examTabSwitchOverlayStat" class="text-xs font-mono font-bold text-amber-300 pt-1">จำนวนครั้งที่สลับหน้าจอสะสม: 1 ครั้ง</div>
+            </div>
+            <button onclick="resumeFromExamTabSwitchOverlay()" class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg transition flex items-center gap-2">
+              <i class="fa-solid fa-pen-to-square"></i> รับทราบและกลับเข้าทำข้อสอบต่อ
+            </button>
+          </div>
+
+          <!-- Dynamic Anti-Leak Watermark inside Exam Room -->
+          <div id="examDynamicWatermark" class="pointer-events-none absolute inset-0 z-10 flex flex-wrap items-center justify-around opacity-10 select-none overflow-hidden">
+            <div class="transform -rotate-12 text-base font-mono font-extrabold text-slate-900 whitespace-nowrap p-8">VERZTEC LMS EXAM • 1100801279957</div>
+            <div class="transform -rotate-12 text-base font-mono font-extrabold text-slate-900 whitespace-nowrap p-8">VERZTEC LMS EXAM • 1100801279957</div>
+          </div>
+
+          <!-- FIT-TO-SCREEN EXAM RESULT SUMMARY PANEL (Replaces Question View on Finish — No Scrolling Needed!) -->
+          <div id="examResultSummaryBox" class="hidden p-6 rounded-2xl border-2 space-y-4 relative z-20 shadow-lg"></div>
+
+          <!-- QUESTION VIEW PANEL (Automatically hidden when Result Summary is displayed so everything fits in 1 screen) -->
+          <div id="examQuestionViewPanel" class="space-y-5 relative z-20">
+            <div class="flex items-center justify-between text-xs border-b border-slate-200 pb-3 flex-wrap gap-2">
+              <div class="flex items-center gap-2">
+                <span id="examQuestionProgressText" class="font-bold text-blue-800">ข้อที่ 1 จาก 5</span>
+                <span id="examShuffleBadge" class="bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full text-[10px] font-bold">
+                  <i class="fa-solid fa-shuffle mr-1"></i>สุ่มสลับลำดับข้อและตัวเลือกแล้ว
+                </span>
+              </div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <button onclick="reshuffleExamQuestions()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-2.5 py-1 rounded-lg border border-slate-300">
+                  <i class="fa-solid fa-dice mr-1"></i>สุ่มชุดลำดับข้อสอบใหม่
+                </button>
+                <button onclick="demoFillPassingExamAnswers()" class="text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold px-3 py-1 rounded-lg border border-emerald-200">
+                  <i class="fa-solid fa-check-double mr-1"></i>ตัวช่วยเลือกคำตอบที่ถูกทั้งหมด (ผ่าน 100%)
+                </button>
+              </div>
+            </div>
+
+            <!-- Current Question Box -->
+            <div id="examQuestionBox" class="space-y-4">
+              <!-- Populated by JS -->
+            </div>
+
+            <!-- Navigation Buttons (Page 28 Rule 2: Must select answer before moving to next question) -->
+            <div class="flex items-center justify-between pt-4 border-t border-slate-200">
+              <button id="btnExamPrev" onclick="prevExamQuestion()" class="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs">
+                <i class="fa-solid fa-arrow-left mr-1"></i> ย้อนก่อนหน้า
+              </button>
+              <button id="btnExamNext" onclick="nextExamQuestion()" class="px-6 py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs shadow">
+                ข้อถัดไป <i class="fa-solid fa-arrow-right ml-1"></i>
+              </button>
+              <button id="btnExamFinish" onclick="submitExamAttempt()" class="hidden px-7 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm shadow-lg animate-pulse">
+                <i class="fa-solid fa-paper-plane mr-1"></i> FINISH (ส่งกระดาษคำตอบและดูผลสอบทันที)
+              </button>
+            </div>
+          </div>
+
+          <!-- Exam Proctoring Simulator Toolbar (Same as Classroom) -->
+          <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 flex flex-wrap items-center justify-between gap-2 text-xs relative z-20">
+            <div class="font-bold text-amber-950">
+              <i class="fa-solid fa-shield-halved mr-1 text-amber-600"></i>ทดสอบระบบคุมสอบ AI ระหว่างทำข้อสอบ (Exam Proctoring Simulator):
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button onclick="triggerRandomFaceCheckModal()" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-sm">
+                <i class="fa-solid fa-camera-rotate mr-1"></i>จำลองสุ่มตรวจใบหน้าระหว่างสอบ
+              </button>
+              <button onclick="simulateTabSwitchEvent()" class="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold shadow-sm">
+                <i class="fa-solid fa-window-restore mr-1"></i>ทดสอบสลับแท็บระหว่างสอบ
+              </button>
+              <button onclick="triggerAntiCaptureSecurityShield('PrintScreen (ระหว่างทำข้อสอบ Post-Test)')" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold shadow-sm">
+                <i class="fa-solid fa-camera-slash mr-1"></i>ทดสอบกดปุ่ม PrintScreen แคปข้อสอบ
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- STEP 06: รับใบรับรองการอบรม & ยื่น e-Licensing คปภ. (PDF Page 30)        -->
+    <!-- ===================================================================== -->
+    <section id="section-step6" class="tab-section hidden space-y-6">
+      <div class="max-w-4xl mx-auto space-y-6">
+        <!-- OIC e-Licensing Rule Notice (Page 30 Orange Box) -->
+        <div class="bg-orange-500 text-white rounded-2xl p-5 shadow-md flex flex-col sm:flex-row items-center justify-between gap-4 no-print">
+          <div class="space-y-1">
+            <div class="text-xs font-bold uppercase tracking-wider opacity-90">ขั้นตอนที่ 06: การยื่นขอรับ/ขอต่อใบอนุญาต (หน้า 30)</div>
+            <div class="font-bold text-sm sm:text-base">
+              สามารถยื่นเอกสารเพื่อขอรับ/ขอต่อใบอนุญาตผ่านระบบ e-Licensing ของสำนักงาน คปภ. ได้หลังจากวันจบรอบอบรม 2 วันเป็นต้นไป และต้องดำเนินการก่อนวันที่ใบอนุญาตหมดอายุ
+            </div>
+          </div>
+          <button onclick="window.print()" class="shrink-0 px-5 py-2.5 rounded-xl bg-white text-orange-600 font-extrabold text-xs shadow hover:bg-orange-50 transition">
+            <i class="fa-solid fa-print mr-1"></i> พิมพ์ / ดาวน์โหลด PDF
+          </button>
+        </div>
+
+        <!-- Official Printable Certificate Card -->
+        <div id="certificatePrintArea" class="bg-white rounded-3xl shadow-xl border-8 border-double border-[#003781] p-8 sm:p-12 text-center relative overflow-hidden">
+          <div class="mx-auto inline-flex items-center justify-center bg-white px-5 py-2.5 rounded-2xl shadow-sm border border-slate-100 mb-3">
+            <img src="/verztec-logo.png" alt="Verztec" class="h-14 w-auto object-contain" />
+          </div>
+          <h2 class="font-extrabold text-xl sm:text-2xl text-[#003781]">VERZTEC® (เวอร์ซเทค คอนซัลติ้ง)</h2>
+          <p class="text-xs text-slate-500 mt-1">ใบรับรองการผ่านการอบรมออนไลน์ตามหลักเกณฑ์ของสำนักงานคณะกรรมการกำกับและส่งเสริมการประกอบธุรกิจประกันภัย (คปภ.)</p>
+
+          <div class="my-8 space-y-2">
+            <div class="text-xs text-slate-500">ขอมอบใบรับรองฉบับนี้ให้ไว้เพื่อแสดงว่า</div>
+            <div id="certStudentName" class="text-2xl sm:text-3xl font-extrabold text-[#003781] py-1">นาย ธนภัทร พิทักษ์ประกัน</div>
+            <div class="text-xs text-slate-600">เลขประจำตัวประชาชน: <b id="certIdCard" class="font-mono">1100801279957</b></div>
+          </div>
+
+          <div class="max-w-xl mx-auto bg-slate-50 rounded-2xl p-5 border border-slate-200 space-y-2 text-xs">
+            <div class="text-slate-500">ได้ผ่านการอบรมและสอบประเมินความรู้หลังการอบรมออนไลน์ (E-Learning LMS) ในหลักสูตร</div>
+            <div id="certCourseTitle" class="text-base font-bold text-slate-900">หลักสูตรขอรับใบอนุญาตเป็นนายหน้าประกันชีวิต (จำนวน 10 ชั่วโมง)</div>
+            <div class="flex flex-wrap justify-center gap-4 pt-2 text-slate-600">
+              <span>รหัสใบรับรอง: <b id="certCodeText" class="text-[#003781] font-mono">VERZTEC-CERT-2026-884920</b></span>
+              <span>วันที่ออกใบรับรอง: <b id="certDateText">22 ตุลาคม 2569</b></span>
+            </div>
+          </div>
+
+          <div class="mt-8 pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+            <div class="text-left">
+              <div class="font-bold text-emerald-700"><i class="fa-solid fa-shield-check mr-1"></i>ผ่านการตรวจสอบตัวตนด้วยระบบ e-KYC & AI Face Recognition</div>
+              <div>สถานะการส่งผลเข้าสู่ระบบ e-Licensing คปภ.: <b>พร้อมยื่นหลังจบรอบอบรม 2 วันทำการ</b></div>
+            </div>
+            <div class="text-center">
+              <div class="font-bold text-[#003781]">เวอร์ซเทค (Verztec Thailand)</div>
+              <div class="text-[11px]">ผู้รับรองผลการอบรมออนไลน์</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- ADMIN DASHBOARD, PROCTORING SETTINGS, ACTIVITY LOGS & PLUGIN SDK      -->
+    <!-- ===================================================================== -->
+    <section id="section-admin" class="tab-section hidden space-y-6">
+      <div class="bg-slate-900 text-white rounded-2xl p-6 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <span class="text-xs bg-amber-500 text-slate-950 font-extrabold px-2.5 py-0.5 rounded-full">VERZTEC® — ADMIN & PROCTORING CONTROL HUB</span>
+          <h2 class="text-lg font-bold mt-1">ระบบผู้ดูแลควบคุมการสอบ, ตั้งค่าเกณฑ์ AI Proctoring และบันทึกกิจกรรมผู้เรียน (User Activity Log)</h2>
+          <p class="text-xs text-slate-300">ใช้สำหรับตั้งค่านโยบายควบคุมการสอบ, อนุมัติ e-KYC 3 รูป, ตรวจสอบ User Activity Log ครบทุกกิจกรรมเพื่อประกอบการตัดสินใจ และเชื่อมต่อ API</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="exportActivityLogsCsv()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow transition">
+            <i class="fa-solid fa-file-csv mr-1"></i>Export Activity Log (CSV)
+          </button>
+          <button onclick="refreshSystemState()" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold">
+            <i class="fa-solid fa-rotate mr-1"></i>รีเฟรชข้อมูลล่าสุด
+          </button>
+        </div>
+      </div>
+
+      <!-- Admin Sub-navigation Tabs -->
+      <div class="bg-white rounded-xl p-2 shadow-sm border border-slate-200 flex flex-wrap gap-2 text-xs">
+        <button onclick="switchAdminSubTab('overview')" id="admin-subbtn-overview" class="px-4 py-2 rounded-lg font-bold bg-[#003781] text-white">
+          <i class="fa-solid fa-users-viewfinder mr-1"></i>1. อนุมัติ e-KYC & คะแนนความโปร่งใสของผู้เข้าสอบ
+        </button>
+        <button onclick="switchAdminSubTab('activity_logs')" id="admin-subbtn-activity_logs" class="px-4 py-2 rounded-lg font-bold text-slate-600 hover:bg-slate-100">
+          <i class="fa-solid fa-list-check mr-1"></i>2. บันทึกกิจกรรมผู้เรียนละเอียด (User Activity Log)
+        </button>
+        <button onclick="switchAdminSubTab('settings')" id="admin-subbtn-settings" class="px-4 py-2 rounded-lg font-bold text-slate-600 hover:bg-slate-100">
+          <i class="fa-solid fa-sliders mr-1"></i>3. ตั้งค่าควบคุมการสอบ (Proctoring Control Settings)
+        </button>
+        <button onclick="switchAdminSubTab('anti_cheat_guide')" id="admin-subbtn-anti_cheat_guide" class="px-4 py-2 rounded-lg font-bold text-slate-600 hover:bg-slate-100">
+          <i class="fa-solid fa-shield-halved mr-1"></i>4. ข้อเสนอแนะระบบป้องกันการทุจริตขั้นสูง & Plugin API
+        </button>
+      </div>
+
+      <!-- ADMIN SUB-VIEW 1: CANDIDATE e-KYC & INTEGRITY SCORE OVERVIEW -->
+      <div id="admin-view-overview" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+          <h3 class="font-bold text-base text-slate-900 mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-user-check text-blue-600"></i>
+            รายการผู้เข้าอบรม, คะแนนความโปร่งใส (Integrity Score) และการอนุมัติ e-KYC 3 รูป
+          </h3>
+          <div id="adminUsersContainer" class="space-y-4">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <div class="lg:col-span-5 bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+          <h3 class="font-bold text-base text-slate-900 mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-camera-retro text-emerald-600"></i>
+            เหตุการณ์แจ้งเตือน AI Proctoring ล่าสุด
+          </h3>
+          <div id="adminProctoringLogs" class="space-y-2.5 max-h-[500px] overflow-y-auto text-xs">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ADMIN SUB-VIEW 2: COMPREHENSIVE USER ACTIVITY LOG -->
+      <div id="admin-view-activity_logs" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
+          <div>
+            <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-clipboard-list text-blue-700"></i>
+              User Activity Log (บันทึกทุกกิจกรรมสำคัญระหว่างการลงทะเบียน เรียน และสอบ)
+            </h3>
+            <p class="text-xs text-slate-500">ใช้เป็นหลักฐานประกอบการพิจารณาของ Admin ในการอนุมัติผลสอบหรือตรวจสอบพฤติกรรมต้องสงสัย</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 text-xs">
+            <select id="filterActivityCategory" onchange="renderAdminActivityLogsTable()" class="border border-slate-300 rounded-lg px-3 py-1.5 bg-white font-semibold">
+              <option value="ALL">ทุกหมวดหมู่กิจกรรม (All Categories)</option>
+              <option value="ANTI_CHEAT">🚨 ป้องกันทุจริต / สลับแท็บ (ANTI_CHEAT)</option>
+              <option value="KYC">🪪 ยืนยันตัวตน e-KYC (KYC)</option>
+              <option value="CLASSROOM">🎬 ห้องเรียนวิดีโอ (CLASSROOM)</option>
+              <option value="EXAM">📝 การทำข้อสอบ (EXAM)</option>
+              <option value="AUTH">🔐 เข้าสู่ระบบ / ลงทะเบียน (AUTH)</option>
+            </select>
+            <select id="filterActivitySeverity" onchange="renderAdminActivityLogsTable()" class="border border-slate-300 rounded-lg px-3 py-1.5 bg-white font-semibold">
+              <option value="ALL">ทุกระดับความสำคัญ (All Severities)</option>
+              <option value="CRITICAL">CRITICAL (ร้ายแรง/ฝ่าฝืนกฎ)</option>
+              <option value="WARNING">WARNING (เฝ้าระวัง/สลับหน้าจอ)</option>
+              <option value="PASS">PASS (ผ่านเกณฑ์)</option>
+              <option value="INFO">INFO (กิจกรรมทั่วไป)</option>
+            </select>
+            <button onclick="clearAllActivityLogs()" class="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold">
+              ล้างประวัติ Log
+            </button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                <th class="py-2.5 px-3 font-bold">วัน-เวลา</th>
+                <th class="py-2.5 px-3 font-bold">ผู้เข้าอบรม (เลขบัตร)</th>
+                <th class="py-2.5 px-3 font-bold">หมวดหมู่</th>
+                <th class="py-2.5 px-3 font-bold">ระดับ</th>
+                <th class="py-2.5 px-3 font-bold">กิจกรรม (Action)</th>
+                <th class="py-2.5 px-3 font-bold">รายละเอียดประกอบการพิจารณา</th>
+              </tr>
+            </thead>
+            <tbody id="adminActivityLogsTableBody" class="divide-y divide-slate-200">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ADMIN SUB-VIEW 3: PROCTORING CONTROL SETTINGS MENU -->
+      <div id="admin-view-settings" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-6">
+        <div class="border-b border-slate-200 pb-4 flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-sliders text-blue-700"></i>
+              เมนูตั้งค่าควบคุมการเรียนและการสอบ (Admin Proctoring Control Policy)
+            </h3>
+            <p class="text-xs text-slate-500">ปรับแต่งความเข้มงวดของ AI Face Verification, การตรวจจับการสลับแท็บ, ความยาวบทเรียน Demo และเกณฑ์การสอบผ่าน</p>
+          </div>
+          <button onclick="saveAdminProctorSettings()" class="px-6 py-2.5 rounded-xl bg-[#003781] hover:bg-blue-900 text-white font-bold text-xs shadow-lg transition flex items-center gap-2">
+            <i class="fa-solid fa-floppy-disk"></i> บันทึกการตั้งค่าควบคุมการสอบ
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 text-xs">
+          <!-- Box 1: Video & Timeout Rules -->
+          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+            <div class="font-bold text-sm text-blue-950 flex items-center gap-2">
+              <i class="fa-solid fa-clock text-blue-600"></i> 1. ตั้งค่าเวลาเรียน & Timeout
+            </div>
+            <div class="p-2.5 rounded-xl bg-amber-50 border border-amber-200 space-y-1.5">
+              <div class="font-extrabold text-[11px] text-amber-900">⚡ ปุ่มตั้งค่าลัดสำหรับพรีเซนต์ลูกค้า:</div>
+              <div class="grid grid-cols-2 gap-1.5">
+                <button type="button" onclick="applyAdminQuickPreset('azay-torean')" class="py-1.5 px-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-[11px] shadow">
+                  ⚡ verztec-torean (15วิ/บท)
+                </button>
+                <button type="button" onclick="applyAdminQuickPreset('standard')" class="py-1.5 px-2 rounded-lg bg-blue-700 hover:bg-blue-800 text-white font-bold text-[11px] shadow">
+                  🏛️ มาตรฐาน คปภ. (เวลาจริง)
+                </button>
+              </div>
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">ความยาวเนื้อหาบทเรียน (วินาที • 0 = เวลาคลิปจริง, 15 = เดโมไว)</label>
+              <input type="number" id="setLessonDurationSec" value="0" min="0" max="3600" class="w-full border border-slate-300 rounded-xl px-3 py-2 font-mono font-bold text-sm bg-white" />
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">เวลาตอบสนองเมื่อสุ่มตรวจใบหน้า (วินาที - มาตรฐาน 120s / เดโม 20s)</label>
+              <input type="number" id="setRandomPromptTimeoutSec" value="120" min="10" max="600" class="w-full border border-slate-300 rounded-xl px-3 py-2 font-mono font-bold text-sm bg-white" />
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">เวลาอนุญาตให้นิ่งสูงสุด (Inactivity วินาที - มาตรฐาน 900s / เดโม 30s)</label>
+              <input type="number" id="setInactivityTimeoutSec" value="900" min="15" max="3600" class="w-full border border-slate-300 rounded-xl px-3 py-2 font-mono font-bold text-sm bg-white" />
+            </div>
+          </div>
+
+          <!-- Box 2: AI Face Verification Thresholds -->
+          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+            <div class="font-bold text-sm text-blue-950 flex items-center gap-2">
+              <i class="fa-solid fa-face-viewfinder text-emerald-600"></i> 2. เกณฑ์ความแม่นยำ AI Face Verification
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">เกณฑ์ความเหมือนใบหน้าขั้นต่ำ (% Similarity)</label>
+              <input type="number" id="setFaceMatchThresholdPct" value="72" min="50" max="95" class="w-full border border-slate-300 rounded-xl px-3 py-2 font-mono font-bold text-sm bg-white" />
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">ค่า Euclidean Distance สูงสุดที่ยอมรับ (ยิ่งน้อยยิ่งเข้มงวด)</label>
+              <input type="number" step="0.02" id="setEuclideanThreshold" value="0.58" min="0.35" max="0.80" class="w-full border border-slate-300 rounded-xl px-3 py-2 font-mono font-bold text-sm bg-white" />
+            </div>
+            <label class="flex items-center gap-2 cursor-pointer pt-1">
+              <input type="checkbox" id="setDetectMultipleFaces" checked class="w-4 h-4 rounded text-blue-600" />
+              <span class="font-semibold text-slate-800">ตรวจจับและเตือนเมื่อมีบุคคลอื่นเข้ามาในเฟรม (>1 ใบหน้า)</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="setDetectHeadPoseLookingAway" checked class="w-4 h-4 rounded text-blue-600" />
+              <span class="font-semibold text-slate-800">ตรวจจับการหันหน้าหนีจอ (Head Pose / Gaze Deviation)</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="setEnableActiveLivenessChallenge" checked class="w-4 h-4 rounded text-blue-600" />
+              <span class="font-semibold text-slate-800">เปิดระบบสุ่มสั่งท่าทาง Active Liveness (หันซ้าย/ขวา/กะพริบตา)</span>
+            </label>
+          </div>
+
+          <!-- Box 3: Anti-Cheat Browser Lock & Exam Rules -->
+          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+            <div class="font-bold text-sm text-blue-950 flex items-center gap-2">
+              <i class="fa-solid fa-shield-cat text-rose-600"></i> 3. การล็อกเบราว์เซอร์ & เกณฑ์สอบผ่าน
+            </div>
+            <label class="flex items-start gap-2 cursor-pointer p-2 rounded-xl bg-amber-50 border border-amber-200">
+              <input type="checkbox" id="setEnforceFullscreenMode" checked class="w-4 h-4 mt-0.5 rounded text-blue-600" />
+              <div>
+                <span class="font-extrabold text-amber-950 block">บังคับแสดงผลเต็มจออัตโนมัติ (Enforce Full Screen Lock)</span>
+                <span class="text-[11px] text-amber-800">เปิด Full Screen ทันทีที่เข้าห้องเรียน/ห้องสอบ และล็อกหน้าจอหากผู้เรียนกดย่อจอ (ESC)</span>
+              </div>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="setPauseOnTabSwitch" checked class="w-4 h-4 rounded text-blue-600" />
+              <span class="font-semibold text-slate-800">หยุดวิดีโออัตโนมัติและแจ้งเตือนทันทีเมื่อเปิดแท็บอื่น</span>
+            </label>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">จำนวนครั้งที่อนุญาตให้สลับแท็บก่อนขึ้นสถานะเสี่ยงทุจริต</label>
+              <input type="number" id="setMaxTabSwitchWarnings" value="5" min="1" max="20" class="w-full border border-slate-300 rounded-xl px-3 py-2 font-mono font-bold text-sm bg-white" />
+            </div>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="setBlockCopyPasteRightClick" checked class="w-4 h-4 rounded text-blue-600" />
+              <span class="font-semibold text-slate-800">บล็อกคลิกขวา / Copy-Paste / PrintScreen ในห้องสอบ</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="setEnableVoiceNoiseDetection" checked class="w-4 h-4 rounded text-blue-600" />
+              <span class="font-semibold text-slate-800">ตรวจจับเสียงพูดคุยในห้องสอบ (Acoustic VAD)</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="setEnableMultiMonitorDetection" checked class="w-4 h-4 rounded text-blue-600" />
+              <span class="font-semibold text-slate-800">ตรวจจับการต่อหน้าจอที่สอง (Multi-Monitor Guard)</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="setEnableDynamicWatermark" checked class="w-4 h-4 rounded text-blue-600" />
+              <span class="font-semibold text-slate-800">แสดงลายน้ำเลขบัตร ปชช. ป้องกันการถ่ายจอ (Watermark)</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="setEnableQuestionChoiceShuffle" checked class="w-4 h-4 rounded text-blue-600" />
+              <span class="font-semibold text-slate-800">สุ่มสลับลำดับข้อสอบและตัวเลือก ก-ข-ค-ง อัตโนมัติ</span>
+            </label>
+            <div class="grid grid-cols-2 gap-2 pt-1">
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">เกณฑ์สอบผ่าน (%)</label>
+                <input type="number" id="setExamPassPercentage" value="60" min="50" max="100" class="w-full border border-slate-300 rounded-xl px-2.5 py-1.5 font-mono font-bold bg-white" />
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">จำนวนครั้งสอบสูงสุด</label>
+                <input type="number" id="setMaxExamAttempts" value="5" min="1" max="10" class="w-full border border-slate-300 rounded-xl px-2.5 py-1.5 font-mono font-bold bg-white" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADMIN SUB-VIEW 4: ANTI-CHEAT RECOMMENDATIONS & PLUGIN API -->
+      <div id="admin-view-anti_cheat_guide" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+          <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-lightbulb text-amber-500"></i>
+            ข้อเสนอแนะระบบตรวจจับและป้องกันการทุจริตขั้นสูง (Proctoring Best Practices)
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-3.5 rounded-xl bg-blue-50/70 border border-blue-200 space-y-1">
+              <div class="font-bold text-blue-950">1. Active & Passive Liveness Detection</div>
+              <p class="text-slate-600">ตรวจจับการกะพริบตา (Eye Aspect Ratio) และการหันซ้าย-ขวาตามคำสั่งสุ่ม เพื่อป้องกันการใช้ภาพนิ่งหรือวิดีโออัดล่วงหน้ามาเปิดหน้ากล้อง</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-blue-50/70 border border-blue-200 space-y-1">
+              <div class="font-bold text-blue-950">2. Head Pose & Eye Gaze Tracking</div>
+              <p class="text-slate-600">คำนวณองศาการหันหน้า (Yaw/Pitch) จากจุด 68 Landmarks หากผู้สอบก้มมองโพยหรือหันมองจอที่สองต่อเนื่องเกิน 5 วินาที ระบบจะบันทึกภาพพร้อมแจ้งเตือน</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-blue-50/70 border border-blue-200 space-y-1">
+              <div class="font-bold text-blue-950">3. Browser Lockdown & Tab Focus Guard</div>
+              <p class="text-slate-600">ดักจับ Visibility API, Window Blur, การกดปุ่มลัด Copy/Paste/PrintScreen และการเปิด DevTools พร้อมหยุดเวลาเรียนทันทีที่สลับหน้าจอ</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-blue-50/70 border border-blue-200 space-y-1">
+              <div class="font-bold text-blue-950">4. Audio & Secondary Device Detection</div>
+              <p class="text-slate-600">ตรวจวัดระดับเสียงพูดคุยในห้องสอบ (Web Audio API VAD) และตรวจจับการเสียบหน้าจอที่สอง (Multi-Monitor Detection)</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200 space-y-1 sm:col-span-2">
+              <div class="font-bold text-emerald-950">5. Candidate Trust & Integrity Score (คะแนนความโปร่งใสรายบุคคล)</div>
+              <p class="text-slate-600">ระบบคำนวณคะแนนเต็ม 100% และหักคะแนนอัตโนมัติตามความรุนแรงของเหตุการณ์ (เช่น สลับแท็บ -3%, ไม่พบใบหน้า -5%, พบคนอื่นในเฟรม -15%) เพื่อให้ Admin ตัดสินใจอนุมัติใบรับรองได้อย่างรวดเร็วและเป็นธรรม</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-5 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+          <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-plug-circle-bolt text-indigo-600"></i>
+            REST API สำหรับเชื่อมต่อระบบสอบเดิม
+          </h3>
+          <pre class="bg-slate-900 text-emerald-400 p-3.5 rounded-xl overflow-x-auto font-mono text-[11px]">POST /api/kyc/submit          # ส่งภาพ 3 รูปตรวจ AI + 68 Landmarks
+POST /api/proctoring/verify-face # สุ่มตรวจใบหน้าระหว่างเรียน/สอบ
+POST /api/activity/log        # บันทึก User Activity Log ทุกเหตุการณ์
+POST /api/admin/settings      # ตั้งค่านโยบายควบคุมการสอบ
+POST /api/exam/submit         # ส่งกระดาษคำตอบและตรวจผลสอบ</pre>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ======================================================================= -->
+  <!-- MODAL 1: CAMERA CAPTURE FOR 3-STEP e-KYC (Matches Pages 17, 18, 20)     -->
+  <!-- ======================================================================= -->
+  <div id="kycCameraModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full overflow-hidden shadow-2xl border border-slate-200">
+      <div class="bg-slate-900 text-white px-5 py-3.5 flex items-center justify-between">
+        <h4 id="kycModalTitle" class="font-bold text-sm">จัดตำแหน่งบัตรของคุณให้อยู่ในกรอบ</h4>
+        <button onclick="closeKycCameraModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <div class="p-5 space-y-4">
+        <!-- Instructions Callout (Red Box from PDF Pages 17, 18, 20) -->
+        <div id="kycModalInstructions" class="p-3.5 rounded-xl bg-rose-600 text-white text-xs space-y-1 shadow"></div>
+
+        <!-- Live Video with Guide Frame Overlay -->
+        <div class="relative bg-slate-950 rounded-2xl overflow-hidden aspect-video flex items-center justify-center">
+          <video id="kycModalVideo" autoplay playsinline muted class="w-full h-full object-cover transform scale-x-[-1]"></video>
+          <canvas id="kycModalFallbackCanvas" width="480" height="320" class="w-full h-full object-cover hidden"></canvas>
+          <!-- Overlay Frame (Switches between ID Card rectangle and Face Oval) -->
+          <div id="kycOverlayGuide" class="absolute pointer-events-none"></div>
+        </div>
+
+        <div class="flex items-center justify-between gap-3">
+          <button onclick="captureKycFromSimulation()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs">
+            ใช้ภาพจำลองมาตรฐาน (กรณีไม่มีกล้อง)
+          </button>
+          <button onclick="captureKycFromWebcam()" class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow flex items-center gap-2">
+            <i class="fa-solid fa-camera"></i> คลิกปุ่ม "รูปกล้อง" เพื่อถ่ายภาพ
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- MODAL 2: RANDOM PROCTORING 2-MINUTE COUNTDOWN (Matches Page 25)         -->
+  <!-- ======================================================================= -->
+  <div id="randomProctorModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl border-2 border-rose-500">
+      <div class="bg-rose-600 text-white px-5 py-3.5 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-user-Check text-lg"></i>
+          <span class="font-bold text-sm">Face Recognition: ยืนยันตัวตนระหว่างการอบรม (หน้า 25)</span>
+        </div>
+        <span id="proctor2MinDisplay" class="font-mono font-extrabold text-base bg-black/30 px-2.5 py-0.5 rounded">02:00</span>
+      </div>
+
+      <div class="p-5 space-y-4 text-xs">
+        <div class="p-3 rounded-xl bg-amber-50 border border-amber-300 text-amber-950 font-semibold">
+          ⚠️ หากผู้เข้าอบรมไม่มีการตอบสนองภายใน <b>2 นาที</b> ผู้อบรมจะถูกนำออกจากระบบโดยอัตโนมัติ และย้อนเวลากลับไปยังจุด Checkpoint ล่าสุด!
+        </div>
+
+        <!-- Active Liveness Challenge Banner -->
+        <div id="activeLivenessBanner" class="p-3 rounded-xl bg-indigo-950 text-white border border-indigo-500 flex items-center justify-between gap-2">
+          <div>
+            <span class="bg-sky-500 text-slate-950 font-extrabold px-2 py-0.5 rounded text-[10px] mr-1">ACTIVE LIVENESS</span>
+            <span id="livenessChallengeInstruction" class="font-bold text-sky-200">โจทย์ท้าทายป้องกันภาพถ่าย: กรุณามองตรงและกะพริบตา หรือหันหน้าซ้าย-ขวาเล็กน้อย</span>
+          </div>
+          <span id="livenessChallengeStatusBadge" class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold text-[10px] shrink-0">รอตรวจท่าทาง...</span>
+        </div>
+
+        <div class="relative bg-slate-950 rounded-2xl overflow-hidden aspect-video flex items-center justify-center">
+          <video id="proctorModalVideo" autoplay playsinline muted class="w-full h-full object-cover transform scale-x-[-1]"></video>
+          <canvas id="proctorModalFallbackCanvas" width="480" height="320" class="w-full h-full object-cover hidden"></canvas>
+          <div class="w-40 h-52 face-oval-frame absolute pointer-events-none"></div>
+        </div>
+
+        <button onclick="confirmRandomProctorFace()" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-lg flex items-center justify-center gap-2">
+          <i class="fa-solid fa-camera"></i> คลิกปุ่ม "รูปกล้อง" เพื่อยืนยันใบหน้าและเรียนต่อ
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- MODAL 4: TEAM REVIEW & SHARE HUB (LAN URL + Cloud Tunnel Instructions)  -->
+  <!-- ======================================================================= -->
+  <div id="teamShareModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl border border-slate-200">
+      <div class="tii-gradient text-white px-5 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <i class="fa-solid fa-share-nodes text-xl text-emerald-300"></i>
+          <div>
+            <h4 class="font-bold text-sm">แชร์ระบบให้ทีมร่วม Review & ทดสอบ (Team Review Hub)</h4>
+            <p class="text-[11px] text-sky-100">Verztec E-Learning LMS & AI Proctoring Platform (verztec.co.th)</p>
+          </div>
+        </div>
+        <button onclick="closeTeamShareModal()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <div class="p-6 space-y-5 text-xs">
+        <!-- Permanent Internet HTTPS URL (Only Internet Mode - No LAN) -->
+        <div class="p-4 rounded-2xl bg-blue-50 border border-blue-200 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-blue-950 text-sm">
+              <i class="fa-solid fa-globe mr-1.5 text-blue-600"></i>ลิงก์สาธารณะบนอินเทอร์เน็ต (Permanent Cloud HTTPS URL)
+            </span>
+            <span class="px-2.5 py-0.5 rounded-full bg-emerald-600 text-white font-bold text-[10px]">Online 24/7 (ไม่ต้องใส่รหัสผ่าน)</span>
+          </div>
+          <p class="text-slate-600 leading-relaxed">
+            ส่งลิงก์ HTTPS ด้านล่างนี้ให้ทีมคลิกเปิดใช้งานผ่านอินเทอร์เน็ตได้จากทุกที่ตลอด 24 ชม. (รองรับการเปิดกล้อง Webcam ผ่านมือถือ แท็บเล็ต และคอมพิวเตอร์ทุกเครื่อง):
+          </p>
+          <div class="flex items-center gap-2">
+            <input id="sharePublicHttpsInput" type="text" readonly value="https://azaylms.onrender.com/verztec" class="flex-1 bg-white border border-blue-300 rounded-xl px-3.5 py-2 font-mono font-bold text-sm text-blue-950" />
+            <button onclick="copyShareUrl('sharePublicHttpsInput')" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold">
+              <i class="fa-regular fa-copy mr-1"></i>คัดลอกลิงก์
+            </button>
+          </div>
+        </div>
+
+        <!-- Review Checklist for Team -->
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
+          <div class="font-bold text-slate-900"><i class="fa-solid fa-clipboard-check mr-1.5 text-indigo-600"></i>จุดเด่นที่แนะนำให้ทีมทดสอบ (Reviewer Checklist):</div>
+          <ul class="list-disc list-inside text-slate-600 space-y-1">
+            <li><b>Step 01–03:</b> ทดสอบกฎเช็ควันหมดอายุบัตรล่วงหน้า 2 วันทำการ, QR Code 15 นาที และกฎตั้งรหัสผ่าน</li>
+            <li><b>Step 04.2 (Real AI e-KYC):</b> ถ่ายภาพ 3 รูปจริงเพื่อดูโมเดล <b>ResNet-34 + 68 Landmarks</b> คำนวณความเหมือนใบหน้า</li>
+            <li><b>Step 04.3 (AI Proctoring):</b> ทดสอบปุ่มซ่อนกล้อง AI, ทดสอบสลับไปเปิดแท็บอื่น (วิดีโอหยุดทันที), หันหน้าหนีจอ, และสุ่มตรวจใบหน้าพร้อมโจทย์ท้าทาย Active Liveness</li>
+            <li><b>Step 05 & Admin Hub:</b> ทดสอบการสุ่มสลับข้อสอบ/ตัวเลือก, ลายน้ำป้องกันการถ่ายจอ, ตาราง <b>User Activity Log</b> และเมนูตั้งค่าควบคุมการสอบ</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- MODAL 3: SIMULATED EMAIL INBOX (Shows all TII automated emails)         -->
+  <!-- ======================================================================= -->
+  <div id="inboxModal" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl border border-slate-200">
+      <div class="bg-slate-900 text-white px-5 py-3.5 flex items-center justify-between">
+        <h4 class="font-bold text-sm flex items-center gap-2">
+          <i class="fa-solid fa-envelope-open-text text-amber-300"></i>
+          กล่องอีเมลจำลองของผู้เข้าอบรม (Verztec LMS Automated Emails)
+        </h4>
+        <button onclick="toggleInboxModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div id="inboxEmailsList" class="p-5 space-y-3 max-h-[70vh] overflow-y-auto text-xs">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <script src="/verztec-app.js"></script>
+</body>
+</html>
