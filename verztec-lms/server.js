@@ -11,9 +11,21 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// If BRAND_THEME=verztec is configured on this instance, serve verztec.html as the root index page
-app.get('/', (req, res, next) => {
-  if (process.env.BRAND_THEME === 'verztec') {
+function isVerztecHostOrTheme(req) {
+  const host = ((req && req.headers && req.headers.host) || '').toLowerCase();
+  const extUrl = (process.env.RENDER_EXTERNAL_URL || '').toLowerCase();
+  const svcName = (process.env.RENDER_SERVICE_NAME || '').toLowerCase();
+  return (
+    process.env.BRAND_THEME === 'verztec' ||
+    host.includes('verztec') ||
+    extUrl.includes('verztec') ||
+    svcName.includes('verztec')
+  );
+}
+
+// Automatically serve verztec.html as root index page when accessed via verztec.onrender.com or BRAND_THEME=verztec
+app.get(['/', '/index.html'], (req, res, next) => {
+  if (isVerztecHostOrTheme(req)) {
     return res.sendFile(path.join(__dirname, 'public', 'verztec.html'));
   }
   next();
@@ -962,7 +974,7 @@ app.get(['/azay-torean', '/azay-torean/*'], (req, res) => {
   };
   applyCustomLessonDurationToCourses(db);
   saveDB(db);
-  res.sendFile(path.join(__dirname, 'public', process.env.BRAND_THEME === 'verztec' ? 'verztec.html' : 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', isVerztecHostOrTheme(req) ? 'verztec.html' : 'index.html'));
 });
 
 // Dedicated URL entry points for the cloned "Verztec" website (Standard & 15s Fast Demo Mode)
@@ -1010,20 +1022,25 @@ const os = require('os');
 const https = require('https');
 const { spawn } = require('child_process');
 
-const RENDER_PUBLIC_URL = process.env.RENDER_EXTERNAL_URL || 'https://azaylms.onrender.com';
+const RENDER_PUBLIC_URL =
+  process.env.RENDER_EXTERNAL_URL ||
+  (process.env.BRAND_THEME === 'verztec' ? 'https://verztec.onrender.com' : 'https://azaylms.onrender.com');
 
 // 24/7 Cloud Keep-Alive Self-Pinger (Prevents Render Free Tier from spinning down after 15 mins of inactivity)
 function startCloudKeepAliveLoop() {
   const intervalMs = 10 * 60 * 1000; // Every 10 minutes
-  console.log(`[Keep-Alive] Activated 24/7 Cloud Keep-Alive pinger for ${RENDER_PUBLIC_URL} (every 10 mins)`);
+  const targetUrls = Array.from(new Set([RENDER_PUBLIC_URL, 'https://azaylms.onrender.com', 'https://verztec.onrender.com']));
+  console.log(`[Keep-Alive] Activated 24/7 Cloud Keep-Alive pinger for ${targetUrls.join(' & ')} (every 10 mins)`);
   setInterval(() => {
-    https
-      .get(`${RENDER_PUBLIC_URL}/api/ping`, res => {
-        console.log(`[Keep-Alive] Ping ${RENDER_PUBLIC_URL}/api/ping -> Status ${res.statusCode}`);
-      })
-      .on('error', err => {
-        console.warn(`[Keep-Alive] Ping warning: ${err.message}`);
-      });
+    targetUrls.forEach(baseUrl => {
+      https
+        .get(`${baseUrl}/api/ping`, res => {
+          console.log(`[Keep-Alive] Ping ${baseUrl}/api/ping -> Status ${res.statusCode}`);
+        })
+        .on('error', err => {
+          console.warn(`[Keep-Alive] Ping warning (${baseUrl}): ${err.message}`);
+        });
+    });
   }, intervalMs);
 }
 
@@ -1092,7 +1109,9 @@ app.get('/api/share-info', (req, res) => {
   res.json({
     localUrl: `http://localhost:${PORT}`,
     lanUrls: getLocalNetworkUrls(PORT),
-    publicHttpsUrl: currentCloudflarePublicUrl || RENDER_PUBLIC_URL
+    publicHttpsUrl:
+      currentCloudflarePublicUrl ||
+      (isVerztecHostOrTheme(req) ? 'https://verztec.onrender.com' : RENDER_PUBLIC_URL)
   });
 });
 

@@ -24,7 +24,7 @@ services:
         value: azay-torean
 
   - type: web
-    name: verzteclms
+    name: verztec
     runtime: node
     plan: free
     buildCommand: npm install
