@@ -66,36 +66,36 @@ const INITIAL_DB = {
       lessons: [
         {
           id: 'L1',
-          youtubeId: 'mqcsLggV9LI',
-          youtubeUrl: 'https://www.youtube.com/watch?v=mqcsLggV9LI',
-          section: 'ก. ภาพรวมองค์กรและพันธกิจ VERZTEC® (Verztec)',
-          title: '1. VERZTEC® บริษัทประกันที่เคียงข้างคุณทุกจังหวะชีวิต',
-          realDurationSec: 167,
-          durationSec: 167,
-          displayDuration: '02:47 นาที (YouTube Official)',
-          checkpoints: [45, 115]
+          youtubeId: 'G10HArmYW4Q',
+          youtubeUrl: 'https://www.youtube.com/watch?v=G10HArmYW4Q',
+          section: 'ก. ความรู้พื้นฐานด้านการประกันภัยและบทบาทของสำนักงาน คปภ.',
+          title: '1. ทำความรู้จักสำนักงาน คปภ. และการคุ้มครองสิทธิประโยชน์ด้านการประกันภัย',
+          realDurationSec: 217,
+          durationSec: 217,
+          displayDuration: '03:37 นาที (ความรู้พื้นฐาน คปภ.)',
+          checkpoints: [60, 150]
         },
         {
           id: 'L2',
-          youtubeId: 'lBa6fWSb_94',
-          youtubeUrl: 'https://www.youtube.com/watch?v=lBa6fWSb_94',
-          section: 'ข. นวัตกรรมดิจิทัลและการบริหารจัดการกรมธรรม์',
-          title: '2. การบริหารจัดการกรมธรรม์และบริการดิจิทัลผ่านแอปฯ My Allianz',
-          realDurationSec: 327,
-          durationSec: 327,
-          displayDuration: '05:27 นาที (YouTube Official)',
-          checkpoints: [90, 220]
+          youtubeId: 'M_jcdqHPiFo',
+          youtubeUrl: 'https://www.youtube.com/watch?v=M_jcdqHPiFo',
+          section: 'ข. ประเภทของสัญญาประกันชีวิตและการวางแผนความคุ้มครอง',
+          title: '2. ประเภทของการประกันชีวิตและหลักการเลือกแบบประกันชีวิตให้เหมาะสม',
+          realDurationSec: 278,
+          durationSec: 278,
+          displayDuration: '04:38 นาที (ความรู้การประกันชีวิต)',
+          checkpoints: [80, 190]
         },
         {
           id: 'L3',
-          youtubeId: 'xnT8CFcnEIk',
-          youtubeUrl: 'https://www.youtube.com/watch?v=xnT8CFcnEIk',
-          section: 'ค. สิทธิประโยชน์ของผู้รับประโยชน์และการเรียกร้องสินไหม',
-          title: '3. ขั้นตอนการแจ้งเคลมประกันชีวิตและสิทธิประโยชน์ตามกรมธรรม์',
-          realDurationSec: 76,
-          durationSec: 76,
-          displayDuration: '01:16 นาที (YouTube Official)',
-          checkpoints: [30, 60]
+          youtubeId: 'qLwRqTvYZ58',
+          youtubeUrl: 'https://www.youtube.com/watch?v=qLwRqTvYZ58',
+          section: 'ค. สิทธิประโยชน์ตามกรมธรรม์และการเรียกร้องค่าสินไหมทดแทน',
+          title: '3. สิทธิประโยชน์ของผู้เอาประกันภัยและข้อควรรู้ก่อนทำสัญญาประกันชีวิต (คปภ.)',
+          realDurationSec: 124,
+          durationSec: 124,
+          displayDuration: '02:04 นาที (สำนักงาน คปภ. OIC)',
+          checkpoints: [40, 90]
         }
       ],
       examQuestions: [

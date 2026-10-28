@@ -1123,11 +1123,59 @@ async function refreshSystemState() {
     const res = await fetch('/api/state?brand=verztec');
     appState = await res.json();
     if (appState.courses) {
+      const generalInsuranceLessons = {
+        L1: {
+          youtubeId: 'G10HArmYW4Q',
+          youtubeUrl: 'https://www.youtube.com/watch?v=G10HArmYW4Q',
+          section: 'ก. ความรู้พื้นฐานด้านการประกันภัยและบทบาทของสำนักงาน คปภ.',
+          title: '1. ทำความรู้จักสำนักงาน คปภ. และการคุ้มครองสิทธิประโยชน์ด้านการประกันภัย',
+          realDurationSec: 217,
+          defaultDisplayDuration: '03:37 นาที (ความรู้พื้นฐาน คปภ.)',
+          defaultCheckpoints: [60, 150]
+        },
+        L2: {
+          youtubeId: 'M_jcdqHPiFo',
+          youtubeUrl: 'https://www.youtube.com/watch?v=M_jcdqHPiFo',
+          section: 'ข. ประเภทของสัญญาประกันชีวิตและการวางแผนความคุ้มครอง',
+          title: '2. ประเภทของการประกันชีวิตและหลักการเลือกแบบประกันชีวิตให้เหมาะสม',
+          realDurationSec: 278,
+          defaultDisplayDuration: '04:38 นาที (ความรู้การประกันชีวิต)',
+          defaultCheckpoints: [80, 190]
+        },
+        L3: {
+          youtubeId: 'qLwRqTvYZ58',
+          youtubeUrl: 'https://www.youtube.com/watch?v=qLwRqTvYZ58',
+          section: 'ค. สิทธิประโยชน์ตามกรมธรรม์และการเรียกร้องค่าสินไหมทดแทน',
+          title: '3. สิทธิประโยชน์ของผู้เอาประกันภัยและข้อควรรู้ก่อนทำสัญญาประกันชีวิต (คปภ.)',
+          realDurationSec: 124,
+          defaultDisplayDuration: '02:04 นาที (สำนักงาน คปภ. OIC)',
+          defaultCheckpoints: [40, 90]
+        }
+      };
+      const customDur = Number(appState.proctorSettings && appState.proctorSettings.lessonDurationSec) || 0;
       appState.courses.forEach(c => {
         if (c.lessons) {
           c.lessons.forEach(l => {
-            l.section = rebrandTextForVerztec(l.section);
-            l.title = rebrandTextForVerztec(l.title);
+            const gen = generalInsuranceLessons[l.id];
+            if (gen) {
+              l.youtubeId = gen.youtubeId;
+              l.youtubeUrl = gen.youtubeUrl;
+              l.section = gen.section;
+              l.title = gen.title;
+              l.realDurationSec = gen.realDurationSec;
+              if (customDur > 0 && customDur !== 60) {
+                l.durationSec = customDur;
+                l.displayDuration = `⚡ โหมดเดโม ${customDur} วินาที (จากคลิปจริง ${Math.floor(gen.realDurationSec / 60)}:${String(gen.realDurationSec % 60).padStart(2, '0')} นาที)`;
+                l.checkpoints = [Math.max(4, Math.floor(customDur / 2))];
+              } else {
+                l.durationSec = gen.realDurationSec;
+                l.displayDuration = gen.defaultDisplayDuration;
+                l.checkpoints = gen.defaultCheckpoints;
+              }
+            } else {
+              l.section = rebrandTextForVerztec(l.section);
+              l.title = rebrandTextForVerztec(l.title);
+            }
           });
         }
       });
@@ -2287,7 +2335,7 @@ function initOrSyncYouTubePlayer() {
   if (!container || !window.YT || !window.YT.Player) return;
 
   const lesson = getActiveLesson();
-  const videoId = (lesson && lesson.youtubeId) || 'mqcsLggV9LI';
+  const videoId = (lesson && lesson.youtubeId) || 'G10HArmYW4Q';
 
   if (!ytPlayer) {
     currentLoadedYoutubeId = videoId;
