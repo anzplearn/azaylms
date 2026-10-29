@@ -8,7 +8,7 @@
   <script src="/ai-lib/face-api.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=Prompt:wght@500;600;700;800&family=Sarabun:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <style>
     :root {
@@ -19,12 +19,67 @@
       --vt-surface: #f5f5f1;
       --vt-surface-2: #efeee8;
       --vt-text: #171717;
-      --vt-muted: #666666;
+      --vt-muted: #555555;
+      --vt-font-scale: 1;
     }
     body {
-      font-family: 'Prompt', 'Space Grotesk', 'Sarabun', sans-serif;
+      font-family: 'Noto Sans Thai', 'Sarabun', 'Prompt', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background-color: var(--vt-surface);
       color: var(--vt-text);
+      font-size: calc(14.5px * var(--vt-font-scale, 1));
+      line-height: 1.68;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+      letter-spacing: 0.01em;
+    }
+    h1, h2, h3, h4, .font-heading {
+      font-family: 'Prompt', 'Noto Sans Thai', sans-serif;
+      letter-spacing: 0.015em;
+      line-height: 1.35;
+    }
+    /* Smooth line-height for Thai vowels and tone marks */
+    p, label, li, span, td, th {
+      line-height: 1.65;
+    }
+    /* Mobile-Specific Readability & Touch Target Optimizations */
+    @media (max-width: 640px) {
+      body {
+        font-size: calc(14px * var(--vt-font-scale, 1));
+        line-height: 1.68;
+      }
+      .text-xs {
+        font-size: calc(0.8125rem * var(--vt-font-scale, 1)) !important; /* ~13px */
+        line-height: 1.58 !important;
+      }
+      .text-\[10px\],
+      .text-\[9px\] {
+        font-size: calc(0.725rem * var(--vt-font-scale, 1)) !important; /* ~11.6px */
+        line-height: 1.45 !important;
+      }
+      .text-\[11px\] {
+        font-size: calc(0.775rem * var(--vt-font-scale, 1)) !important; /* ~12.4px */
+        line-height: 1.48 !important;
+      }
+      .text-sm {
+        font-size: calc(0.9375rem * var(--vt-font-scale, 1)) !important; /* ~15px */
+        line-height: 1.62 !important;
+      }
+      input[type="text"],
+      input[type="password"],
+      input[type="email"],
+      input[type="number"],
+      select,
+      textarea {
+        font-size: 15px !important;
+        min-height: 42px;
+      }
+      button {
+        min-height: 38px;
+      }
+      .p-6 {
+        padding: 1.15rem !important;
+      }
     }
     /* Verztec Official Corporate Identity Colors (https://www.verztec.co.th) */
     .tii-gradient {
@@ -273,8 +328,16 @@
         </div>
         <h2 class="font-extrabold text-base tracking-wide text-white pt-1">VERZTEC® E-LEARNING (LMS)</h2>
         <p class="text-xs text-sky-300">ระบบอบรมออนไลน์และควบคุมการสอบด้วย AI Face Recognition</p>
-        <div id="portalEditionBadge" class="inline-block bg-amber-500 text-slate-950 text-[11px] font-extrabold px-3 py-0.5 rounded-full">
-          🏛️ โหมดมาตรฐาน คปภ. (Standard Edition)
+        <div class="flex items-center justify-center gap-2 pt-1 flex-wrap">
+          <div id="portalEditionBadge" class="inline-block bg-amber-500 text-slate-950 text-[11px] font-extrabold px-3 py-0.5 rounded-full">
+            🏛️ โหมดมาตรฐาน คปภ. (Standard Edition)
+          </div>
+          <div class="inline-flex items-center gap-1 bg-white/10 border border-white/20 px-2 py-0.5 rounded-full text-[10px] text-white" title="ปรับขนาดฟอนต์">
+            <span class="text-amber-300 font-bold"><i class="fa-solid fa-text-height"></i></span>
+            <button type="button" onclick="changeFontSize(-1)" class="w-4 h-4 rounded hover:bg-white/20 font-bold flex items-center justify-center" title="ลดขนาดตัวอักษร">A-</button>
+            <button type="button" onclick="changeFontSize(0)" class="w-4 h-4 rounded hover:bg-white/20 font-bold flex items-center justify-center text-amber-300" title="ขนาดปกติ">A</button>
+            <button type="button" onclick="changeFontSize(1)" class="w-4 h-4 rounded hover:bg-white/20 font-bold flex items-center justify-center" title="เพิ่มขนาดตัวอักษร">A+</button>
+          </div>
         </div>
       </div>
 
@@ -405,6 +468,14 @@
           <i class="fa-solid fa-file-pdf text-rose-700"></i>
           <span>คู่มือระบบ (PDF)</span>
         </a>
+
+        <!-- Font Size Accessibility Adjuster (Zoom A- / A / A+) -->
+        <div class="bg-white/10 border border-white/20 px-2 py-1 rounded-lg text-xs flex items-center gap-1.5 text-white select-none shadow-sm" title="ปรับขนาดตัวอักษรให้อ่านง่าย สบายตา (Font Size Zoom)">
+          <span class="text-[11px] text-amber-300 font-bold flex items-center gap-1" title="ขนาดฟอนต์"><i class="fa-solid fa-text-height"></i></span>
+          <button type="button" onclick="changeFontSize(-1)" class="w-6 h-6 rounded bg-white/10 hover:bg-white/20 text-white font-bold text-[11px] flex items-center justify-center transition" title="ลดขนาดตัวอักษร (A-)">A-</button>
+          <button type="button" id="btnFontDefault" onclick="changeFontSize(0)" class="w-6 h-6 rounded bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-[11px] flex items-center justify-center transition" title="ขนาดปกติ (A)">A</button>
+          <button type="button" onclick="changeFontSize(1)" class="w-6 h-6 rounded bg-white/10 hover:bg-white/20 text-white font-bold text-[11px] flex items-center justify-center transition" title="เพิ่มขนาดตัวอักษร (A+)">A+</button>
+        </div>
 
         <!-- Logout / Switch User Role Button -->
         <button onclick="logoutPortalSession()" class="bg-rose-600 hover:bg-rose-500 text-white font-extrabold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 shadow transition" title="ออกจากระบบเพื่อสลับระหว่างบัญชี Learner และ Admin">
@@ -2113,6 +2184,6 @@ POST /api/exam/submit         # ส่งกระดาษคำตอบแล
     </div>
   </div>
 
-  <script src="/app.js"></script>
+  <script src="/verztec-app.js"></script>
 </body>
 </html>

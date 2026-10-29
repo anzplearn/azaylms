@@ -1103,6 +1103,37 @@ async function drawFaceDetectionOnCanvas(canvasId, imgEl, detection) {
   }
 }
 
+// ============================================================================
+// FONT SIZE ACCESSIBILITY & MOBILE READABILITY CONTROLLER
+// ============================================================================
+function changeFontSize(dir) {
+  const root = document.documentElement;
+  let currentZoom = parseFloat(localStorage.getItem('vt_font_zoom') || '1.0');
+  if (dir === 0) currentZoom = 1.0;
+  else if (dir === 1) currentZoom = Math.min(1.30, +(currentZoom + 0.08).toFixed(2));
+  else if (dir === -1) currentZoom = Math.max(0.88, +(currentZoom - 0.08).toFixed(2));
+  localStorage.setItem('vt_font_zoom', currentZoom);
+  root.style.setProperty('--vt-font-scale', currentZoom);
+
+  // Update button highlights
+  const defBtn = document.getElementById('btnFontDefault');
+  if (defBtn) {
+    if (currentZoom === 1.0) {
+      defBtn.className = 'w-6 h-6 rounded bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-[11px] flex items-center justify-center transition';
+    } else {
+      defBtn.className = 'w-6 h-6 rounded bg-white/10 hover:bg-white/20 text-white font-bold text-[11px] flex items-center justify-center transition';
+    }
+  }
+}
+
+// Auto-apply saved font zoom on startup
+(function() {
+  try {
+    const saved = localStorage.getItem('vt_font_zoom');
+    if (saved) document.documentElement.style.setProperty('--vt-font-scale', saved);
+  } catch (e) {}
+})();
+
 function rebrandTextForVerztec(str) {
   if (typeof str !== 'string') return str;
   return str
