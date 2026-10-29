@@ -490,7 +490,7 @@ async function switchDemoSystemEdition(mode, silent = false) {
       updateVideoPlayerUI();
       if (!silent) {
         if (mode === 'azay-torean') {
-          alert('⚡ เปิดใช้งานโหมดสาธิตด่วน "verztec-torean" เรียบร้อย!\n• ความยาววิดีโอบทเรียนลดเหลือ 15 วินาที/บท\n• สุ่มตรวจจับใบหน้าอัตโนมัติที่วินาทีที่ 7\n• เวลา Countdown ยืนยันใบหน้าลดเหลือ 20 วินาที');
+          alert('⚡ เปิดใช้งานโหมดสาธิตด่วน (Demo Mode) เรียบร้อย!\n• ความยาววิดีโอบทเรียนลดเหลือ 15 วินาที/บท\n• สุ่มตรวจจับใบหน้าอัตโนมัติที่วินาทีที่ 7\n• เวลา Countdown ยืนยันใบหน้าลดเหลือ 20 วินาที');
         } else {
           alert('🏛️ สลับกลับสู่โหมดมาตรฐาน คปภ. (เวลาเรียนจริงตามความยาวคลิป YouTube และ Timeout 2 นาที / 15 นาที)');
         }
@@ -511,13 +511,13 @@ function syncDemoEditionUI() {
   const settings = appState.proctorSettings || {};
   const isTorean = settings.demoEdition === 'azay-torean' || Number(settings.lessonDurationSec) === 15;
 
-  const headerBadge = document.getElementById('headerToreanBadge');
-  const toggleBtn = document.getElementById('btnHeaderToreanToggle');
-  const toggleText = document.getElementById('textHeaderToreanToggle');
+  const headerBadge = document.getElementById('headerDemoBadge') || document.getElementById('headerToreanBadge');
+  const toggleBtn = document.getElementById('btnHeaderDemoToggle') || document.getElementById('btnHeaderToreanToggle');
+  const toggleText = document.getElementById('textHeaderDemoToggle') || document.getElementById('textHeaderToreanToggle');
   const portalBadge = document.getElementById('portalEditionBadge');
-  const loginPill = document.getElementById('loginToreanStatusPill');
+  const loginPill = document.getElementById('loginDemoStatusPill') || document.getElementById('loginToreanStatusPill');
   const btnStd = document.getElementById('btnPortalModeStandard');
-  const btnTor = document.getElementById('btnPortalModeTorean');
+  const btnTor = document.getElementById('btnPortalModeDemo') || document.getElementById('btnPortalModeTorean');
   const examFsBadge = document.getElementById('examFullscreenPolicyBadge');
 
   if (examFsBadge) {
@@ -532,21 +532,21 @@ function syncDemoEditionUI() {
 
   if (isTorean) {
     if (headerBadge) headerBadge.classList.remove('hidden');
-    if (toggleText) toggleText.textContent = '⚡ โหมด verztec-torean (15วิ/บท) • คลิกสลับเวลาจริง';
+    if (toggleText) toggleText.textContent = '⚡ โหมดเดโม (15วิ/บท) • คลิกสลับเวลาจริง';
     if (toggleBtn) toggleBtn.className = 'bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-extrabold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 shadow transition';
     if (portalBadge) {
-      portalBadge.textContent = '⚡ ระบบเดโมด่วน VERZTEC-TOREAN (บทเรียน 15 วินาที • สุ่มตรวจวินาทีที่ 7)';
+      portalBadge.textContent = '⚡ ระบบเดโมด่วน (บทเรียน 15 วินาที • สุ่มตรวจวินาทีที่ 7)';
       portalBadge.className = 'inline-block bg-emerald-400 text-slate-950 text-[11px] font-extrabold px-3 py-0.5 rounded-full shadow';
     }
     if (loginPill) {
-      loginPill.textContent = '⚡ verztec-torean (15s)';
+      loginPill.textContent = '⚡ โหมดเดโม (15s)';
       loginPill.className = 'text-[10px] bg-emerald-500 text-slate-950 px-2 py-0.5 rounded font-mono font-extrabold';
     }
     if (btnTor) btnTor.className = 'py-2 px-2.5 rounded-xl font-extrabold border-2 border-emerald-300 bg-emerald-400 text-slate-950 shadow-lg transition';
     if (btnStd) btnStd.className = 'py-2 px-2.5 rounded-xl font-bold border border-white/20 bg-white/5 hover:bg-white/15 text-slate-300 transition';
   } else {
     if (headerBadge) headerBadge.classList.add('hidden');
-    if (toggleText) toggleText.textContent = 'สลับเป็น verztec-torean (15วิ/บท)';
+    if (toggleText) toggleText.textContent = '⚡ สลับโหมดเดโม (15วิ)';
     if (toggleBtn) toggleBtn.className = 'bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 shadow transition';
     if (portalBadge) {
       portalBadge.textContent = '🏛️ โหมดมาตรฐาน คปภ. (ความยาววิดีโอจริง)';
@@ -1139,7 +1139,7 @@ function rebrandTextForVerztec(str) {
   return str
     .replace(/อลิอันซ์ อยุธยา \(Allianz Ayudhya LMS\)/g, 'VERZTEC® (Verztec E-Learning LMS)')
     .replace(/อลิอันซ์ อยุธยา \(Allianz Ayudhya\)/g, 'เวอร์ซเทค (Verztec Thailand)')
-    .replace(/บมจ\. อลิอันซ์ อยุธยา ประกันชีวิต/g, 'บริษัท เวอร์ซเทค คอนซัลติ้ง (ประเทศไทย) จำกัด')
+    .replace(/บมจ\. อลิอันซ์ อยุธยา ประกันชีวิต/g, 'บริษัท เวอร์ซเทค (ประเทศไทย) จำกัด')
     .replace(/อลิอันซ์ อยุธยา/g, 'VERZTEC®')
     .replace(/Allianz Ayudhya/g, 'Verztec')
     .replace(/My Allianz/g, 'Verztec Learning Portal')
@@ -1500,7 +1500,7 @@ function demoAutoFillRegistration() {
   document.getElementById('regBirthDate').value = '30/11/2538';
   document.getElementById('regPhone').value = '089-123-4567';
   document.getElementById('regEmail').value = 'thanaphat.demo@verztec.co.th';
-  document.getElementById('regCompany').value = 'บริษัท เวอร์ซเทค คอนซัลติ้ง (ประเทศไทย) จำกัด';
+  document.getElementById('regCompany').value = 'บริษัท เวอร์ซเทค (ประเทศไทย) จำกัด';
 }
 
 async function submitRegistration() {

@@ -8,78 +8,88 @@
   <script src="/ai-lib/face-api.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=Prompt:wght@500;600;700;800&family=Sarabun:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=Noto+Sans+Thai:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <style>
     :root {
       --vt-yellow: #f5c400;
       --vt-yellow-strong: #ffcf24;
-      --vt-ink: #090909;
-      --vt-ink-soft: #141414;
-      --vt-surface: #f5f5f1;
-      --vt-surface-2: #efeee8;
-      --vt-text: #171717;
-      --vt-muted: #555555;
+      --vt-ink: #0f172a;
+      --vt-ink-soft: #1e293b;
+      --vt-surface: #f8fafc;
+      --vt-surface-2: #f1f5f9;
+      --vt-card: #ffffff;
+      --vt-border: #e2e8f0;
+      --vt-text: #0f172a;
+      --vt-muted: #64748b;
       --vt-font-scale: 1;
     }
+    *, html, body, input, select, textarea, button {
+      font-family: 'Sarabun', 'Noto Sans Thai', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    }
     body {
-      font-family: 'Noto Sans Thai', 'Sarabun', 'Prompt', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background-color: var(--vt-surface);
       color: var(--vt-text);
-      font-size: calc(14.5px * var(--vt-font-scale, 1));
-      line-height: 1.68;
+      font-size: calc(15px * var(--vt-font-scale, 1));
+      line-height: 1.65;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       text-rendering: optimizeLegibility;
-      letter-spacing: 0.01em;
+      letter-spacing: 0.005em;
     }
     h1, h2, h3, h4, .font-heading {
-      font-family: 'Prompt', 'Noto Sans Thai', sans-serif;
-      letter-spacing: 0.015em;
+      font-weight: 700 !important;
+      letter-spacing: -0.01em;
       line-height: 1.35;
+      color: var(--vt-ink);
     }
-    /* Smooth line-height for Thai vowels and tone marks */
     p, label, li, span, td, th {
       line-height: 1.65;
     }
-    /* Mobile-Specific Readability & Touch Target Optimizations */
+    /* Mobile-Specific Clean Typography & Card Padding */
     @media (max-width: 640px) {
       body {
-        font-size: calc(14px * var(--vt-font-scale, 1));
+        font-size: calc(14.5px * var(--vt-font-scale, 1));
         line-height: 1.68;
       }
       .text-xs {
-        font-size: calc(0.8125rem * var(--vt-font-scale, 1)) !important; /* ~13px */
-        line-height: 1.58 !important;
+        font-size: calc(0.825rem * var(--vt-font-scale, 1)) !important; /* ~13.2px */
+        line-height: 1.55 !important;
       }
-      .text-\[10px\],
-      .text-\[9px\] {
-        font-size: calc(0.725rem * var(--vt-font-scale, 1)) !important; /* ~11.6px */
+      .text-\[10px\], .text-\[9px\] {
+        font-size: calc(0.75rem * var(--vt-font-scale, 1)) !important; /* ~12px */
         line-height: 1.45 !important;
       }
       .text-\[11px\] {
-        font-size: calc(0.775rem * var(--vt-font-scale, 1)) !important; /* ~12.4px */
+        font-size: calc(0.8rem * var(--vt-font-scale, 1)) !important; /* ~12.8px */
         line-height: 1.48 !important;
       }
       .text-sm {
-        font-size: calc(0.9375rem * var(--vt-font-scale, 1)) !important; /* ~15px */
+        font-size: calc(0.9375rem * var(--vt-font-scale, 1)) !important; /* 15px */
         line-height: 1.62 !important;
       }
-      input[type="text"],
-      input[type="password"],
-      input[type="email"],
-      input[type="number"],
-      select,
-      textarea {
+      input[type="text"], input[type="password"], input[type="email"], input[type="number"], select, textarea {
         font-size: 15px !important;
-        min-height: 42px;
+        min-height: 44px;
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
       }
       button {
-        min-height: 38px;
+        min-height: 40px;
       }
       .p-6 {
         padding: 1.15rem !important;
       }
+      .rounded-2xl {
+        border-radius: 1rem !important;
+      }
+    }
+    /* Clean Card Accents */
+    .clean-card {
+      background: #ffffff;
+      border: 1px solid var(--vt-border);
+      border-radius: 1rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
     /* Verztec Official Corporate Identity Colors (https://www.verztec.co.th) */
     .tii-gradient {
@@ -349,14 +359,14 @@
             <span class="text-[11px] font-extrabold text-amber-300 flex items-center gap-1">
               <i class="fa-solid fa-bolt"></i> เลือกระบบสำหรับพรีเซนต์ลูกค้า:
             </span>
-            <span id="loginToreanStatusPill" class="text-[10px] bg-white/15 px-2 py-0.5 rounded font-mono">Standard</span>
+            <span id="loginDemoStatusPill" class="text-[10px] bg-white/15 px-2 py-0.5 rounded font-mono">Standard</span>
           </div>
           <div class="grid grid-cols-2 gap-2 text-[11px]">
             <button type="button" id="btnPortalModeStandard" onclick="switchDemoSystemEdition('standard')" class="py-2 px-2.5 rounded-xl font-bold border border-white/20 bg-white/10 hover:bg-white/20 text-white transition">
               🏛️ ระบบหลัก (เวลาจริง)
             </button>
-            <button type="button" id="btnPortalModeTorean" onclick="switchDemoSystemEdition('azay-torean')" class="py-2 px-2.5 rounded-xl font-extrabold border border-amber-400 bg-amber-500 hover:bg-amber-400 text-slate-950 shadow transition">
-              ⚡ verztec-torean (15วิ/บท)
+            <button type="button" id="btnPortalModeDemo" onclick="switchDemoSystemEdition('azay-torean')" class="py-2 px-2.5 rounded-xl font-extrabold border border-amber-400 bg-amber-500 hover:bg-amber-400 text-slate-950 shadow transition">
+              ⚡ โหมดเดโม (15วิ/บท)
             </button>
           </div>
         </div>
@@ -427,9 +437,9 @@
         </div>
         <div>
           <div class="flex items-center gap-2 flex-wrap">
-            <h1 class="font-bold text-lg leading-tight tracking-wide">VERZTEC® (เวอร์ซเทค คอนซัลติ้ง)</h1>
+            <h1 class="font-bold text-lg leading-tight tracking-wide">VERZTEC®</h1>
             <span id="headerRoleBadge" class="text-xs bg-sky-500 text-white px-2.5 py-0.5 rounded-full font-bold shadow-sm">👤 โหมดผู้เรียน (Learner)</span>
-            <span id="headerToreanBadge" class="hidden text-xs bg-amber-400 text-slate-950 px-2.5 py-0.5 rounded-full font-extrabold shadow-sm animate-pulse">⚡ VERZTEC-TOREAN DEMO (15s/บท)</span>
+            <span id="headerDemoBadge" class="hidden text-xs bg-amber-400 text-slate-950 px-2.5 py-0.5 rounded-full font-extrabold shadow-sm animate-pulse">⚡ โหมดเดโม (15s/บท)</span>
           </div>
           <p class="text-xs text-sky-100">ระบบอบรมออนไลน์ E-Learning & AI Face Recognition Proctoring (หลักสูตรขอรับ/ขอต่อใบอนุญาตฯ ครั้ง 1-3)</p>
         </div>
@@ -438,9 +448,9 @@
       <!-- Right Action Controls -->
       <div class="flex items-center gap-2 flex-wrap">
         <!-- Quick Switcher for azay-torean 15s Demo Mode -->
-        <button id="btnHeaderToreanToggle" onclick="toggleDemoSystemEdition()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 shadow transition" title="สลับระหว่างโหมดเวลาเรียนจริง และโหมดเดโมด่วน azay-torean (15 วินาที/บท)">
+        <button id="btnHeaderDemoToggle" onclick="toggleDemoSystemEdition()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 shadow transition" title="สลับระหว่างโหมดเวลาเรียนจริง และโหมดเดโมด่วน azay-torean (15 วินาที/บท)">
           <i class="fa-solid fa-bolt"></i>
-          <span id="textHeaderToreanToggle">สลับเป็น verztec-torean (15วิ/บท)</span>
+          <span id="textHeaderDemoToggle">⚡ สลับโหมดเดโม (15วิ)</span>
         </button>
 
         <!-- Real AI Engine Status Pill -->
@@ -552,21 +562,26 @@
   </header>
 
   <!-- DEMO QUICK TOOLBAR (Shown ONLY for Learner Role) -->
-  <div id="learnerDemoToolbar" class="bg-indigo-950 text-indigo-100 border-b border-indigo-800 px-4 py-2 text-xs no-print">
+  <div id="learnerDemoToolbar" class="bg-slate-900 text-slate-100 border-b border-slate-800 px-4 py-2 text-xs no-print transition-all">
     <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
       <div class="flex items-center gap-2">
-        <span class="bg-indigo-600 text-white px-2 py-0.5 rounded font-bold">⚡ Demo Controls</span>
-        <span>คุณสามารถกดทดลองตามลำดับ 01–06 หรือใช้ปุ่มลัดเพื่อจำลองสถานการณ์ระหว่างเรียน/สอบได้ทันที:</span>
+        <span class="bg-amber-400 text-slate-950 px-2 py-0.5 rounded font-extrabold text-[11px] flex items-center gap-1">
+          <i class="fa-solid fa-bolt"></i> เครื่องมือทดสอบ (Demo)
+        </span>
+        <span class="text-slate-300 text-xs hidden sm:inline">ปุ่มลัดจำลองขั้นตอนสำหรับผู้รีวิวระบบ:</span>
       </div>
       <div class="flex items-center gap-2 flex-wrap">
-        <button onclick="demoAutoFillRegistration()" class="bg-indigo-800 hover:bg-indigo-700 px-2.5 py-1 rounded border border-indigo-600 transition">
-          <i class="fa-solid fa-wand-magic-sparkles mr-1 text-amber-300"></i>กรอกข้อมูลผู้สมัครอัตโนมัติ
+        <button onclick="demoAutoFillRegistration()" class="bg-slate-800 hover:bg-slate-700 text-white px-2.5 py-1 rounded-lg border border-slate-700 transition">
+          <i class="fa-solid fa-wand-magic-sparkles mr-1 text-amber-300"></i>กรอกข้อมูลอัตโนมัติ
         </button>
-        <button onclick="demoJumpToClassroom()" class="bg-emerald-700 hover:bg-emerald-600 text-white px-2.5 py-1 rounded border border-emerald-500 transition">
-          <i class="fa-solid fa-bolt mr-1"></i>ข้ามไปทดสอบ e-KYC 3 รูป & ห้องเรียนทันที
+        <button onclick="demoJumpToClassroom()" class="bg-emerald-700 hover:bg-emerald-600 text-white px-2.5 py-1 rounded-lg border border-emerald-600 font-bold transition">
+          <i class="fa-solid fa-bolt mr-1"></i>ข้ามไป e-KYC 3 รูป
         </button>
-        <button onclick="demoUnlockExamReady()" class="bg-purple-700 hover:bg-purple-600 text-white px-2.5 py-1 rounded border border-purple-500 transition">
-          <i class="fa-solid fa-graduation-cap mr-1"></i>จำลองเรียนครบ 100% เพื่อเข้าสอบทันที
+        <button onclick="demoUnlockExamReady()" class="bg-indigo-700 hover:bg-indigo-600 text-white px-2.5 py-1 rounded-lg border border-indigo-600 font-bold transition">
+          <i class="fa-solid fa-graduation-cap mr-1"></i>จำลองเรียนครบเข้าสอบ
+        </button>
+        <button onclick="document.getElementById('learnerDemoToolbar').classList.add('hidden')" class="text-slate-400 hover:text-white px-1.5 py-1 text-xs" title="ซ่อนแถบนี้">
+          <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
     </div>
@@ -579,32 +594,33 @@
     <!-- STEP 01: สมัครอบรม & ชำระเงิน QR CODE (PDF Pages 2, 6, 7, 8, 9)          -->
     <!-- ===================================================================== -->
     <section id="section-step1" class="tab-section space-y-6">
-      <!-- Rules Banner from Page 2 -->
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="bg-amber-50 border-b border-amber-200 px-6 py-4 flex items-center justify-between flex-wrap gap-3">
+      <!-- Rules Banner: Clean, Collapsed by Default -->
+      <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+        <div class="bg-slate-50/80 px-5 py-3.5 flex items-center justify-between flex-wrap gap-3 border-b border-slate-200/80">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center text-lg font-bold">
-              <i class="fa-solid fa-triangle-exclamation"></i>
+            <div class="w-8 h-8 rounded-lg bg-amber-400 text-slate-950 flex items-center justify-center text-sm font-extrabold shrink-0 shadow-sm">
+              <i class="fa-solid fa-circle-info"></i>
             </div>
             <div>
-              <h2 class="font-bold text-slate-900 text-base">เงื่อนไขแจ้งให้ทราบก่อนการสมัครอบรมออนไลน์ E-LEARNING (9 ข้อบังคับ คปภ.)</h2>
-              <p class="text-xs text-slate-600">อ้างอิงตามคู่มือการอบรมออนไลน์ E-LEARNING (LMS) หลักสูตรขอรับ/ขอต่อใบอนุญาตฯ ครั้ง 1-3</p>
+              <h2 class="font-bold text-slate-900 text-sm sm:text-base leading-snug">เงื่อนไขและระเบียบปฏิบัติการอบรมออนไลน์ (9 ข้อบังคับ คปภ.)</h2>
+              <p class="text-xs text-slate-500">หลักสูตรขอรับ/ขอต่ออายุใบอนุญาตตัวแทนและนายหน้าประกันภัย ผ่านระบบ E-Learning</p>
             </div>
           </div>
-          <button onclick="document.getElementById('rules9List').classList.toggle('hidden')" class="text-xs font-semibold text-blue-700 hover:underline">
-            คลิกดู/ซ่อนรายละเอียดทั้ง 9 ข้อ
+          <button type="button" onclick="const r = document.getElementById('rules9List'); r.classList.toggle('hidden'); this.querySelector('span').textContent = r.classList.contains('hidden') ? 'ดูรายละเอียด 9 ข้อ' : 'ย่อรายละเอียด';" class="px-3 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+            <i class="fa-solid fa-list-check text-amber-500"></i>
+            <span>ดูรายละเอียด 9 ข้อ</span>
           </button>
         </div>
-        <div id="rules9List" class="p-5 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs bg-slate-50/60">
-          <div class="p-3 bg-white rounded-xl border border-slate-200"><b class="text-blue-800">1. วางแผนล่วงหน้า:</b> ต้องอบรมให้เสร็จสิ้นก่อนใบอนุญาตหมดอายุ</div>
+        <div id="rules9List" class="hidden p-5 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs bg-slate-50/50 border-t border-slate-200">
+          <div class="p-3 bg-white rounded-xl border border-slate-200"><b class="text-slate-900">1. วางแผนล่วงหน้า:</b> ต้องอบรมให้เสร็จสิ้นก่อนใบอนุญาตหมดอายุ</div>
           <div class="p-3 bg-white rounded-xl border border-rose-200"><b class="text-rose-700">2. ยืนยันตัวตนด้วยตนเอง:</b> ใช้บัตรประชาชนตัวจริง <span class="text-rose-600 font-bold">ห้ามบุคคลอื่นอบรมแทนเด็ดขาด</span></div>
-          <div class="p-3 bg-white rounded-xl border border-slate-200"><b class="text-blue-800">3. ชั่วโมงเรียน:</b> อบรมให้ครบจำนวนชั่วโมงที่ คปภ. กำหนดภายในรอบ 5 วัน</div>
-          <div class="p-3 bg-white rounded-xl border border-slate-200"><b class="text-blue-800">4. ห้ามข้าม/เร่งความเร็ว:</b> ระบบล็อกการเร่งความเร็ว ลดเสียง หรือกดข้ามเนื้อหา (ย้อนดูได้)</div>
+          <div class="p-3 bg-white rounded-xl border border-slate-200"><b class="text-slate-900">3. ชั่วโมงเรียน:</b> อบรมให้ครบจำนวนชั่วโมงที่ คปภ. กำหนดภายในรอบ 5 วัน</div>
+          <div class="p-3 bg-white rounded-xl border border-slate-200"><b class="text-slate-900">4. ห้ามข้าม/เร่งความเร็ว:</b> ระบบล็อกการเร่งความเร็ว ลดเสียง หรือกดข้ามเนื้อหา (ย้อนดูได้)</div>
           <div class="p-3 bg-white rounded-xl border border-rose-200"><b class="text-rose-700">5. สุ่มถ่ายรูประหว่างเรียน:</b> ต้องถ่ายจากใบหน้าจริงภายใน 2 นาที <span class="text-rose-600 font-bold">ห้ามใช้รูปถ่าย</span></div>
-          <div class="p-3 bg-white rounded-xl border border-amber-200"><b class="text-amber-700">6. ห้ามนิ่งเกิน 15 นาที:</b> หากไม่ตอบสนองเกิน 15 นาที จะถูกนำออกและต้องเรียนซ้ำจุดเดิม</div>
+          <div class="p-3 bg-white rounded-xl border border-amber-200"><b class="text-amber-800">6. ห้ามนิ่งเกิน 15 นาที:</b> หากไม่ตอบสนองเกิน 15 นาที จะถูกนำออกและต้องเรียนซ้ำจุดเดิม</div>
           <div class="p-3 bg-white rounded-xl border border-rose-200"><b class="text-rose-700">7. เกณฑ์สอบหลังเรียน:</b> คะแนนรวมไม่น้อยกว่า <b>ร้อยละ 60</b> สอบได้ <b>5 ครั้ง</b> (ไม่ผ่านต้องสมัครใหม่)</div>
-          <div class="p-3 bg-white rounded-xl border border-slate-200"><b class="text-blue-800">8. การส่งผล:</b> เมื่อกดส่งผลการอบรมแล้ว จะไม่สามารถกลับเข้ามายังหลักสูตรได้อีก</div>
-          <div class="p-3 bg-white rounded-xl border border-slate-200"><b class="text-blue-800">9. บทลงโทษ:</b> หากฝ่าฝืนเงื่อนไข จะไม่ได้รับใบรับรองและต้องสมัครเข้าอบรมใหม่</div>
+          <div class="p-3 bg-white rounded-xl border border-slate-200"><b class="text-slate-900">8. การส่งผล:</b> เมื่อกดส่งผลการอบรมแล้ว จะไม่สามารถกลับเข้ามายังหลักสูตรได้อีก</div>
+          <div class="p-3 bg-white rounded-xl border border-slate-200"><b class="text-slate-900">9. บทลงโทษ:</b> หากฝ่าฝืนเงื่อนไข จะไม่ได้รับใบรับรองและต้องสมัครเข้าอบรมใหม่</div>
         </div>
       </div>
 
@@ -736,7 +752,7 @@
               </div>
               <div>
                 <label class="block font-semibold text-slate-600 mb-1">ชื่อบริษัท / สังกัด</label>
-                <input id="regCompany" type="text" value="บริษัท เวอร์ซเทค คอนซัลติ้ง (ประเทศไทย) จำกัด" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm" />
+                <input id="regCompany" type="text" value="บริษัท เวอร์ซเทค (ประเทศไทย) จำกัด" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm" />
               </div>
               <div>
                 <label class="block font-semibold text-slate-600 mb-1">ตำแหน่งงาน</label>
@@ -1682,24 +1698,26 @@
             </div>
           </div>
 
-          <!-- Exam Proctoring Simulator Toolbar (Same as Classroom) -->
-          <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 flex flex-wrap items-center justify-between gap-2 text-xs relative z-20">
-            <div class="font-bold text-amber-950">
-              <i class="fa-solid fa-shield-halved mr-1 text-amber-600"></i>ทดสอบระบบคุมสอบ AI ระหว่างทำข้อสอบ (Exam Proctoring Simulator):
-            </div>
-            <div class="flex flex-wrap gap-2">
-              <button onclick="triggerRandomFaceCheckModal()" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-sm">
-                <i class="fa-solid fa-camera-rotate mr-1"></i>จำลองสุ่มตรวจใบหน้าระหว่างสอบ
-              </button>
-              <button onclick="simulateTabSwitchEvent()" class="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold shadow-sm">
-                <i class="fa-solid fa-window-restore mr-1"></i>ทดสอบสลับแท็บระหว่างสอบ
-              </button>
-              <button onclick="triggerAntiCaptureSecurityShield('PrintScreen (ระหว่างทำข้อสอบ Post-Test)')" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold shadow-sm">
-                <i class="fa-solid fa-camera-slash mr-1"></i>ทดสอบกดปุ่ม PrintScreen แคปข้อสอบ
-              </button>
+          <!-- Exam Proctoring Simulator Toolbar: Collapsible -->
+          <div class="border border-slate-200 rounded-xl overflow-hidden text-xs relative z-20">
+            <button type="button" onclick="document.getElementById('examSimulatorDrawer').classList.toggle('hidden')" class="w-full bg-slate-100 hover:bg-slate-200 px-4 py-2 text-left font-bold text-slate-700 flex items-center justify-between transition">
+              <span class="flex items-center gap-1.5"><i class="fa-solid fa-sliders text-amber-600"></i> เครื่องมือจำลองสถานการณ์ควบคุมการสอบ (Simulator Tools)</span>
+              <span class="text-[11px] text-slate-500 font-normal">คลิกเพื่อแสดง/ซ่อน</span>
+            </button>
+            <div id="examSimulatorDrawer" class="hidden p-3 bg-amber-50/70 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2">
+              <div class="flex flex-wrap gap-2">
+                <button onclick="triggerRandomFaceCheckModal()" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-sm">
+                  <i class="fa-solid fa-camera-rotate mr-1"></i>จำลองสุ่มตรวจใบหน้า
+                </button>
+                <button onclick="simulateTabSwitchEvent()" class="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold shadow-sm">
+                  <i class="fa-solid fa-window-restore mr-1"></i>ทดสอบสลับแท็บ
+                </button>
+                <button onclick="triggerAntiCaptureSecurityShield('PrintScreen (ระหว่างทำข้อสอบ Post-Test)')" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold shadow-sm">
+                  <i class="fa-solid fa-camera-slash mr-1"></i>ทดสอบกด PrintScreen
+                </button>
+              </div>
             </div>
           </div>
-        </div>
       </div>
     </section>
 
@@ -1726,7 +1744,7 @@
           <div class="mx-auto inline-flex items-center justify-center bg-white px-5 py-2.5 rounded-2xl shadow-sm border border-slate-100 mb-3">
             <img src="/verztec-logo.png" alt="Verztec" class="h-14 w-auto object-contain" />
           </div>
-          <h2 class="font-extrabold text-xl sm:text-2xl text-[#003781]">VERZTEC® (เวอร์ซเทค คอนซัลติ้ง)</h2>
+          <h2 class="font-extrabold text-xl sm:text-2xl text-[#003781]">VERZTEC®</h2>
           <p class="text-xs text-slate-500 mt-1">ใบรับรองการผ่านการอบรมออนไลน์ตามหลักเกณฑ์ของสำนักงานคณะกรรมการกำกับและส่งเสริมการประกอบธุรกิจประกันภัย (คปภ.)</p>
 
           <div class="my-8 space-y-2">
@@ -1893,7 +1911,7 @@
               <div class="font-extrabold text-[11px] text-amber-900">⚡ ปุ่มตั้งค่าลัดสำหรับพรีเซนต์ลูกค้า:</div>
               <div class="grid grid-cols-2 gap-1.5">
                 <button type="button" onclick="applyAdminQuickPreset('azay-torean')" class="py-1.5 px-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-[11px] shadow">
-                  ⚡ verztec-torean (15วิ/บท)
+                  ⚡ โหมดเดโม (15วิ/บท)
                 </button>
                 <button type="button" onclick="applyAdminQuickPreset('standard')" class="py-1.5 px-2 rounded-lg bg-blue-700 hover:bg-blue-800 text-white font-bold text-[11px] shadow">
                   🏛️ มาตรฐาน คปภ. (เวลาจริง)
@@ -2184,6 +2202,6 @@ POST /api/exam/submit         # ส่งกระดาษคำตอบแล
     </div>
   </div>
 
-  <script src="/app.js"></script>
+  <script src="/app.js?v=2.2"></script>
 </body>
 </html>
